@@ -1,0 +1,22 @@
+@function vw($px) {
+  @return ($px / 750) * 100vw;
+}
+@function vh($px) {
+  @return ($px / 1334) * 100vh;
+}
+// @function wh($w, $h) {
+// @return 
+//   width: ($w / 750) * 100vw;
+//   height: ($h / 750) * 100vw;
+// }
+.button-g {
+	border-radius: vw(5);
+	background-color: #2d9efd
+}
+.el-select-dropdown__item{
+  height: vw(64) !important;
+  span{
+
+  height: vw(64) !important;
+  }
+}
