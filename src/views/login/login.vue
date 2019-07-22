@@ -3,12 +3,12 @@
     <mu-header class="muHeader" title="登录" :left="true" :back="true"></mu-header>
     <div class="content">
       <div class="from">
-        <img src="" alt="">
+        <img src="@/assets/dianbo_login_user@3x.png" alt="">
         <input type="text" placeholder="请输入账号" v-model="userName">
-        <img src="" alt="" class="del" @click="del" v-if="userName !== ''">
+        <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="" class="del" @click="del" v-if="userName !== ''">
       </div>
       <div class="from">
-        <img src="" alt="">
+        <img src="@/assets/dianbo_login_passwords@3x.png" alt="">
         <input type="password" placeholder="请输入密码">
       </div>
       <div class="button-g button disabled">登录</div>
@@ -74,7 +74,6 @@ export default {
         height: vw(30);
         padding: vw(15);
         position: absolute;
-        background: red;
         right: 0;
       }
     }

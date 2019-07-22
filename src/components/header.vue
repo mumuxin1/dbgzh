@@ -5,7 +5,7 @@
       <div class="head-left" v-if="left">
         <slot name="setLeft"></slot>
         <div class="back" v-if="back" @click="$router.back()">
-          <!-- <img src="../assets/返回@3x.png"> -->
+          <img src="../assets/dianbo_nav_back@3x.png">
         </div>
         <div class="text" v-if="leftText" @click="goBackHander">{{leftText}}</div>
       </div>
@@ -73,7 +73,7 @@ export default {
     height: vw(85);
     display: flex;
     img {
-      width: vw(23);
+      width: vw(44);
       height: vw(42);
       align-self: center;
     }

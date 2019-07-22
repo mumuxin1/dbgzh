@@ -4,7 +4,7 @@
     <div class="content">
       <div class="top">
         <div class="headerPic">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_userpic@3x.png" alt="">
         </div>
         <div class="info">
           <div class="cow">
@@ -24,28 +24,32 @@
       <div class="list">
         <div class="tit">切换账号</div>
         <div class="icon">
-          <img src="" alt="">
+          <img src="@/assets/dianbo_public_right@3x.png" alt="">
         </div>
       </div>
       <div class="footnav">
         <div class="lis">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_chongdianzhuang@3x.png" alt="">
           <span>使用充电桩</span>
         </div>
         <div class="lis">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_dianzhan@3x.png" alt="">
           <span>我的电站</span>
         </div>
         <div class="lis">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_chaxun@3x.png" alt="">
           <span>交易查询</span>
         </div>
         <div class="lis">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_qianbao@3x.png" alt="">
+          <span>我的钱包</span>
+        </div>
+        <div class="lis">
+          <img src="@/assets/dian_my_zhuanghu@3x.png" alt="">
           <span>桩户信息</span>
         </div>
         <div class="lis">
-          <img src="" alt="">
+          <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>
       </div>
@@ -147,7 +151,6 @@ export default {
           height: vw(30);
           display: inline-block;
           vertical-align: middle;
-          background: red;
         }
       }
     }
@@ -169,7 +172,6 @@ export default {
         img {
           width: vw(48);
           height: vw(48);
-          background: #56baf9;
         }
         span {
           color: #333333;
