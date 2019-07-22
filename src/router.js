@@ -33,12 +33,36 @@ export default new Router({
       component: () => import(/* webpackChunkName: "about" */ '@/views/About.vue')
     },
     {
-      path: '/',
+      path: '/myCharePile',
       name: 'myCharePile',
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/myChargePile.vue')
+    },
+    {
+      path: '/chargeDevices',
+      name: 'chargeDevices',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/chargeDevices.vue')
+    },
+    {
+      path: '/devicesDetails',
+      name: 'devicesDetails',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/devicesDetails.vue')
+    },
+    {
+      path: '/',
+      name: 'faultReport',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/faultReport.vue')
     }
   ]
 })

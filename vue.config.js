@@ -15,17 +15,17 @@ module.exports = {
         ]
       }
     }
-  },
-  chainWebpack: config => {
-    config.module
-      .rule('images')
-      .use('image-webpack-loader')
-      .loader('image-webpack-loader')
-      .options({
-        bypassOnDebug: true
-      })
-      .end()
   }
+  // chainWebpack: config => {
+  //   config.module
+  //     .rule('images')
+  //     .use('image-webpack-loader')
+  //     .loader('image-webpack-loader')
+  //     .options({
+  //       bypassOnDebug: true
+  //     })
+  //     .end()
+  // }
   // 图片路径打包问题----还没完美解决
 //   chainWebpack: config => {
 //     config.resolve.alias

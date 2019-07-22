@@ -4,9 +4,12 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import './plugins/element.js'
-
+import { Input, Select, Option, TimePicker  } from 'element-ui';
 Vue.config.productionTip = false
-
+Vue.use(Input)
+.use(Select)
+.use(Option)
+.use(TimePicker)
 new Vue({
   router,
   store,
