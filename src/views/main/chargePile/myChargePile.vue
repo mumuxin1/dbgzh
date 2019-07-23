@@ -2,21 +2,21 @@
   <div class="myChargPile">
     <mu-header class="muHeader" title="我的电站" :left="true" :back="true"></mu-header>
     <div class="content">
-      <ul>
-        <li class="tit">深圳市宝安区西乡街道充电桩</li>
+      <ul v-for="item in chargeData" :key="item.index" @click="details(item.bsId)">
+        <li class="tit">{{item.bsName}}</li>
         <li class="txFull">
           <span>电桩地址</span>
           <div class="text">
-            深圳市宝安区西乡街道迪福路2号
+            {{item.address}}
           </div>
         </li>
         <li class="txone">
-          <span>开放时间</span><span>00:00-24:00</span>
+          <span>开放时间</span><span>{{item.dbBaseStationCharging.businessHours}}</span>
         </li>
-        <li class="txone">
-          <span>累计收益</span><span>220048.60元</span>
+        <li class="txone" v-if="$parent.userType === 1">
+          <span>累计收益</span><span>{{item.allIncome|moneyFormat}}元</span>
         </li>
-        <div class="navsButton">
+        <div class="navsButton" v-if="$parent.userType === 1">
           申请新设备
         </div>
       </ul>
@@ -24,7 +24,10 @@
   </div>
 </template>
 <script>
+import { STROAGE } from '@/utils/muxin'
 import muheader from "../../../components/header";
+import api from '@/api/api'
+
 export default {
   name: "myChargPile",
   components: {
@@ -32,12 +35,53 @@ export default {
   },
   data() {
     return {
-      // userName: ""
+      chargeData: []
     };
   },
+  created() {
+    this.data_Init()
+  },
+  filters: {
+    moneyFormat: (params) => {
+      return (params / 100).toFixed(2)
+    }
+  },
   methods: {
-    del() {
-      // this.userName = "";
+    data_Init () {
+      let chargeList = STROAGE({
+        type: 'getItem',
+        key: 'ChargeList'
+      })
+      if (chargeList) {
+        this.chargeData =JSON.parse(chargeList)
+      }
+      console.log(this.chargeData)
+    },
+    // 电桩详情
+    details (bsId) {
+      // 查询充电桩设备列表
+      this.queryDevicesList(bsId)
+      this.$router.push('/chargeDevices')
+    },
+    async queryDevicesList (bsId) {
+      let res = await api.queryDevicesList({
+        query: {
+          bsId: bsId,
+          column: 'createTime',
+          order: 'desc',
+          pageNo: this.pageNo,
+          pageSize: this.pageSize,
+          shelfStatus: '',
+          deviceStatus: ''
+        }
+      })
+      if (res.code === 0) {
+        STROAGE({
+          type: 'setItem',
+          key: 'DevicesList',
+          item: res.result.records
+        })
+      }
     }
   }
 };

@@ -9,14 +9,16 @@
       </div>
       <div class="from">
         <img src="@/assets/dianbo_login_passwords@3x.png" alt="">
-        <input type="password" placeholder="请输入密码">
+        <input type="password" placeholder="请输入密码" v-model="password">
       </div>
-      <div class="button-g button disabled">登录</div>
+      <div :class="!loginInfoFlag ? 'button-g button disabled' : 'button-g button abled'" @click="login">登录</div>
     </div>
   </div>
 </template>
 <script>
 import muheader from "../../components/header";
+import api from '@/api/api'
+import {STROAGE} from '@/utils/muxin'
 export default {
   name: "login",
   components: {
@@ -24,12 +26,44 @@ export default {
   },
   data() {
     return {
-      userName: ""
+      userName: "",
+      password: ''
     };
+  },
+  computed: {
+    loginInfoFlag () {
+      if (this.userName === '' || this.password === '') {
+        return false
+      } else {
+        return true
+      }
+    }
   },
   methods: {
     del() {
       this.userName = "";
+    },
+    login () {
+      this.loginRequest()
+    },
+    async loginRequest () {
+      if (this.loginInfoFlag) {
+        let res = await api.login({
+          method: 'POST',
+          query: {
+            username: this.userName,
+            password: this.password
+          }
+        })
+        if (res.code === 200) {
+          STROAGE({
+            type: 'setItem',
+            key: 'UserInfo',
+            item: res.result
+          })
+          this.$router.push('/personInfo')
+        }
+      }
     }
   }
 };
@@ -77,13 +111,17 @@ export default {
         right: 0;
       }
     }
-    .disabled {
+    .button {
       height: vw(87);
       line-height: vw(87);
     }
     .disabled {
       color: #999999;
       background: #e5e5e5;
+    }
+    .abled{
+      color: white;
+      background: themeColor()
     }
   }
 }

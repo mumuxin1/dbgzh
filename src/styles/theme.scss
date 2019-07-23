@@ -4,6 +4,9 @@
 @function vh($px) {
   @return ($px / 1334) * 100vh;
 }
+@function themeColor() {
+  @return #2d9efd
+}
 // @function wh($w, $h) {
 // @return 
 //   width: ($w / 750) * 100vw;

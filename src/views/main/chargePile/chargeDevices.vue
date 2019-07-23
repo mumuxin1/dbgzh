@@ -2,39 +2,50 @@
   <div class="chargeDevices">
     <mu-header class="muHeader" title="电桩设备" :left="true" :back="true"></mu-header>
     <div class="sel">
-      <el-select v-model="selText" placeholder="请选择" class="select_element">
+      <el-select v-model="selText" placeholder="请选择" class="select_element" @change="change">
         <el-option v-for="item in selOptions" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
-      <el-input placeholder="请输入内容" prefix-icon="el-icon-search" v-model="searText" class="input_element">
+      <el-input placeholder="请输入设备编号" prefix-icon="el-icon-search" v-model="searText" class="input_element" @blur="blur">
       </el-input>
     </div>
     <div class="content">
-      <div class="nums">设备总数:</div>
-      <ul>
+      <div class="nums">设备总数: {{deviceList.length}}</div>
+      <ul v-for="item in deviceList" :key="item.index" @click="details(item.sn)">
         <li class="txone">
-          <span class="color_99">设备名称</span><span>保利微座充电桩小白</span>
+          <span class="color_99">设备名称</span><span>{{item.cpName}}</span>
           <div class="liButton">
           </div>
         </li>
         <li class="txone">
-          <span class="color_99">设备编号</span><span>2145879325213.60元</span>
+          <span class="color_99">设备编号</span><span>{{item.sn}}</span>
         </li>
-         <li class="txone">
-          <span class="color_99">设备编号</span><span>2145879325213.60元</span>
+        <li class="txone">
+          <span class="color_99">设备类型</span><span>{{item.type_dictText}}</span>
         </li>
         <li class="txFull">
-          <span class="color_99">电桩地址</span>
+          <span class="color_99">安装位置</span>
           <div class="text">
-            深圳市宝安区西乡街道迪福路2号
+            {{item.installationLocation}}
           </div>
         </li>
-        <div class="liButton">
-          <div class="btn gre">
+        <div class="liButton" v-if="item.deviceStatus !== 3">
+          <div class="btn gre" v-if="item.switchStatus === 1">
             已开启
           </div>
-          <div class="btn org">
+          <div class="btn gra" v-else>
+            已关闭
+          </div>
+          <div class="btn org" v-if="item.idleState === 1">
             忙碌
+          </div>
+          <div class="btn blu" v-if="item.idleState === 2">
+            空闲
+          </div>
+        </div>
+        <div class="liButton" v-else>
+          <div class="btn red" v-if="item.deviceStatus === 3">
+            故障
           </div>
         </div>
       </ul>
@@ -43,6 +54,10 @@
 </template>
 <script>
   import muheader from "../../../components/header";
+  import {
+    STROAGE
+  } from '@/utils/muxin'
+  import api from '@/api/api'
   export default {
     name: "chargeDevices",
     components: {
@@ -52,27 +67,77 @@
       return {
         searText: '', // sousuoneirong
         selOptions: [{
-          value: '选项1',
-          label: '黄金糕'
+          value: 1,
+          label: '上架'
         }, {
-          value: '选项2',
-          label: '双皮奶'
+          value: 2,
+          label: '下架'
         }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
+          value: 3,
+          label: '离线'
         }],
-        selText: '' // 下拉选择neirong
-      };
+        selText: '', // 下拉选择neirong
+        deviceList: [],
+        bsId: ''
+      }
+    },
+    created() {
+      this.data_Init()
     },
     methods: {
-      del() {
-        // this.userName = "";
+      data_Init() {
+        let deviceList = JSON.parse(STROAGE({
+          type: 'getItem',
+          key: 'DevicesList'
+        }))
+        if (deviceList) {
+          this.deviceList = deviceList
+          this.bsId = deviceList[0].bsId
+        }
+      },
+      change(e) {
+        // 查询设备列表
+        this.queryDevicesList(e)
+      },
+      blur () {
+        // 查询设备列表
+        this.queryDevicesList('', this.searText)
+      },
+      details (sn) {
+        this.queryDevicesDetails(sn)
+        // 查询设备详情
+        this.$router.push('/devicesDetails')
+      },
+      async queryDevicesList(deviceStatus, sn) {
+        let res = await api.queryDevicesList({
+          query: {
+            bsId: this.bsId,
+            column: 'createTime',
+            order: 'desc',
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
+            shelfStatus: '',
+            deviceStatus: deviceStatus,
+            sn: sn
+          }
+        })
+        if (res.code === 0) {
+          this.deviceList = res.result.records
+        }
+      },
+      async queryDevicesDetails(sn) {
+        let res = await api.queryDevicesList({
+          query: {
+            sn: sn
+          }
+        })
+        if (res.code === 0) {
+          STROAGE({
+            type: 'setItem',
+            key: 'DevicesDetails',
+            item: res.result.records
+          })
+        }
       }
     }
   };
@@ -112,7 +177,7 @@
       background: #f6f6f6;
       padding: vw(30);
       overflow-y: scroll;
-      .nums{
+      .nums {
         text-align: left;
         margin-bottom: vw(24);
         color: #333333;
@@ -127,8 +192,8 @@
         margin-bottom: vw(32);
         border-radius: vw(7);
         position: relative;
-        .color_99{
-          color: #333333 !important ;
+        .color_99 {
+          color: #333333 !important;
         }
         .tit {
           font-size: vw(32);
@@ -154,7 +219,6 @@
             align-self: center;
             flex: 7.5
           }
-          
         }
         .txone {
           span {
@@ -178,30 +242,42 @@
           border-radius: vw(5);
           margin-top: vw(30);
         }
-        .liButton{
+        .liButton {
+          width: vw(88);
+          height: auto;
+          right: vw(32);
+          position: absolute;
+          top: vw(-14);
+          .btn {
             width: vw(88);
-            height: auto;
-            right: vw(32);
-            position: absolute;
-            top: vw(-14);
-            .btn{
-              width: vw(88);
-              height: vw(40);
-              line-height: vw(40);
-              margin-top: vw(32);
-              border: vw(1) solid;
-              border-radius: vw(4);
-              font-size: vw(24);
-            }
-            .gre{
-              color: #8ee750;
-              border-color: #8ee750;
-            }
-            .org{
-             color: #ffa958;
-              border-color: #ffa958; 
-            }
+            height: vw(40);
+            line-height: vw(40);
+            margin-top: vw(32);
+            border: vw(1) solid;
+            border-radius: vw(4);
+            font-size: vw(24);
           }
+          .gre {
+            color: #8ee750;
+            border-color: #8ee750;
+          }
+          .org {
+            color: #ffa958;
+            border-color: #ffa958;
+          }
+          .gra {
+            color: #cccccc;
+            border-color: #cccccc;
+          }
+          .red {
+            color: #ff5858;
+            border-color: #ff5858;
+          }
+          .blu {
+            color: #56baf9;
+            border-color: #56baf9;
+          }
+        }
       }
     }
   }
@@ -213,18 +289,15 @@
       font-size: vw(28);
       padding-left: vw(20);
     }
-    
     .el-input__suffix-inner {
       position: relative;
       top: vw(-12);
       right: vw(22);
-    }
-    // Input
-    .input_element .el-input__inner{
+    } // Input
+    .input_element .el-input__inner {
       padding-left: vw(60);
-      
     }
-    .el-input__prefix{
+    .el-input__prefix {
       position: relative;
       top: vw(-45);
       left: vw(-222);

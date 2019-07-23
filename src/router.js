@@ -6,11 +6,11 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'personInfo',
-    //   component: () => import(/* webpackChunkName: "about" */ '@/views/main/person/personInfo.vue')
-    // },
+    {
+      path: '/personInfo',
+      name: 'personInfo',
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/person/personInfo.vue')
+    },
     // {
     //   path: '/',
     //   name: 'login',
@@ -30,11 +30,11 @@ export default new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ '@/views/About.vue')
+      component: () => import(/* webpackChunkName: "about" */ '@/views/login/login.vue')
     },
     {
-      path: '/myCharePile',
-      name: 'myCharePile',
+      path: '/myChargePile',
+      name: 'myChargePile',
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -57,12 +57,36 @@ export default new Router({
       component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/devicesDetails.vue')
     },
     {
-      path: '/',
+      path: '/faultReport',
       name: 'faultReport',
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/faultReport.vue')
+    },
+    {
+      path: '/appicationEquiment',
+      name: 'appicationEquiment',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/applicationDevice/applicationEquiment.vue')
+    },
+    {
+      path: '/chargeType',
+      name: 'chargeType',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/applicationDevice/chargeType.vue')
+    },
+    {
+      path: '/',
+      name: 'reviewProgress',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ '@/views/main/chargePile/applicationDevice/reviewProgress.vue')
     }
   ]
 })

@@ -9,23 +9,38 @@
 </template>
 
 <script>
-export default {
-  name: 'app',
-  components: {
-    
+import api from '@/api/api'
+  export default {
+    name: 'app',
+    components: {
+    },
+    async created() {
+      // let res = await api.queryUserInfo()
+      // if (res.code === 0) { 
+      //   this.userType = res.result.userType
+      //   this.$router.push('/personInfo')
+      // } else {
+      //   this.$router.push('/login')
+      // }
+    },
+    data() {
+      return {
+        clientHeight: document.body.clientHeight, // 页面可视区高度
+        userType: '',  // 1 桩主 2 桩户
+      }
+    },
   }
-}
 </script>
 
 <style lang="scss">
-@import "./styles/rset.scss";
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #999999;
-  width: 100%;
-  height: 100%
-}
+  @import "./styles/rset.scss";
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #999999;
+    width: 100%;
+    height: 100%
+  }
 </style>

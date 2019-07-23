@@ -4,24 +4,24 @@
     <div class="content">
       <div class="top">
         <div class="headerPic">
-          <img src="@/assets/dian_my_userpic@3x.png" alt="">
+          <img :src="userInfo.userInfo.avatar" alt="">
         </div>
         <div class="info">
-          <div class="cow">
+          <!-- <div class="cow">
             <span class="tit">昵称</span>
-            <span class="txt">xxx</span>
-          </div>
+            <span class="txt">{{userInfo.userInfo.avatar.realname}}</span>
+          </div> -->
           <div class="cow">
             <span class="tit">号码</span>
-            <span class="txt">xxx</span>
+            <span class="txt">{{userInfo.userInfo.phone}}</span>
           </div>
           <div class="cow">
             <span class="tit">姓名</span>
-            <span class="txt">xxx</span>
+            <span class="txt">{{userInfo.userInfo.realname}}</span>
           </div>
         </div>
       </div>
-      <div class="list">
+      <div class="list" @click="$router.push('/login')">
         <div class="tit">切换账号</div>
         <div class="icon">
           <img src="@/assets/dianbo_public_right@3x.png" alt="">
@@ -32,7 +32,7 @@
           <img src="@/assets/dian_my_chongdianzhuang@3x.png" alt="">
           <span>使用充电桩</span>
         </div>
-        <div class="lis">
+        <div class="lis" @click="menu(2)">
           <img src="@/assets/dian_my_dianzhan@3x.png" alt="">
           <span>我的电站</span>
         </div>
@@ -40,7 +40,7 @@
           <img src="@/assets/dian_my_chaxun@3x.png" alt="">
           <span>交易查询</span>
         </div>
-        <div class="lis">
+        <div class="lis" v-if="userInfo.userInfo.userType === 1">
           <img src="@/assets/dian_my_qianbao@3x.png" alt="">
           <span>我的钱包</span>
         </div>
@@ -48,7 +48,7 @@
           <img src="@/assets/dian_my_zhuanghu@3x.png" alt="">
           <span>桩户信息</span>
         </div>
-        <div class="lis">
+        <div class="lis" v-if="userInfo.userInfo.userType === 1">
           <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>
@@ -58,6 +58,8 @@
 </template>
 <script>
 import muheader from "../../../components/header";
+import {STROAGE} from '@/utils/muxin'
+import api from '@/api/api'
 export default {
   name: "personInfo",
   components: {
@@ -65,12 +67,59 @@ export default {
   },
   data() {
     return {
-      // userName: ""
+      userInfo: '',
+      pageNo: 1,
+      pageSize: 10
     };
   },
+  created() {
+    this.data_Init()
+  },
   methods: {
+    data_Init () {
+      let userInfo = STROAGE({
+      type: 'getItem',
+      key: 'UserInfo'
+    })
+    userInfo = JSON.parse(userInfo)
+    this.userInfo = userInfo
+    this.pageSize =  Math.ceil(this.$parent.clientHeight / 220)
+    console.log(this.pageSize)
+    },
+    menu (id) {
+      switch (id) {
+        case 1:
+          
+          break;
+        case 2:
+          // 我的电站
+          this.queryChargList()
+          this.$router.push('/myChargePile')
+          break;
+        default:
+          break;
+      }
+    },
     del() {
       // this.userName = "";
+    },
+    // 查询我的电站列表
+    async queryChargList () {
+      let res = await api.queryChargeList({
+        query: {
+          column: 'createTime',
+          order: 'desc',
+          pageNo: this.pageNo,
+          pageSize: this.pageSize
+        }
+      })
+      if (res.code === 0) {
+        STROAGE({
+          type: 'setItem',
+          key: 'ChargeList',
+          item: res.result.records
+        })
+      }
     }
   }
 };
@@ -123,6 +172,9 @@ export default {
           text-align: left;
           height: vw(56);
           line-height: vw(56);
+          .tit{
+            margin-right: vw(20)
+          }
         }
       }
     }
