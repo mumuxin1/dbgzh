@@ -10,14 +10,13 @@
           </el-option>
         </el-select>
       </div>
-      <div class="list">
+      <div class="list" v-for="item in devicesTypeList" :key="item.index">
         <div class="left">
-          <img src="@/assets/dianbo_shenqing_shebei_pic01@3x.png" alt="">
+          <img :src="item.deviceModelLogo" alt="">
         </div>
         <div class="right">
-          <span>7KW 220V 交流 壁挂式标准
-  版 单桩</span>
-          <div class="liButton">
+          <span>{{item.deviceModelName}}</span>
+          <div class="liButton" @click="setType(item)">
             申请
           </div>
         </div>
@@ -38,13 +37,18 @@
     },
     data() {
       return {
+        devicesTypeList: [],
         selText: [],
         selOptions: [{
-          value: 1,
-          label: '提供场地申请合作'
+          value: '',
+          label: '全部电桩类型'
         }, {
+          value: 1,
+          label: '挂壁式'
+        },
+        {
           value: 2,
-          label: '下架'
+          label: '落地式'
         }]
       };
     },
@@ -53,14 +57,24 @@
     },
     methods: {
       data_Init() {
-        let userInfo = STROAGE({
+        let devicesTypeList = STROAGE({
           type: 'getItem',
-          key: 'UserInfo'
+          key: 'DevicesTypeList'
         })
-        userInfo = JSON.parse(userInfo)
-        this.userInfo = userInfo
+        if (devicesTypeList) {
+          this.devicesTypeList = JSON.parse(devicesTypeList)
+          console.log(this.devicesTypeList)
+        }
         this.pageSize = Math.ceil(this.$parent.clientHeight / 220)
-        console.log(this.pageSize)
+      },
+      // 选择的充电桩类型 
+      setType (item) {
+        STROAGE({
+          type: 'setItem',
+          key: 'selDevicesType',
+          item: item
+        })
+        this.$router.go(-1)
       },
       menu(id) {
         switch (id) {
@@ -78,20 +92,27 @@
       del() {
         // this.userName = "";
       },
-      // 查询我的电站列表
-      async queryChargList() {
-        let res = await api.queryChargeList({
+      change(e) {
+        // 查询申请设备类型
+        this.queryDeviceApplyList(e)
+      },
+      // 查询申请设备类型
+      async  queryDeviceApplyList (e) {
+        let res = await api.queryDeviceApplyList({
           query: {
             column: 'createTime',
             order: 'desc',
             pageNo: this.pageNo,
-            pageSize: this.pageSize
+            pageSize: this.pageSize,
+            hangType: e
           }
         })
         if (res.code === 0) {
+          this.devicesTypeList = res.result.records
+          console.log(this.devicesTypeList)
           STROAGE({
             type: 'setItem',
-            key: 'ChargeList',
+            key: 'DevicesTypeList',
             item: res.result.records
           })
         }
@@ -130,32 +151,33 @@
         justify-content: space-between;
         align-items: center; // margin-left: -5%;
       }
-      .list{
+      .list {
         width: 100%;
         height: vw(200);
         margin-top: vw(32);
         display: flex;
         justify-content: space-between;
-        .left{
+        .left {
           width: vw(200);
           height: vw(200);
           margin-right: vw(32);
-          img{
+          img {
             width: vw(200);
             height: vw(200);
           }
         }
-        .right{
+        .right {
           flex: 1;
           display: flex;
           flex-direction: column;
           align-items: flex-end;
+          justify-content: space-around;
           border-bottom: vw(1) solid #e5e5e5;
-          span{
+          span {
             line-height: vw(48);
             text-align: left;
           }
-          .liButton{
+          .liButton {
             width: vw(132);
             height: vw(64);
             line-height: vw(64);

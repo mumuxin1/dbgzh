@@ -13,7 +13,6 @@ function makeQuery(queryObject) {
 }
 const apiRequest = async (params = {}, url) => {
   let data = params.query || {}
-  console.log('ffffffffff')
   url = params.method ===  'POST'? url : url + makeQuery(params.query)
   // let contentType = parseInt(params.contentType) === 2 ? 'application/x-www-form-urlencoded; charset=utf-8' : 'application/json'
   //   // data.sign = SIGN
@@ -47,10 +46,17 @@ const apiRequest = async (params = {}, url) => {
     }
   }
   // let falg
-  let res = await axios(httpDefaultOpts)
-  console.log('res-------------' + url, res.data)
+  let res
+  try {
+    res = await axios(httpDefaultOpts)
+    console.log('res-------------' + url, res.data)
+
+    return res.data
+  } catch (err) {
+    return err
+  }
   // console.log('request----', res)
-  return res.data
+  
   // new Promise((resolve, reject) => {
   //   axios(httpDefaultOpts).then(
   //     (res) => {

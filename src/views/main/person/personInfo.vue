@@ -1,9 +1,9 @@
 <template>
   <div class="personInfo">
-    <mu-header class="muHeader" title="我的充电桩" :left="true" :back="true"></mu-header>
+    <mu-header class="muHeader" title="我的充电桩" :left="false" :back="true"></mu-header>
     <div class="content">
       <div class="top">
-        <div class="headerPic">
+        <div class="headerPic" @click="$router.push('/step1')">
           <img :src="userInfo.userInfo.avatar" alt="">
         </div>
         <div class="info">
@@ -40,7 +40,7 @@
           <img src="@/assets/dian_my_chaxun@3x.png" alt="">
           <span>交易查询</span>
         </div>
-        <div class="lis" v-if="userInfo.userInfo.userType === 1">
+        <div class="lis" v-if="userInfo.userInfo.userType !==3 ">
           <img src="@/assets/dian_my_qianbao@3x.png" alt="">
           <span>我的钱包</span>
         </div>
@@ -48,7 +48,7 @@
           <img src="@/assets/dian_my_zhuanghu@3x.png" alt="">
           <span>桩户信息</span>
         </div>
-        <div class="lis" v-if="userInfo.userInfo.userType === 1">
+        <div class="lis" v-if="userInfo.userInfo.userType !== 3">
           <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>

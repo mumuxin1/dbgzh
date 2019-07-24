@@ -26,25 +26,27 @@ const queryChargeList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh
 const queryDevicesList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryDeviceByBsId')
 // 查询设备详情
 const queryDevicesDetails = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryDeviceInfoBySn')
+// 更新设备详情
+const upDateDevicesDetails = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/updateDeviceInfoBySn')
 /**
- * main
- * 业务
+ * 
+ * 申请桩主 
  */
-// 查询代理商家
-const queryProxy = (params) => apiRequest.apiRequest(params, apiUrl + '/generator/business/dropListByGzh')
-// 查询店铺列表
-const queryShop = (params) => apiRequest.apiRequest(params, apiUrl + '/generator/business/merListByGzh' + '?bId=' + params.query.bId)
-// 查询店铺列表
-const queryDeviceUsersinfo = (params) => apiRequest.apiRequest(params, apiUrl + '/generator/main/ratioList' + '?t= ' + '&page=' + params.query.page +
-'&limit=' + params.query.limit + '&bId=' + params.query.bId + '&merId=' + params.query.merId + '&startTime=' + params.query.startTime + '&endTime=' + params.query.endTime)
+// 申请设备
+const applicationEquiment = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/chargingUserApply')
+// 查询申请设备类型
+const queryDeviceApplyList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryChargingPileModelList')
+
+// 申请桩主 
+const applicationOwner = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/departApply')
 export default {
   login,
   queryUserInfo,
   queryChargeList,
   queryDevicesList,
   queryDevicesDetails,
-  picCheckCode,
-  queryProxy,
-  queryShop,
-  queryDeviceUsersinfo
+  upDateDevicesDetails,
+  applicationEquiment,
+  queryDeviceApplyList,
+  applicationOwner
 }

@@ -13,10 +13,10 @@
         <li class="txone">
           <span>开放时间</span><span>{{item.dbBaseStationCharging.businessHours}}</span>
         </li>
-        <li class="txone" v-if="$parent.userType === 1">
+        <li class="txone" v-if="$parent.userType !== 3">
           <span>累计收益</span><span>{{item.allIncome|moneyFormat}}元</span>
         </li>
-        <div class="navsButton" v-if="$parent.userType === 1">
+        <div class="navsButton" v-if="$parent.userType !== 3" @click.stop="application(item.bsId)">
           申请新设备
         </div>
       </ul>
@@ -62,6 +62,11 @@ export default {
       // 查询充电桩设备列表
       this.queryDevicesList(bsId)
       this.$router.push('/chargeDevices')
+    },
+    application (bsId) {
+      console.log(this)
+      this.$parent.bsId = bsId
+      this.$router.push('/applicationEquiment')
     },
     async queryDevicesList (bsId) {
       let res = await api.queryDevicesList({

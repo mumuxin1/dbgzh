@@ -4,7 +4,7 @@
     <div class="betw">
       <div class="head-left" v-if="left">
         <slot name="setLeft"></slot>
-        <div class="back" v-if="back" @click="$router.back()">
+        <div class="back" v-if="back" @click="goBack">
           <img src="../assets/dianbo_nav_back@3x.png">
         </div>
         <div class="text" v-if="leftText" @click="goBackHander">{{leftText}}</div>
@@ -23,80 +23,87 @@
   </div>
 </template>
 <script>
-export default {
-  name: "Muheader",
-  props: {
-    left: {
-      type: Boolean,
-      default: false
+  export default {
+    name: "Muheader",
+    props: {
+      left: {
+        type: Boolean,
+        default: false
+      },
+      title: {
+        type: String,
+        default: ""
+      },
+      right: {
+        type: Boolean,
+        default: false
+      },
+      back: {
+        type: Boolean,
+        default: true
+      },
+      icon: {
+        type: Boolean,
+        default: false
+      },
+      leftText: {
+        type: String,
+        default: ""
+      }
     },
-    title: {
-      type: String,
-      default: ""
+    methods: {
+      goBack() {
+        console.log('sss')
+        this.$router.go(-1)
+      }
     },
-    right: {
-      type: Boolean,
-      default: false
-    },
-    back: {
-      type: Boolean,
-      default: true
-    },
-    icon: {
-      type: Boolean,
-      default: false
-    },
-    leftText: {
-      type: String,
-      default: ""
-    }
-  }
-};
+  };
 </script>
 <style lang="scss" scoped>
-@import "../styles/theme.scss";
-.header {
-  width: 100%;
-  height: vw(85);
-  position: relative;
-  background: #2d9efd;
-}
-.betw {
-  width: 100%;
-  height: vw(85);
-  padding: 0 vw(30);
-  display: flex;
-  position: absolute;
-  justify-content: space-between;
-  top: 0;
-  .head-left .back {
+  @import "../styles/theme.scss";
+  .header {
+    width: 100%;
     height: vw(85);
-    display: flex;
-    img {
-      width: vw(44);
-      height: vw(42);
-      align-self: center;
-    }
+    position: relative;
+    background: #2d9efd;
   }
-  .head-right {
+  .betw {
+    width: 100%;
+    height: vw(85);
+    padding: 0 vw(30);
     display: flex;
-    .icon {
+    position: absolute;
+    justify-content: space-between;
+    top: 0;
+    z-index: 2;
+    .head-left .back {
+      height: vw(85);
       display: flex;
       img {
-        width: vw(42);
+        width: vw(44);
         height: vw(42);
         align-self: center;
       }
     }
+    .head-right {
+      display: flex;
+      .icon {
+        display: flex;
+        img {
+          width: vw(42);
+          height: vw(42);
+          align-self: center;
+        }
+      }
+    }
   }
-}
-.head-center {
-  width: 100%;
-  height: vw(85);
-  position: absolute;
-  top: 0;
-  line-height: vw(85);
-  color: white;
-  font-size: vw(36);
-}
+  .head-center {
+    width: 100%;
+    height: vw(85);
+    position: absolute;
+    top: 0;
+    line-height: vw(85);
+    color: white;
+    font-size: vw(36);
+  }
 </style>

@@ -4,23 +4,25 @@
     <div class="content">
       <ul>
         <li class="txtwo">
-          <span class="">保利微座充电桩小白</span>
+          <span class="">{{deviceDetails.cpName}}</span>
           <div class="riText">
-            <span class="active">上架</span>
-            <span>在线</span>
+            <span class="active" v-if="deviceDetails.shelfStatus === 1">上架</span>
+            <span class="defaut" v-else>下架</span>
+            <span class="active" v-if="deviceDetails.deviceStatus === 1">在线</span>
+            <span class="defaut" v-else>离线</span>
           </div>
         </li>
         <li class="txone">
-          <span>型号</span><span class="color_99">GF/ZYJ22.60元</span>
+          <span>型号</span><span class="color_99">{{deviceDetails.deviceModelName}}</span>
         </li>
         <li class="txone">
-          <span class="">编号</span><span class="color_99">2145879325213.60元</span>
+          <span class="">编号</span><span class="color_99">{{deviceDetails.sn}}</span>
         </li>
         <li class="txone">
-          <span class="">泊位费</span><span class="color_99">2145879325213.60元</span>
+          <span class="">泊位费</span><span class="color_99">{{deviceDetails.dbBillingStrategy.parkFee | moneyFormat}}元</span>
         </li>
         <li class="txone">
-          <span class="">电费</span><span class="color_99">2145879325213.60元</span>
+          <span class="">电费</span><span class="color_99">{{deviceDetails.dbBillingStrategy.electricityFee | moneyFormat}}元</span>
         </li>
         <li class="txone">
           <span class="">是否可预约</span>
@@ -40,27 +42,34 @@
         </li>
         <li class="txone">
           <span class="">开放时间设置</span>
-          <div class="rieditor">
-            <el-time-picker v-model="startTime"  placeholder="任意时间点">
-            </el-time-picker>
+          <div class="selTime">
+            <div class="editor">
+              <el-time-picker v-model="startTime" placeholder="任意时间点">
+              </el-time-picker>
+            </div>
+            <span class="span">至</span>
+            <div class="editor">
+              <el-time-picker v-model="endTime" placeholder="任意时间点">
+              </el-time-picker>
+            </div>
           </div>
         </li>
-        <li class="txone">
+        <!-- <li class="txone">
           <span class="">故障上报</span>
           <div class="riIcon">
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
-        </li>
+        </li> -->
         <li class="txone">
           <span class="">设备状态</span>
           <div class="rieditor">
-            <el-select v-model="selApointTx" placeholder="请选择" class="select_element">
-              <el-option v-for="item in selApoints" :key="item.value" :label="item.label" :value="item.value">
+            <el-select v-model="statusApointTx" placeholder="请选择" class="select_element">
+              <el-option v-for="item in statusApoints" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </div>
         </li>
-        <div class="navsButton">
+        <div class="navsButton" @click="save">
           保存
         </div>
       </ul>
@@ -69,6 +78,9 @@
 </template>
 <script>
   import muheader from "../../../components/header";
+import api from '@/api/api'
+import { STROAGE, timeFormat } from '@/utils/muxin'
+
   export default {
     name: "devicesDetails",
     components: {
@@ -76,21 +88,75 @@
     },
     data() {
       return {
+        deviceDetails: {},
         selApointTx: '', // 下拉选择是否可以预约
         selApoints: [{
-          value: '选项1',
-          label: '黄金糕'
+          value: 1,
+          label: '是'
         }, {
-          value: '选项2',
-          label: '双皮奶'
+          value: 2,
+          label: '否'
+        }],
+        statusApointTx: '', // 下拉选择是否上架
+        statusApoints: [{
+          value: 1,
+          label: '上架'
+        }, {
+          value: 2,
+          label: '下架'
         }],
         reName: '', // 修改名称
-        startTime: ''
+        startTime: '',
+        endTime: '',
+        startTime2: '', // 开始时间请求参数
+        endTime2: ''
       };
     },
+    created() {
+      this.data_Init()
+    },
+    filters: {
+      moneyFormat: (params) => {
+        return (params / 100).toFixed(2)
+      }
+    },
     methods: {
-      del() {
+      data_Init() {
+        let deviceDetails = JSON.parse(STROAGE({
+          type: 'getItem',
+          key: 'DevicesDetails'
+        }))
+        if (deviceDetails) {
+          this.deviceDetails = deviceDetails
+        }
+      },
+      save() {
         // this.userName = "";
+        console.log(this.selApointTx)
+        this.startTime2 = timeFormat(this.startTime, '-', '00:00:00')
+        this.endTime2 = timeFormat(this.endTime, '-', '00:00:00')
+
+        console.log(this.startTime)
+        if (this.selApointTx === '' || this.statusApointTx === '' || this.reName === '' || this.startTime === '' || this.endTime === '') return false
+        this.upDateDevicesDetails()
+      },
+      // 更新设备详情
+      async upDateDevicesDetails() {
+
+        let res = await api.upDateDevicesDetails({
+          method: 'POST',
+          query: {
+            sn: this.deviceDetails.sn,
+            bookStatus: this.selApointTx,
+            cpName: this.reName,
+            openStartTime: this.startTime2,
+            openEndTime: this.endTime2,
+            shelf_status: this.statusApointTx
+          }
+        })
+        if (res.code === 200) {
+          this.$router.go(-2)
+        }
       }
     }
   };
@@ -155,6 +221,21 @@
           }
           .color_99 {
             color: #999999;
+          }
+        }
+        .selTime {
+          display: flex;
+          justify-content: flex-end;
+          flex: 1;
+          align-items: center;
+          .editor {
+            width: vw(132);
+            height: vw(64);
+            position: relative;
+          }
+          .span {
+            margin: 0 vw(26);
+            align-self: center;
           }
         }
         .txtwo {
@@ -225,12 +306,9 @@
       padding-left: vw(60);
     }
     .el-input__prefix {
-      position: relative;
-      top: vw(-45);
-      left: vw(-222);
-    }
-    .rieditor {
-      width: vw(344);
+      position: absolute;
+      top: vw(20); // right: vw(180);
+      left: vw(-10);
     }
   }
   .el-select-dropdown__item {

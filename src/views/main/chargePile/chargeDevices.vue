@@ -126,7 +126,7 @@
         }
       },
       async queryDevicesDetails(sn) {
-        let res = await api.queryDevicesList({
+        let res = await api.queryDevicesDetails({
           query: {
             sn: sn
           }
@@ -135,7 +135,7 @@
           STROAGE({
             type: 'setItem',
             key: 'DevicesDetails',
-            item: res.result.records
+            item: res.result
           })
         }
       }

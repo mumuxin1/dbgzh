@@ -14,19 +14,24 @@ import api from '@/api/api'
     name: 'app',
     components: {
     },
-    async created() {
-      // let res = await api.queryUserInfo()
-      // if (res.code === 0) { 
-      //   this.userType = res.result.userType
-      //   this.$router.push('/personInfo')
-      // } else {
-      //   this.$router.push('/login')
-      // }
-    },
+    // async created() {
+    //   console.log( 'll')
+
+    //   let res = await api.queryUserInfo()
+    //   console.log(res, 'kkkk')
+    //   if (res.code === 0) { 
+    //     this.userType = res.result.userType
+    //     this.$router.push('/personInfo')
+    //   } else {
+    //     this.$router.push('/login')
+    //   }
+    // },
     data() {
       return {
         clientHeight: document.body.clientHeight, // 页面可视区高度
-        userType: '',  // 1 桩主 2 桩户
+        userType: '',  // 1 桩主 2 桩户,
+        bsId: '', // 充电站id
+        sysUserId: '' // 充电站类型id
       }
     },
   }

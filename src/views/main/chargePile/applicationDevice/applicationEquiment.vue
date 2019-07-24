@@ -1,28 +1,27 @@
 <template>
-  <div class="appicationEquiment">
+  <div class="applicationEquiment">
     <mu-header class="muHeader" title="申请设备" :left="true" :back="true"></mu-header>
     <div class="content">
       <ul>
         <li class="tit">泊位信息</li>
         <li class="txFull">
           <span>合作类型</span>
-          <el-select v-model="selText" placeholder="请选择" class="select_element" @change="change">
+          <el-select v-model="selText" placeholder="请选择" class="select_element">
             <el-option v-for="item in selOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </li>
-        <li class="txone">
+        <li class="txone" @click="deviceType">
           <span>设备类型</span>
-          <input type="text" class="inputs">
+          <input type="text" class="inputs" placeholder="选择设备类型" v-model="selDevices.deviceModelName">
           <img src="@/assets/dianbo_shenqing_shuaixuan@3x.png" alt="" class="img">
         </li>
         <li class="txone">
           <span>设备数量</span>
-          <input type="text" class="inputs">
-          <span>台</span>
+          <input type="number" class="inputs" placeholder="请输入数量" v-model="deviceNum">
+          <span class="span">台</span>
         </li>
-       
-        <span class="des">图片信息(至少3张)</span>
+        <span class="des"><font style="fontWeight: bold">图片信息</font>(至少3张)</span>
         <span class="des">请选择充电点环境照片</span>
          <div class="upImg">
         <div class="selImg">
@@ -38,7 +37,7 @@
         </p>
       </ul>
     </div>
-    <div class="button-g button">
+    <div class="button-g button" @click="submit">
       提交申请
     </div>
   </div>
@@ -49,65 +48,80 @@
   } from '@/utils/muxin'
   import muheader from "@/components/header";
   import api from '@/api/api'
+import { async } from 'q';
   export default {
-    name: "appicationEquiment",
+    name: "applicationEquiment",
     components: {
       "mu-header": muheader
     },
     data() {
       return {
-        chargeData: [],
         selText: [],
         selOptions: [{
           value: 1,
           label: '提供场地申请合作'
         }, {
           value: 2,
-          label: '下架'
-        }]
+          label: '投资'
+        }],
+        selDevices: [],
+        deviceNum: ''
       };
     },
     created() {
       this.data_Init()
     },
-    filters: {
-      moneyFormat: (params) => {
-        return (params / 100).toFixed(2)
-      }
-    },
     methods: {
       data_Init() {
-        let chargeList = STROAGE({
-          type: 'getItem',
-          key: 'ChargeList'
-        })
-        if (chargeList) {
-          this.chargeData = JSON.parse(chargeList)
-        }
-        console.log(this.chargeData)
+        // 。。。
+        let selDevices = STROAGE({
+        type: 'getItem',
+        key: 'selDevicesType'
+      })
+      if (selDevices) {
+        this.selDevices =JSON.parse(selDevices)
+      }
       },
-      // 电桩详情
-      details(bsId) {
-        // 查询充电桩设备列表
-        this.queryDevicesList(bsId)
-        this.$router.push('/chargeDevices')
+      deviceType () {
+        this.$router.push('chargeType')
+        // 查询申请设备类型
+        this.queryDeviceApplyList()
       },
-      async queryDevicesList(bsId) {
+      submit () {
+        // 申请设备
+        this.applicationEquiment(this.$parent.bsId)
+      },
+      // 申请设备
+      async applicationEquiment(bsId) {
         let res = await api.queryDevicesList({
+          method: 'POST',
           query: {
             bsId: bsId,
+            merchantCooperation: this.selText,
+            deviceModel: this.selDevices.deviceModelNumber,
+            deviceNum: this.deviceNum,
+            parkImgs: 'img/demo.png'
+          }
+        })
+        if (res.code === 0) {
+          this.$router.go(-1)
+        }
+      },
+      // 查询申请设备类型
+      async  queryDeviceApplyList () {
+        let res = await api.queryDeviceApplyList({
+          query: {
             column: 'createTime',
             order: 'desc',
             pageNo: this.pageNo,
             pageSize: this.pageSize,
-            shelfStatus: '',
-            deviceStatus: ''
+            hangType: ''
           }
         })
         if (res.code === 0) {
           STROAGE({
             type: 'setItem',
-            key: 'DevicesList',
+            key: 'DevicesTypeList',
             item: res.result.records
           })
         }
@@ -117,7 +131,7 @@
 </script>
 <style lang="scss" scoped>
   @import "@/styles/theme.scss";
-  .appicationEquiment {
+  .applicationEquiment {
     width: 100%;
     height: 100%;
     display: flex;
@@ -132,6 +146,7 @@
         width: 100%;
         height: auto;
         padding: 0 vw(32);
+        padding-bottom: vw(32);
         background: white;
         display: flex;
         flex-direction: column;
@@ -181,7 +196,13 @@
             border: vw(1) solid #e5e5e5;
             border-radius: vw(5);
             margin-right: vw(32);
+            padding: 0 vw(32);
+            
           }
+          .span{
+              width: vw(48);
+              text-align: center;
+            }
           .img {
             width: vw(48);
             height: vw(48);

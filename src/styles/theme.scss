@@ -4,14 +4,9 @@
 @function vh($px) {
   @return ($px / 1334) * 100vh;
 }
-@function themeColor() {
-  @return #2d9efd
-}
-// @function wh($w, $h) {
-// @return 
-//   width: ($w / 750) * 100vw;
-//   height: ($h / 750) * 100vw;
-// }
+
+$themeColor: #56baf9;
+
 .button-g {
 	border-radius: vw(5);
 	background-color: #2d9efd

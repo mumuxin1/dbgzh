@@ -1,6 +1,6 @@
 <template>
   <div class="faultReport">
-    <mu-header class="muHeader" title="故障上报" :left="true" :back="true"></mu-header>
+    <mu-header class="muHeader" title="使用充电桩" :left="true" :back="true"></mu-header>
     
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
@@ -8,28 +8,21 @@
         <input type="text" placeholder="扫描二维码或输入编码" v-model="getCode">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="">
       </div>
-      <div class="tit">请描述设备具体故障</div>
-      <div class="text">
-        <textarea class="tx" placeholder="请描述设备具体故障" maxlength="140"></textarea>
-        <div class="des">/140</div>
-      </div>
-      <div class="tit">请上传图片</div>
-      <div class="upImg">
-        <div class="selImg">
-          <img src="" alt="">
-          <span>添加图片</span>
-        </div>
-        <div class="uploadImg">
-          <img src="" alt="" class="img">
-          <img src="" alt="" class="del">
-        </div>
+      <div class="tit">充电桩状态</div>
+      <div class="state">
+        <span>上架</span>
+        <span>下架</span>
+        <span>离线</span>
       </div>
     </div>
-    <div class="button-g button">提交</div>
+    <div class="wave">
+      开始使用
+    </div>
+    <div class="button-g button">开始使用</div>
   </div>
 </template>
 <script>
-  import muheader from "../../../components/header";
+  import muheader from "@/components/header";
   export default {
     name: "faultReport",
     components: {
@@ -50,7 +43,7 @@
   };
 </script>
 <style lang="scss" scoped>
-  @import "../../../styles/theme.scss";
+  @import "@/styles/theme.scss";
   .faultReport {
     background-size: cover;
     width: 100%;
@@ -67,6 +60,7 @@
       // overflow-y: scroll;
       margin-bottom: 0;
       padding: vw(25) vw(30);
+      padding-bottom: 0;
       .tit{
         text-align: left;
         margin-bottom: vw(24);
@@ -91,68 +85,36 @@
           height: vw(44);
         }
       }
-      .text{
-        padding: vw(32);
-        background: #f6f6f6;
-        width: 100%;
-        height: vw(300);
+      .state{
         display: flex;
-        flex-direction: column;
+        justify-content: space-around;
         margin-bottom: vw(32);
-        .tx{
-          background: transparent;
-          flex: 1;
+        span{
+          width: vw(186);
+          height: vw(64);
+          line-height: vw(64);
+          border: vw(1) solid #e5e5e5;
         }
-        .des{
-          align-self:flex-end;
-        }
-      }
-      .upImg{
-        width: 100%;
-        height: vw(150);
-        flex-wrap: wrap;
-        display: flex;
-        img{
-          width: vw(60);
-          height: vw(48);
-          background: red;
-          margin: vw(26);
-        }
-        .selImg{
-          display: flex;
-        flex-direction: column;
-        align-items: center;
-          width: vw(150);
-          height: vw(150);
-          background: #f5f5f5;
-        }
-        .uploadImg{
-          width: vw(150);
-          height: vw(150);
-          position: relative;
-          margin-right: vw(7);
-          .img{
-            width: vw(150);
-            height: vw(150);
-            display: block;
-            background: greenyellow;
-            margin: 0;
-          }
-          .del{
-            width: vw(46);
-            height: vw(46);
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin: 0;
-          }
+        .active{
+          color: $themeColor;
+          border-color: $themeColor;
         }
       }
+    }
+    .wave{
+      width: vw(280);
+      height: vw(280);
+      line-height: vw(280);
+      align-self: center;
+      background: url('../../../assets/dianbtn.png');
+      background-size: cover;
+      margin-top: vw(192);
+      color: white;
     }
     .button{
       height: vw(90);
       line-height: vw(90);
-      margin: vw(48) vw(30);
+      margin: vw(32) vw(30);
       color: white;
     }
   }

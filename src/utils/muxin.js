@@ -68,7 +68,14 @@ export const timeFormat = (t, sign, type) => {
   let y = date.getFullYear()
   let m = date.getMonth() + 1
   let d = date.getDate() > 10 ? date.getDate() : '0' + date.getDate()
+  let h = date.getHours();
+  let minutes = date.getMinutes()
+  let f = date.getSeconds()
+
   m = m > 10 ? m : '0' + m
+  h = h > 10 ? h : '0' + h
+  f = f > 10 ? f : '0' + f
+  minutes = minutes > 10 ? minutes : '0' + minutes
   let str
   switch (type) {
     case 'yyyy-mm-dd':
@@ -78,7 +85,13 @@ export const timeFormat = (t, sign, type) => {
       str = `${y}${sign}${m}`
       break
     case 'mm-dd':
-      str = `$${m}${sign}${d}`
+      str = `${m}${sign}${d}`
+      break
+    case '00:00:00':
+      str = `${h}:${minutes}:${f}`
+      break
+    case '00:00':
+      str = `${h}:${minutes}`
       break
     default:
       break
