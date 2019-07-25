@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="footnav">
-        <div class="lis">
+        <div class="lis" @click="menu(1)">
           <img src="@/assets/dian_my_chongdianzhuang@3x.png" alt="">
           <span>使用充电桩</span>
         </div>
@@ -36,7 +36,7 @@
           <img src="@/assets/dian_my_dianzhan@3x.png" alt="">
           <span>我的电站</span>
         </div>
-        <div class="lis">
+        <div class="lis" @click="menu(3)">
           <img src="@/assets/dian_my_chaxun@3x.png" alt="">
           <span>交易查询</span>
         </div>
@@ -48,7 +48,7 @@
           <img src="@/assets/dian_my_zhuanghu@3x.png" alt="">
           <span>桩户信息</span>
         </div>
-        <div class="lis" v-if="userInfo.userInfo.userType !== 3">
+        <div class="lis" v-if="userInfo.userInfo.userType !== 3"  @click="menu(6)">
           <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>
@@ -89,12 +89,26 @@ export default {
     menu (id) {
       switch (id) {
         case 1:
-          
+          // 使用电桩
+          this.$router.push('/useing')
           break;
         case 2:
           // 我的电站
+          // 查询我的电站列表
           this.queryChargList()
           this.$router.push('/myChargePile')
+          break;
+        case 3:
+          // 交易查询
+          // 查询我的电站列表
+          this.queryChargList()
+          this.$router.push('/transactionInfo')
+          break;
+        case 6:
+          // 申请记录
+          // 查询申请记录
+          this.queryApplyList()
+          this.$router.push('/applicationRecord')
           break;
         default:
           break;
@@ -120,7 +134,25 @@ export default {
           item: res.result.records
         })
       }
-    }
+    },
+    // 查询申请记录
+      async queryApplyList() {
+        let res = await api.queryApplyList({
+          query: {
+            column: 'createTime',
+            order: 'desc',
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
+          }
+        })
+        if (res.code === 0) {
+          STROAGE({
+          type: 'setItem',
+          key: 'ApplyList',
+          item: res.result.records
+        })
+        }
+      }
   }
 };
 </script>

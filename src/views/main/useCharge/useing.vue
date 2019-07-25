@@ -96,8 +96,8 @@
           border: vw(1) solid #e5e5e5;
         }
         .active{
-          color: $themeColor;
-          border-color: $themeColor;
+          color: $fontColor;
+          border-color: $fontColor;
         }
       }
     }

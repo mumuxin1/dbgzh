@@ -39,6 +39,18 @@ const queryDeviceApplyList = (params) => apiRequest.apiRequest(params, apiUrl + 
 
 // 申请桩主 
 const applicationOwner = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/departApply')
+/**
+ * 交易查询
+ */
+// 查询交易订单列表
+const queryOrderList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryOrdersList')
+/**
+ * 申请记录
+ */
+//查询申请记录
+const queryApplyList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/chargingUserApplyList')
+// 撤销申请
+ const cancelUserApply = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/cancelUserApply')
 export default {
   login,
   queryUserInfo,
@@ -48,5 +60,8 @@ export default {
   upDateDevicesDetails,
   applicationEquiment,
   queryDeviceApplyList,
-  applicationOwner
+  applicationOwner,
+  queryOrderList,
+  queryApplyList,
+  cancelUserApply
 }

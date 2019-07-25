@@ -5,13 +5,20 @@ import store from './store'
 import './registerServiceWorker'
 import './plugins/element.js'
 
-import { Input, Select, Option, TimePicker  } from 'element-ui';
+import {
+  Input,
+  Select,
+  Option,
+  TimePicker,
+  DatePicker
+} from 'element-ui';
 Vue.config.productionTip = false
 // Vue.protoType.stroage = STROAGE 
 Vue.use(Input)
-.use(Select)
-.use(Option)
-.use(TimePicker)
+  .use(Select)
+  .use(Option)
+  .use(TimePicker)
+  .use(DatePicker)
 new Vue({
   router,
   store,

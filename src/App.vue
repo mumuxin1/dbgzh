@@ -9,31 +9,46 @@
 </template>
 
 <script>
-import api from '@/api/api'
+  import api from '@/api/api'
+  import wx from 'weixin-js-sdk'
+  import {
+    NAVIGATOR
+  } from '@/utils/muxin'
   export default {
     name: 'app',
-    components: {
+    components: {},
+    async created() {
+      console.log('ll')
+      let res = await api.queryUserInfo()
+      console.log(res, 'kkkk')
+      if (res.code === 0) {
+        this.userType = res.result.userType
+        this.$router.push('/personInfo')
+      } else {
+        this.$router.push('/login')
+      }
     },
-    // async created() {
-    //   console.log( 'll')
-
-    //   let res = await api.queryUserInfo()
-    //   console.log(res, 'kkkk')
-    //   if (res.code === 0) { 
-    //     this.userType = res.result.userType
-    //     this.$router.push('/personInfo')
-    //   } else {
-    //     this.$router.push('/login')
-    //   }
-    // },
+    mounted() {
+      this.wxConfig()
+    },
     data() {
       return {
         clientHeight: document.body.clientHeight, // 页面可视区高度
-        userType: '',  // 1 桩主 2 桩户,
+        userType: '', // 1 桩主 2 桩户,
         bsId: '', // 充电站id
         sysUserId: '' // 充电站类型id
       }
     },
+    methods: {
+      wxConfig() {
+        let na = NAVIGATOR()
+        if (na === 'Wechat') {
+
+        } else {
+          console.log('请在微信网页调试')
+        }
+      }
+    }
   }
 </script>
 
@@ -48,4 +63,5 @@ import api from '@/api/api'
     width: 100%;
     height: 100%
   }
+  
 </style>

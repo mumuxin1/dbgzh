@@ -121,7 +121,7 @@ export default {
     }
     .abled{
       color: white;
-      background: themeColor()
+      background: fontColor()
     }
   }
 }

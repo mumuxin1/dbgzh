@@ -119,7 +119,9 @@
         userName: '', // 姓名
         num: '', //现有总表容量
         phone: '', // 电话
-        power: '' //入户总线电压
+        power: '', //入户总线电压
+        startTime2: '',
+        endTime2: ''
       };
     },
     created() {
@@ -146,7 +148,7 @@
         // 查询充电桩设备列表
         this.startTime2 = timeFormat(this.startTime, '-', '00:00')
         this.endTime2 = timeFormat(this.endTime, '-', '00:00')
-        this.openTime = this.startTime + '-' + this.endTime
+        this.openTime = this.startTime2 + '-' + this.endTime2
         this.applicationOwner()
       },
       async applicationOwner() {

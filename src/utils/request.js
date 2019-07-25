@@ -4,9 +4,12 @@ import {
 } from './muxin'
 function makeQuery(queryObject) {
   if (!queryObject) return ''
+  console.log('请求参数----》》》',queryObject)
   const query = Object.entries(queryObject)
     .reduce((result, entry) => {
-      result.push(entry.join('='))
+      if (entry[1]) {
+        result.push(entry.join('='))
+      }
       return result
     }, []).join('&')
   return `?${query}`

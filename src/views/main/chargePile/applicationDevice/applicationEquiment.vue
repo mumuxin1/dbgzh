@@ -93,18 +93,18 @@ import { async } from 'q';
       },
       // 申请设备
       async applicationEquiment(bsId) {
-        let res = await api.queryDevicesList({
+        let res = await api.applicationEquiment({
           method: 'POST',
           query: {
             bsId: bsId,
             merchantCooperation: this.selText,
-            deviceModel: this.selDevices.deviceModelNumber,
+            deviceModel: this.selDevices.id,
             deviceNum: this.deviceNum,
             parkImgs: 'img/demo.png'
           }
         })
-        if (res.code === 0) {
-          this.$router.go(-1)
+        if (res.code === 200) {
+          this.$router.push('/reviewProgress')
         }
       },
       // 查询申请设备类型

@@ -63,9 +63,19 @@ export default new Router({
     },
     // 使用电桩
     {
-      path: '/',
+      path: '/useing',
       name: 'useing',
       component: () => import('@/views/main/useCharge/useing.vue')
+    },
+    {
+      path: '/transactionInfo',
+      name: 'transactionInfo',
+      component: () => import('@/views/main/transactionInfo/index.vue')
+    },
+    {
+      path: '/applicationRecord',
+      name: 'applicationRecord',
+      component: () => import('@/views/main/applicationRecord/index.vue')
     }
   ]
 })

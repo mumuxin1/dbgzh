@@ -4,8 +4,20 @@
 @function vh($px) {
   @return ($px / 1334) * 100vh;
 }
+// 字体主题颜色 蓝
+$fontColor: #56baf9;
+// 字体主题颜色 黑
+$fontColor1: #333333;
+// 字体主题原色 淡黑
+$fontColor2: #999999;
+$fontColor3: white;
 
-$themeColor: #56baf9;
+// 边框颜色
+$borderColor1: #e5e5e5;
+// 页面背景颜色
+$bgPageColor1: #f6f6f6;
+$bgPageColor2: white;
+$bgPageColor3: #56baf9;
 
 .button-g {
 	border-radius: vw(5);
