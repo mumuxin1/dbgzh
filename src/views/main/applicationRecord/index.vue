@@ -5,7 +5,7 @@
         <ul v-for="item in applyList" :key="item.index">
           <li>
             <span class="color_99">{{item.bsName}}</span>
-             <div class="liButton" v-if="item.status_dictText === '审核中'">
+             <div class="liButton" v-if="item.status === 1">
               审核中
             </div>
           </li>
@@ -16,7 +16,7 @@
           <li>
             <span class="" >申请数量</span><span>{{item.deviceNum}}</span>
           </li>
-          <div class="navButton" @click="cancelApply(item.id)">
+          <div class="navButton" @click="cancelApply(item.id)" v-if="item.status === 1">
             撤销申请
           </div>
         </ul>

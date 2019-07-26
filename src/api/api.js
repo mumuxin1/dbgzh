@@ -50,7 +50,32 @@ const queryOrderList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/
 //查询申请记录
 const queryApplyList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/chargingUserApplyList')
 // 撤销申请
- const cancelUserApply = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/cancelUserApply')
+const cancelUserApply = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/cancelUserApply')
+ /**
+  * 桩户信息
+  */
+ //查询桩户详情
+const queryBsInfo = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryBsInfo')
+// 更新桩主信息
+const updateBsInfo = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/updateBsInfo')
+/**
+ * 使用充电桩
+ */
+//校验设备状态
+const checkSn = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/checkSn')
+// 打开充电桩
+const turnOn = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/turnOn')
+// 关闭充电桩
+const turnOff = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/turnOff')
+// 查询当前后台用户是否存在正在控制的设备
+const checkUserControlStatus = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/checkUserControlStatus')
+// 查询设备开关状态
+const queryDeviceStatus = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryDeviceStatus')
+/**
+ * 查询微信JSSDK权限验证配置参数
+ */
+const signature = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/signature')
+
 export default {
   login,
   queryUserInfo,
@@ -63,5 +88,13 @@ export default {
   applicationOwner,
   queryOrderList,
   queryApplyList,
-  cancelUserApply
+  cancelUserApply,
+  queryBsInfo,
+  updateBsInfo,
+  checkSn,
+  turnOn,
+  turnOff,
+  checkUserControlStatus,
+  queryDeviceStatus,
+  signature
 }

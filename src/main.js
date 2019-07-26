@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import './plugins/element.js'
+import wx from 'weixin-js-sdk'
 
 import {
   Input,
@@ -19,6 +20,7 @@ Vue.use(Input)
   .use(Option)
   .use(TimePicker)
   .use(DatePicker)
+  .use(wx)
 new Vue({
   router,
   store,

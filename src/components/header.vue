@@ -53,7 +53,6 @@
     },
     methods: {
       goBack() {
-        console.log('sss')
         this.$router.go(-1)
       }
     },

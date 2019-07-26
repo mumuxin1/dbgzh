@@ -68,6 +68,11 @@ export default new Router({
       component: () => import('@/views/main/useCharge/useing.vue')
     },
     {
+      path: '/useNext',
+      name: 'useNext',
+      component: () => import('@/views/main/useCharge/useNext.vue')
+    },
+    {
       path: '/transactionInfo',
       name: 'transactionInfo',
       component: () => import('@/views/main/transactionInfo/index.vue')
@@ -76,6 +81,16 @@ export default new Router({
       path: '/applicationRecord',
       name: 'applicationRecord',
       component: () => import('@/views/main/applicationRecord/index.vue')
+    },
+    {
+      path: '/pileHousehold',
+      name: 'pileHousehold',
+      component: () => import('@/views/main/pileHousehold/index.vue')
+    },
+    {
+      path: '/houseHoldDetails',
+      name: 'houseHoldDetails',
+      component: () => import('@/views/main/pileHousehold/details.vue')
     }
   ]
 })
