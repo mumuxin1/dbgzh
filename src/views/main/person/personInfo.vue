@@ -3,7 +3,7 @@
     <mu-header class="muHeader" title="我的充电桩" :left="false" :back="true"></mu-header>
     <div class="content">
       <div class="top">
-        <div class="headerPic" @click="$router.push('/step1')">
+        <div class="headerPic">
           <img :src="userInfo.userInfo.avatar" alt="">
         </div>
         <div class="info">
@@ -53,6 +53,7 @@
           <span>申请记录</span>
         </div>
       </div>
+      <div class="box"></div>
     </div>
   </div>
 </template>
@@ -195,6 +196,11 @@
     display: flex;
     flex-direction: column;
     font-size: vw(28);
+    // .box{
+    //   background: red;
+    //   width: 185px;
+    //   height: 50px;
+    // }
     .content {
       flex: 1;
       background: #f6f6f6;

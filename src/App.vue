@@ -20,14 +20,6 @@
     name: 'app',
     components: {},
     async created() {
-      console.log('ll')
-      let res = await api.queryUserInfo()
-      if (res.code === 0) {
-        this.userType = res.result.userType
-        this.$router.push('/personInfo')
-      } else {
-        this.$router.push('/login')
-      }
     },
     mounted() {
       this.wxConfig()

@@ -92,6 +92,7 @@
         }))
         if (deviceList) {
           this.deviceList = deviceList
+          console.log(deviceList[0].bsId)
           this.bsId = deviceList[0].bsId
         }
       },

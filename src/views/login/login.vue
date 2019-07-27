@@ -39,6 +39,13 @@ export default {
       }
     }
   },
+  async created() {
+    let res = await api.queryUserInfo()
+    if (res.code === 0) {
+      this.userType = res.result.userType
+      this.$router.push('/personInfo')
+    }
+  },
   methods: {
     del() {
       this.userName = "";
