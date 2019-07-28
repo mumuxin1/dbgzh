@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <mu-header class="muHeader" title="登录" :left="true" :back="true"></mu-header>
+    <mu-header class="muHeader" title="登录" :left="false" :back="true"></mu-header>
     <div class="content">
       <div class="from">
         <img src="@/assets/dianbo_login_user@3x.png" alt="">

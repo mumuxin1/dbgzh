@@ -9,7 +9,7 @@
       <el-input placeholder="请输入设备编号" prefix-icon="el-icon-search" v-model="searText" class="input_element" @blur="blur">
       </el-input>
     </div>
-    <div class="content">
+    <div class="content" :class="deviceList.length > 0? '' : 'fullbg'">
       <div class="nums">设备总数: {{deviceList.length}}</div>
       <ul v-for="item in deviceList" :key="item.index" @click="details(item.sn)">
         <li class="txone">
@@ -83,28 +83,29 @@
     },
     created() {
       this.data_Init()
+      // 查询充电桩设备列表
+      this.queryDevicesList('')
     },
     methods: {
       data_Init() {
+        this.bsId = location.href.split('=')[1]
         let deviceList = JSON.parse(STROAGE({
           type: 'getItem',
           key: 'DevicesList'
         }))
         if (deviceList) {
           this.deviceList = deviceList
-          console.log(deviceList[0].bsId)
-          this.bsId = deviceList[0].bsId
         }
       },
       change(e) {
         // 查询设备列表
         this.queryDevicesList(e)
       },
-      blur () {
+      blur() {
         // 查询设备列表
         this.queryDevicesList('', this.searText)
       },
-      details (sn) {
+      details(sn) {
         this.queryDevicesDetails(sn)
         // 查询设备详情
         this.$router.push('/devicesDetails')
@@ -124,6 +125,11 @@
         })
         if (res.code === 0) {
           this.deviceList = res.result.records
+          STROAGE({
+            type: 'setItem',
+            key: 'DevicesList',
+            item: res.result.records
+          })
         }
       },
       async queryDevicesDetails(sn) {
@@ -280,37 +286,10 @@
           }
         }
       }
-    }
+    }.fullbg {
+  background: url('../../../assets/full.png') no-repeat center;
+  background-size: 50%;
   }
-  /deep/ {
-    // select
-    .el-input__inner {
-      height: vw(64);
-      color: #333333;
-      font-size: vw(28);
-      padding-left: vw(20);
-    }
-    .el-input__suffix-inner {
-      position: relative;
-      top: vw(-12);
-      right: vw(22);
-    } // Input
-    .input_element .el-input__inner {
-      padding-left: vw(60);
-    }
-    .el-input__prefix {
-      position: relative;
-      top: vw(-45);
-      left: vw(-222);
-    }
-  }
-  .el-select-dropdown__item {
-    height: vw(64) !important;
-    line-height: vw(64) !important;
-    span {
-      display: block;
-      height: vw(64) !important;
-      line-height: vw(64) !important;
-    }
-  }
+  
+}
 </style>

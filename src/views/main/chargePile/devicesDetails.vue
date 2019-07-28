@@ -13,74 +13,81 @@
           </div>
         </li>
         <li class="txone">
-          <span>型号</span><span class="color_99">{{deviceDetails.deviceModelName}}</span>
+          <span>型号</span>
+          <span class="color_99">{{deviceDetails.deviceModelName}}</span>
         </li>
         <li class="txone">
-          <span class="">编号</span><span class="color_99">{{deviceDetails.sn}}</span>
+          <span class="">编号</span>
+          <span class="color_99">{{deviceDetails.sn}}</span>
         </li>
         <li class="txone">
-          <span class="">泊位费</span><span class="color_99">{{deviceDetails.dbBillingStrategy.parkFee | moneyFormat}}元</span>
+          <span class="">泊位费</span>
+          <span class="color_99">{{parkFee}}元</span>
         </li>
         <li class="txone">
-          <span class="">电费</span><span class="color_99">{{deviceDetails.dbBillingStrategy.electricityFee | moneyFormat}}元</span>
+          <span class="">电费</span>
+          <span class="color_99">{{ elerFee}}元</span>
         </li>
         <li class="txone">
           <span class="">是否可预约</span>
           <div class="rieditor">
             <el-select v-model="selApointTx" placeholder="请选择" class="select_element">
-              <el-option v-for="item in selApoints" :key="item.value" :label="item.label" :value="item.value">
-              </el-option>
+              <el-option v-for="item in selApoints" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
         </li>
         <li class="txone">
           <span class="">修改设备名称</span>
           <div class="rieditor">
-            <el-input placeholder="请输入设备名称" v-model="reName" class="input_element">
-            </el-input>
+            <el-input placeholder="请输入设备名称" v-model="reName" class="input_element"></el-input>
           </div>
         </li>
         <li class="txone">
           <span class="">开放时间设置</span>
           <div class="selTime">
             <div class="editor">
-              <el-time-picker v-model="startTime" placeholder="任意时间点">
-              </el-time-picker>
+              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="00:00" :picker-options="{
+                        start: '00:00',
+                        end: '23:59',
+                        format: 'HH:mm'
+                      }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="editor">
-              <el-time-picker v-model="endTime" placeholder="任意时间点">
-              </el-time-picker>
+              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH:mm" :picker-options="{
+                        start: '00:00',
+                        end: '23:59',
+                        format: 'HH:mm'
+                      }"></el-time-picker>
             </div>
           </div>
         </li>
-        <!-- <li class="txone">
-          <span class="">故障上报</span>
-          <div class="riIcon">
-            <img src="@/assets/dianbo_public_right@3x.png" alt="">
-          </div>
-        </li> -->
+        <!-- <li class="txone" @click="$router.push('/faultReport')">
+            <span class="">故障上报</span>
+            <div class="riIcon">
+              <img src="@/assets/dianbo_public_right@3x.png" alt="">
+            </div>
+          </li> -->
         <li class="txone">
           <span class="">设备状态</span>
           <div class="rieditor">
             <el-select v-model="statusApointTx" placeholder="请选择" class="select_element">
-              <el-option v-for="item in statusApoints" :key="item.value" :label="item.label" :value="item.value">
-              </el-option>
+              <el-option v-for="item in statusApoints" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
         </li>
-        <div class="navsButton" @click="save">
-          保存
-        </div>
+        <div class="navsButton" @click="save">保存</div>
       </ul>
     </div>
   </div>
 </template>
 <script>
   import muheader from "../../../components/header";
-import api from '@/api/api'
-import { STROAGE, timeFormat } from '@/utils/muxin'
-
+  import api from "@/api/api";
+  import {
+    STROAGE,
+    timeFormat
+  } from "@/utils/muxin";
   export default {
     name: "devicesDetails",
     components: {
@@ -89,62 +96,87 @@ import { STROAGE, timeFormat } from '@/utils/muxin'
     data() {
       return {
         deviceDetails: {},
-        selApointTx: '', // 下拉选择是否可以预约
+        selApointTx: "", // 下拉选择是否可以预约
         selApoints: [{
-          value: 1,
-          label: '是'
-        }, {
-          value: 2,
-          label: '否'
-        }],
-        statusApointTx: '', // 下拉选择是否上架
+            value: 1,
+            label: "是"
+          },
+          {
+            value: 2,
+            label: "否"
+          }
+        ],
+        statusApointTx: "", // 下拉选择是否上架
         statusApoints: [{
-          value: 1,
-          label: '上架'
-        }, {
-          value: 2,
-          label: '下架'
-        }],
-        reName: '', // 修改名称
-        startTime: '',
-        endTime: '',
-        startTime2: '', // 开始时间请求参数
-        endTime2: ''
+            value: 1,
+            label: "上架"
+          },
+          {
+            value: 2,
+            label: "下架"
+          }
+        ],
+        reName: "", // 修改名称
+        startTime: new Date(2019, 1, 10, 0, 0),
+        endTime: new Date(2019, 7, 10, 23, 59),
+        startTime2: "", // 开始时间请求参数
+        endTime2: "",
+        editable: false // 时间不可编辑
       };
     },
     created() {
-      this.data_Init()
+      // 查询充电桩设备列表
+      // this.queryDevicesList(bsId);
+      this.data_Init();
     },
     filters: {
-      moneyFormat: (params) => {
-        return (params / 100).toFixed(2)
+      moneyFormat: params => {}
+    },
+    computed: {
+      parkFee() {
+        if (this.deviceDetails.dbBillingStrategy) {
+          let a = this.deviceDetails.dbBillingStrategy.parkFee
+          return (a / 100).toFixed(2);
+        }
+      },
+      elerFee() {
+        if (!this.deviceDetails.dbBillingStrategy) return ''
+        let a = this.deviceDetails.dbBillingStrategy.electricityFee
+        return (a / 100).toFixed(2)
       }
     },
     methods: {
       data_Init() {
-        let deviceDetails = JSON.parse(STROAGE({
-          type: 'getItem',
-          key: 'DevicesDetails'
-        }))
+        let deviceDetails = JSON.parse(
+          STROAGE({
+            type: "getItem",
+            key: "DevicesDetails"
+          })
+        );
         if (deviceDetails) {
-          this.deviceDetails = deviceDetails
+          this.deviceDetails = deviceDetails;
         }
       },
       save() {
         // this.userName = "";
-        console.log(this.selApointTx)
-        this.startTime2 = timeFormat(this.startTime, '-', '00:00:00')
-        this.endTime2 = timeFormat(this.endTime, '-', '00:00:00')
-
-        console.log(this.startTime)
-        if (this.selApointTx === '' || this.statusApointTx === '' || this.reName === '' || this.startTime === '' || this.endTime === '') return false
-        this.upDateDevicesDetails()
+        console.log(this.selApointTx);
+        this.startTime2 = timeFormat(this.startTime, "-", "00:00:00");
+        this.endTime2 = timeFormat(this.endTime, "-", "00:00:00");
+        console.log(this.startTime);
+        if (
+          this.selApointTx === "" ||
+          this.statusApointTx === "" ||
+          this.reName === "" ||
+          this.startTime === "" ||
+          this.endTime === ""
+        )
+          return false;
+        this.upDateDevicesDetails();
       },
       // 更新设备详情
       async upDateDevicesDetails() {
-
         let res = await api.upDateDevicesDetails({
-          method: 'POST',
+          method: "POST",
           query: {
             sn: this.deviceDetails.sn,
             bookStatus: this.selApointTx,
@@ -153,9 +185,30 @@ import { STROAGE, timeFormat } from '@/utils/muxin'
             openEndTime: this.endTime2,
             shelf_status: this.statusApointTx
           }
-        })
+        });
         if (res.code === 200) {
-          this.$router.go(-2)
+          this.$router.go(-2);
+        }
+      },
+      // 查询充电桩设备列表
+      async queryDevicesList(bsId) {
+        let res = await api.queryDevicesList({
+          query: {
+            bsId: bsId,
+            column: "createTime",
+            order: "desc",
+            pageNo: this.pageNo,
+            pageSize: this.pageSize,
+            shelfStatus: "",
+            deviceStatus: ""
+          }
+        });
+        if (res.code === 0) {
+          STROAGE({
+            type: "setItem",
+            key: "DevicesList",
+            item: res.result.records
+          });
         }
       }
     }
@@ -177,17 +230,15 @@ import { STROAGE, timeFormat } from '@/utils/muxin'
       height: vw(128);
       background: white;
       padding: vw(32) vw(17);
-      display: flex;
-      .el-input__inner {
-        height: vw(64) !important;
-      }
+      display: flex; // .el-input__inner {
+      //   height: vw(64) !important;
+      // }
       .select_element {
         width: vw(200);
-        margin-right: vw(32);
-        .el-input--suffix {
-          height: vw(64) !important;
-          padding: 0 vw(20);
-        }
+        margin-right: vw(32); // .el-input--suffix {
+        //   height: vw(64) !important;
+        //   padding: 0 vw(20);
+        // }
       }
       .input_element {
         flex: 1;
@@ -229,13 +280,27 @@ import { STROAGE, timeFormat } from '@/utils/muxin'
           flex: 1;
           align-items: center;
           .editor {
-            width: vw(132);
+            width: vw(142);
             height: vw(64);
-            position: relative;
           }
           .span {
             margin: 0 vw(26);
             align-self: center;
+          }
+          /deep/ {
+            .el-date-editor {
+              width: vw(140);
+            }
+            .el-input__inner {
+              padding: 0;
+              text-align: center;
+            }
+            .el-input__prefix {
+              .el-input__inner {
+                padding: 0;
+              }
+              display: none;
+            }
           }
         }
         .txtwo {
@@ -287,37 +352,6 @@ import { STROAGE, timeFormat } from '@/utils/muxin'
           margin-top: vw(30);
         }
       }
-    }
-  }
-  /deep/ {
-    // select
-    .el-input__inner {
-      height: vw(64);
-      color: #333333;
-      font-size: vw(28);
-      padding-left: vw(20);
-    }
-    .el-input__suffix-inner {
-      position: relative;
-      top: vw(-12);
-      right: vw(22);
-    } // Input
-    .input_element .el-input__inner {
-      padding-left: vw(60);
-    }
-    .el-input__prefix {
-      position: absolute;
-      top: vw(20); // right: vw(180);
-      left: vw(-10);
-    }
-  }
-  .el-select-dropdown__item {
-    height: vw(64) !important;
-    line-height: vw(64) !important;
-    span {
-      display: block;
-      height: vw(64) !important;
-      line-height: vw(64) !important;
     }
   }
 </style>

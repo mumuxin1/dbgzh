@@ -28,6 +28,9 @@ const queryDevicesList = (params) => apiRequest.apiRequest(params, apiUrl + '/gz
 const queryDevicesDetails = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryDeviceInfoBySn')
 // 更新设备详情
 const upDateDevicesDetails = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/updateDeviceInfoBySn')
+// 设备故障上报
+const deviceFeedback = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/feedback')
+
 /**
  * 
  * 申请桩主 
@@ -96,5 +99,6 @@ export default {
   turnOff,
   checkUserControlStatus,
   queryDeviceStatus,
-  signature
+  signature,
+  deviceFeedback
 }

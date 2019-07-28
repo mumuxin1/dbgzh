@@ -62,9 +62,11 @@
       },
       // 电桩详情
       details(bsId) {
+        let url = location.href .split('#')[0]
         // 查询充电桩设备列表
         this.queryDevicesList(bsId)
-        this.$router.push('/chargeDevices')
+        // this.$router.push('/chargeDevices')
+        location.href = url + '#/chargeDevices'+ '?bsid=' + bsId
       },
       application(bsId) {
         console.log(this)
@@ -103,6 +105,11 @@
           }
         });
         if (res.code === 0) {
+          STROAGE({
+            type: 'setItem',
+            key: 'ChargeList',
+            item: res.result.records
+          })
           this.chargeData = res.result.records
         }
       },

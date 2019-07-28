@@ -64,7 +64,7 @@
         <span :class="orderType === 2 ? 'navActived' : ''" @click="tabNav(2)">使用中</span>
         <span :class="orderType === 3 ? 'navActived' : ''" @click="tabNav(3)">预约中</span>
       </div>
-      <div class="list">
+      <div class="list" :class="orderList.length > 0? '' : 'fullbg'">
         <ul v-for="item in orderList" :key="item.index" @click="details(item.sn)">
           <li>
             <span class="color_99">站点名称</span>
@@ -159,7 +159,7 @@ export default {
       );
       if (chargeList) {
         this.chargeList = chargeList.map(el => ({
-          value: 1,
+          value: el.index,
           label: el.bsName,
           bsId: el.bsId
         }));
@@ -420,7 +420,7 @@ export default {
         position: absolute;
         height: vw(40);
         line-height: vw(40);
-        margin-top: vw(15);
+        // margin-top: vw(15);
         border: vw(1) solid $borderColor1; // border-radius: vw(4);
         font-size: vw(24);
         text-align: center;
@@ -434,6 +434,10 @@ export default {
         border-color: #56baf9;
       }
     }
+  }
+  .fullbg {
+    background: url("../../../assets/full.png") no-repeat center;
+    background-size: 50%;
   }
 }
 </style>

@@ -4,7 +4,7 @@
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
       <div class="getcode">
-        <input type="text" placeholder="扫描二维码或输入编码" v-model="getCode" @blur="blur">
+        <input type="text" :placeholder="placeholde" v-model="getCode" @blur="blur">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="" @click.stop="scanCode">
       </div>
     </div>
@@ -15,6 +15,7 @@
 import muheader from "@/components/header";
 import { STROAGE } from "@/utils/muxin";
 import api from "@/api/api";
+import wx from 'weixin-js-sdk'
 export default {
   name: "faultReport",
   components: {
@@ -23,25 +24,26 @@ export default {
   data() {
     return {
       getCode: "", //
-      selText: "" // 下拉选择neirong
+      selText: "", // 下拉选择neirong
+      placeholde: '扫描二维码或输入编码'
     };
   },
-  created() {},
+  created() {
+    // this.wxConfig()  
+  },
   methods: {
-    blur() {
-      // 校验sn
-      // this.checkSn()
-    },
     useing() {
       this.checkSn();
     },
     scanCode() {
       console.log('asss')
       wx.scanQRCode({
-        needResult: 0, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+        needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
         scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
-        success: function(res) {
-          var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+        success: (res) => {
+          let result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+          this.getCode = res.resultStr.split('/').pop()
+          this.checkSn()
         }
       });
     },
@@ -60,7 +62,8 @@ export default {
           item: this.getCode
         });
       } else {
-        console.log("无效sn");
+        this.getCode = ''
+        this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
       }
     }
   }

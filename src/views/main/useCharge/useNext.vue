@@ -4,7 +4,7 @@
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
       <div class="getcode">
-        <input type="text" placeholder="扫描二维码或输入编码" v-model="getCode" @blur="blur">
+        <input type="text" :placeholder="placeholde" v-model="getCode" @blur="blur">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="" @click="scanCode">
       </div>
       <div class="tit">充电桩状态</div>
@@ -25,9 +25,10 @@
 </template>
 <script>
   import muheader from "@/components/header";
-  import { MessageBox } from 'element-ui'
+  import {
+    MessageBox
+  } from 'element-ui'
   import wx from 'weixin-js-sdk'
-
   import {
     STROAGE
   } from "@/utils/muxin";
@@ -41,7 +42,8 @@
       return {
         getCode: '', // 
         selText: '', // 下拉选择neirong
-        chargeSt: 0
+        chargeSt: 0,
+        placeholde: '扫描二维码或输入编码'
       };
     },
     created() {
@@ -62,39 +64,21 @@
         }
       },
       blur() {
-        console.log('sss')
+        // console.log('sss')
         // 校验sn
-        // this.checkSn()
+        this.checkSn()
       },
       scanCode() {
-      console.log('asss')
-      wx.scanQRCode({
-        needResult: 0, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
-        scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
-        success: function(res) {
-          var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
-          this.getCode = res.resultStr.split('/').pop()
-          const sn = res.result.split('/').pop()
-            // tip.showModal('提示', sn)
-            const codeRule = resultStr.split('/')[2]
-            console.log(resultStr.split('/')[2])
-            // if (codeRule !== 'www.startai.com.cn') {
-            //   tip.showModal('提示', '无效的终端，请确认扫描的二维码是否正确')
-            //   return false
-            // }
-            // let checkSnResponse = await api.checkScan({
-            //   query: {
-            //     sn: sn
-            //   }
-            // })
-            // if (checkSnResponse.statusCode === 200 && checkSnResponse.data.code === '200') {
-            //   console.log('检验成功')
-            //   console.log(this)
-            //   _this.queryOrdersBySn(sn)
-            // }
-        }
-      });
-    },
+        wx.scanQRCode({
+          needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+          scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+          success: (res) => {
+            let result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+            this.getCode = res.resultStr.split('/').pop()
+            this.checkSn()
+          }
+        });
+      },
       useing() {
         if (this.chargeSt) {
           let options = {
@@ -105,15 +89,15 @@
           }
           MessageBox(options).then(
             (actions) => {
-            if (actions === 'confirm') {
-              // 关闭充电桩
-              this.turnOff()
+              if (actions === 'confirm') {
+                // 关闭充电桩
+                this.turnOff()
+              }
             }
-          }
-          ).catch (
-          () => {
-            console.log('取消')
-          })
+          ).catch(
+            () => {
+              console.log('取消')
+            })
         } else {
           // 打开充电桩
           this.turnOn()
@@ -127,9 +111,14 @@
           }
         });
         if (res.code === 0) {
-          console.log('有效sn')
+          STROAGE({
+          type: "setItem",
+          key: "Sn",
+          item: this.getCode
+        });
         } else {
-          console.log('无效sn')
+         this.getCode = ''
+        this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
         }
       },
       // 打开充电桩
@@ -168,7 +157,8 @@
         if (res.code === 0) {
           // ...
         } else {
-          // console.log('无效sn')
+          this.getCode = ''
+          this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
         }
       },
       webSocketCallback() {
