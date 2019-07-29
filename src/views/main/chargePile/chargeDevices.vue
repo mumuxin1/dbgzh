@@ -164,9 +164,9 @@
       background: white;
       padding: vw(32) vw(17);
       display: flex;
-      .el-input__inner {
-        height: vw(64) !important;
-      }
+      // .el-input__inner {
+      //   height: vw(64) !important;
+      // }
       .select_element {
         width: vw(200);
         margin-right: vw(32);

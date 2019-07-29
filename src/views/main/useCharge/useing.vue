@@ -4,7 +4,7 @@
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
       <div class="getcode">
-        <input type="text" :placeholder="placeholde" v-model="getCode" @blur="blur">
+        <input type="text" :placeholder="placeholde" v-model="getCode">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="" @click.stop="scanCode">
       </div>
     </div>

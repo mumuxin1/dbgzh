@@ -78,6 +78,10 @@ const queryDeviceStatus = (params) => apiRequest.apiRequest(params, apiUrl + '/g
  * 查询微信JSSDK权限验证配置参数
  */
 const signature = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/signature')
+/**
+ * 上传图片
+ */
+const uploadProfile = (params) => apiRequest.apiRequest(params, apiUrl + '/v1.0/upload_profile_photo')
 
 export default {
   login,
@@ -100,5 +104,6 @@ export default {
   checkUserControlStatus,
   queryDeviceStatus,
   signature,
-  deviceFeedback
+  deviceFeedback,
+  uploadProfile
 }

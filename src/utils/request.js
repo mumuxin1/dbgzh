@@ -2,9 +2,10 @@ import axios from 'axios'
 import {
   STROAGE
 } from './muxin'
+
 function makeQuery(queryObject) {
   if (!queryObject) return ''
-  console.log('请求参数----》》》',queryObject)
+  console.log('请求参数----》》》', queryObject)
   const query = Object.entries(queryObject)
     .reduce((result, entry) => {
       if (entry[1]) {
@@ -16,7 +17,8 @@ function makeQuery(queryObject) {
 }
 const apiRequest = async (params = {}, url) => {
   let data = params.query || {}
-  url = params.method ===  'POST'? url : url + makeQuery(params.query)
+  params.method = params.method || 'GET' 
+  url = params.method === 'GET' ? url + makeQuery(params.query) : url
   // let contentType = parseInt(params.contentType) === 2 ? 'application/x-www-form-urlencoded; charset=utf-8' : 'application/json'
   //   // data.sign = SIGN
   //   // data.time = TIMESTAMP
@@ -32,6 +34,20 @@ const apiRequest = async (params = {}, url) => {
   // if (data && params.method === 'GET') {
   //   data.
   // }
+  if (params.method === 'myupload') {
+    let instance = axios.create({
+      baseURL: url,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+
+    });
+    instance.post(url, data).then(res => {
+      return res.data
+    }).catch(error => {
+      console.log(error);
+    })
+  }
   let httpDefaultOpts = {
     method: params.method || 'GET',
     url: url,
@@ -43,7 +59,7 @@ const apiRequest = async (params = {}, url) => {
       'Content-Type': 'application/json; charset=UTF-8',
       'X-Access-Token': token
     } : {
-      'X-Requested-With': 'XMLHttpRequest',
+      'X-Requested-With': '/myupload',
       'Content-Type': 'application/json; charset=UTF-8',
       'X-Access-Token': token
     }
@@ -59,7 +75,7 @@ const apiRequest = async (params = {}, url) => {
     return err
   }
   // console.log('request----', res)
-  
+
   // new Promise((resolve, reject) => {
   //   axios(httpDefaultOpts).then(
   //     (res) => {

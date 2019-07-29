@@ -6,13 +6,14 @@ import './registerServiceWorker'
 import './plugins/element.js'
 import wx from 'weixin-js-sdk'
 import 'lib-flexible/flexible.js'
-
+import './styles/customElement.scss'
 import {
   Input,
   Select,
   Option,
   TimePicker,
-  DatePicker
+  DatePicker,
+  Tooltip 
 } from 'element-ui';
 import { Script } from 'vm';
 Vue.config.productionTip = false
@@ -22,6 +23,7 @@ Vue.use(Input)
   .use(Option)
   .use(TimePicker)
   .use(DatePicker)
+  .use(Tooltip)
   .use(wx)
 new Vue({
   router,

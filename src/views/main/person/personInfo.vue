@@ -2,9 +2,10 @@
   <div class="personInfo">
     <mu-header class="muHeader" title="我的充电桩" :left="false" :back="true"></mu-header>
     <div class="content">
-      <div class="top" @click="$router.push('/step1')">
+      <div class="top" @click="pageDebugs">
+        <!-- @click="$router.push('/step1')" -->
         <div class="headerPic">
-          <img :src="userInfo.userInfo.avatar" alt="">
+          <img :src="avatar" alt="">
         </div>
         <div class="info">
           <!-- <div class="cow">
@@ -13,11 +14,11 @@
             </div>-->
           <div class="cow">
             <span class="tit">号码</span>
-            <span class="txt">{{userInfo.userInfo.phone}}</span>
+            <span class="txt">{{userInfo.phone}}</span>
           </div>
           <div class="cow">
             <span class="tit">姓名</span>
-            <span class="txt">{{userInfo.userInfo.realname}}</span>
+            <span class="txt">{{userInfo.realname}}</span>
           </div>
         </div>
       </div>
@@ -40,7 +41,7 @@
           <img src="@/assets/dian_my_chaxun@3x.png" alt="">
           <span>交易查询</span>
         </div>
-        <div class="lis" v-if="userInfo.userInfo.userType !==3 " @click="menu(4)">
+        <div class="lis" v-if="userInfo.userType !==3 " @click="menu(4)">
           <img src="@/assets/dian_my_qianbao@3x.png" alt="">
           <span>我的钱包</span>
         </div>
@@ -48,7 +49,7 @@
           <img src="@/assets/dian_my_zhuanghu@3x.png" alt="">
           <span>桩户信息</span>
         </div>
-        <div class="lis" v-if="userInfo.userInfo.userType !== 3" @click="menu(6)">
+        <div class="lis" v-if="userInfo.userType !== 3" @click="menu(6)">
           <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>
@@ -63,6 +64,7 @@
     STROAGE
   } from "@/utils/muxin";
   import api from "@/api/api";
+  import websocket from '@/utils/webSocket'
   import wx from "weixin-js-sdk";
   const defauImg = require("../../../assets/dian_my_userpic@3x.png");
   export default {
@@ -74,24 +76,95 @@
       return {
         userInfo: "",
         pageNo: 1,
-        pageSize: 10
+        pageSize: 10,
+        pageDebug: 0,
+        avatar: ''
       };
     },
     created() {
       this.data_Init();
+      this.wxConfig()
+      this.socket_init()
     },
     methods: {
+      wxConfig() {
+        let url = window.location.href.split('#')[0]
+        // url = url.substr(0, url.length - 1)
+        // 查询微信JSSDK权限验证配置参数
+        this.signature(url)
+      },
+      pageDebugs () {
+        this.pageDebug++
+        console.log(this.pageDebug)
+        if (this.pageDebug > 3) {
+          this.$router.push('/step1')
+          this.pageDebug = 0
+        }
+      },
+      // 查询微信JSSDK权限验证配置参数
+      async signature(url) {
+        let res = await api.signature({
+          query: {
+            url: url
+          }
+        });
+        if (res.code === 0) {
+          wx.config({
+            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: res.result.appId, // 必填，公众号的唯一标识
+            timestamp: res.result.timestamp, // 必填，生成签名的时间戳
+            nonceStr: res.result.nonceStr, // 必填，生成签名的随机串
+            signature: res.result.signature, // 必填，签名
+            jsApiList: ['openLocation', 'getLocalImgData', 'scanQRCode', 'chooseImage'] // 必填，需要使用的JS接口列表
+          });
+          wx.ready(function(){
+          })
+          wx.error(function(res){
+            console.log(res)
+              // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+          });
+          // console.log('有效sn')
+        } else {
+          // console.log('无效sn')
+        }
+      },
+      socket_init() {
+        let userInfo = STROAGE({
+          type: 'getItem',
+          key: 'UserInfo'
+        })
+        if (userInfo) {
+          userInfo = JSON.parse(userInfo).userInfo
+          let userId = userInfo.id
+          let url = `//47.112.22.47:8082/shared-admin/websocket?userid=${userId}`
+          // let url = `//192.168.1.132:8088/shared-admin/websocket?userid=${userId}`
+          this.$parent.webSocket = websocket(url)
+          this.$parent.webSocket.onmessage = (message) => {
+            console.log(message.data)
+            this.$parent.webSocketData = message.data
+            this.$parent.webSocketCallback(message.data)
+          }
+        }
+      },
       data_Init() {
         let userInfo = STROAGE({
           type: "getItem",
           key: "UserInfo"
         });
+          console.log(userInfo, 'kskk')
         if (userInfo) {
           userInfo = JSON.parse(userInfo);
-          this.userInfo = userInfo;
-          if (!this.userInfo || !this.userInfo.userInfo.avatar) {
-            this.userInfo.userInfo.avatar = 'http://file.startai.com.cn:3108/group1/M00/00/07/wKgQzV0S_uGAZkdAAAOrde8OqK8558.png';
+          this.userInfo = userInfo.userInfo;
+          try{
+            if (!this.userInfo.avatar) {
+            this.avatar = 'http://file.startai.com.cn:3108/group1/M00/00/07/wKgQzV0S_uGAZkdAAAOrde8OqK8558.png';
+          } else {
+            this.avatar = this.userInfo.avatar
           }
+          }catch (err) {
+
+          }
+          
         }
         this.pageSize = Math.ceil(this.$parent.clientHeight / 220);
         console.log(this.pageSize);

@@ -3,9 +3,10 @@
 //   remUnit: 32.5 // 基准大小 baseSize，需要和rem.js中相同
 // })
 module.exports = {
-  // devServer: {
-  //   proxy: 'http://192.168.1.132:8080/shared-power-bank-admin'
-  // },
+  devServer: {
+    // proxy: 'http://192.168.1.132:8080/shared-power-bank-admin'
+    disableHostCheck: true
+  },
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   // css: {
   //   loaderOptions: {

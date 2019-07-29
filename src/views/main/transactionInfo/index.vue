@@ -65,7 +65,7 @@
         <span :class="orderType === 3 ? 'navActived' : ''" @click="tabNav(3)">预约中</span>
       </div>
       <div class="list" :class="orderList.length > 0? '' : 'fullbg'">
-        <ul v-for="item in orderList" :key="item.index" @click="details(item.sn)">
+        <ul v-for="item in orderList" :key="item.index">
           <li>
             <span class="color_99">站点名称</span>
             <span class="color_99">{{item.bsName}}</span>

@@ -15,12 +15,16 @@
           <span class="">桩户联系方式</span>
           <input class="liInput" type="number" v-model="houseHoldDetails.phone">
         </li>
-        <li @click="openLocation">
+        <!-- <li @click="openLocation">
           <span>地址</span>
           <div class="rticon">
             <span>请选择</span>
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
+        </li> -->
+         <li class="txone">
+          <span class="">地址</span>
+          <input class="liInput" type="text" v-model="houseHoldDetails.address">
         </li>
         <li class="txone">
           <span class="">营业时间</span>
