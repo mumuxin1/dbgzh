@@ -53,6 +53,14 @@
           <img src="@/assets/dian_my_jilu@3x.png" alt="">
           <span>申请记录</span>
         </div>
+        <div class="lis" v-if="userInfo.userType !== 3" @click="menu(7)">
+          <img src="@/assets/dian_my_guazhangweixiu@3x.png" alt="">
+          <span>设备故障</span>
+        </div>
+        <div class="lis" v-if="userInfo.userType !== 3" @click="menu(8)">
+          <img src="@/assets/dian_my_yijifanfankui@3x.png" alt="">
+          <span>意见反馈</span>
+        </div>
       </div>
       <div class="box"></div>
     </div>
@@ -196,13 +204,7 @@
             this.$router.push("/transactionInfo");
             break;
           case 4:
-            wx.scanQRCode({
-              needResult: 0, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
-              scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
-              success: function(res) {
-                var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
-              }
-            });
+            this.$router.push('/wallet')
             break;
           case 5:
             // 桩户信息
@@ -216,6 +218,20 @@
             this.queryApplyList();
             this.$router.push("/applicationRecord");
             break;
+
+          case 7:
+            // 申请记录
+            // 查询申请记录
+            // this.queryApplyList();
+            this.$router.push("/equimentFailure");
+            break;
+          case 8:
+            // 申请记录
+            // 查询申请记录
+            // this.queryApplyList();
+            // this.$router.push("/applicationRecord");
+            break;
+
           default:
             break;
         }

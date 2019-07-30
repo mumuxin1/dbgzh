@@ -156,3 +156,98 @@ input,textarea {
   bottom:-100px !important;
   display: none !important;
 }
+/**
+公共样式
+*/
+@function vw($px) {
+  @return ($px / 750) * 100vw;
+}
+@function vh($px) {
+  @return ($px / 1334) * 100vh;
+}
+.flex{
+  display: flex;
+}
+.bold{
+  font-weight: bold;
+}
+.line{
+  width: 100%;
+  height: vw(2);
+  background: #e5e5e5;
+}
+.mu-list{
+  width: 100%;
+  height: auto;
+  padding: 0 vw(32);
+  background: white;
+  display: flex;
+  flex-direction: column;
+  border-radius: vw(7);
+  li{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: vw(120);
+  }
+  .flex2{
+    flex: 2;
+    text-align: left;
+  }
+  .flex4{
+    flex: 4
+  }
+  .flex6{
+    flex: 6;
+  }
+  .flex8{
+    flex: 8
+  }
+  .r-icon{
+    .right{
+      display: flex;
+      color: #999999;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    color: #999999;
+    img{
+      width: vw(16);
+      height: vw(28);
+      margin-left: vw(16);
+    }
+  }
+  .noicon{
+    .right{
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+}
+.w1{
+  width: 1;
+}
+.w2{
+  width: 20%;
+}
+.w3{
+  width: 30%;
+}
+.w4{
+  width: 40%;
+}
+.w5{
+  width: 50%
+}
+.w6{
+  width: 60%;
+}
+.w7{
+  width: 70%;
+}
+.w8{
+  width: 80%;
+}
+.w9{
+  width: 90%;
+}

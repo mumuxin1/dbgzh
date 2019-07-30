@@ -62,6 +62,7 @@ import { Tree } from 'element-ui';
 </script>
 
 <style lang="scss">
+@import"./styles/theme.scss";
   @import "./styles/rset.scss";
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;

@@ -91,6 +91,41 @@ export default new Router({
       path: '/houseHoldDetails',
       name: 'houseHoldDetails',
       component: () => import('@/views/main/pileHousehold/details.vue')
+    },
+    {
+      path: '/equimentFailure',
+      name: 'equimentFailure',
+      component: () => import('@/views/main/equimentFailure/index.vue')
+    },
+    {
+      path: '/dealWithFailure',
+      name: 'dealWithFailure',
+      component: () => import('@/views/main/equimentFailure/dealWithFailure.vue')
+    },
+    {
+      path: '/dealWithResult',
+      name: 'dealWithFailure',
+      component: () => import('@/views/main/equimentFailure/dealWithResult.vue')
+    },
+    {
+      path: '/wallet',
+      name: 'wallet',
+      component: () => import('@/views/main/wallet/index.vue')
+    },
+    {
+      path: '/withdraw',
+      name: 'withdraw',
+      component: () => import('@/views/main/wallet/withdraw.vue')
+    },
+    {
+      path: '/withdrawRecord',
+      name: 'withdrawRecord',
+      component: () => import('@/views/main/wallet/withdrawRecord.vue')
+    },
+    {
+      path: '/withdrawSuccess',
+      name: 'withdrawRecord',
+      component: () => import('@/views/main/wallet/withdrawSuccess.vue')
     }
   ]
 })

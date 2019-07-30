@@ -40,7 +40,6 @@ const apiRequest = async (params = {}, url) => {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-
     });
     instance.post(url, data).then(res => {
       return res.data
@@ -59,7 +58,7 @@ const apiRequest = async (params = {}, url) => {
       'Content-Type': 'application/json; charset=UTF-8',
       'X-Access-Token': token
     } : {
-      'X-Requested-With': '/myupload',
+      'X-Requested-With': 'XMLHttpRequest',
       'Content-Type': 'application/json; charset=UTF-8',
       'X-Access-Token': token
     }

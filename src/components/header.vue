@@ -64,7 +64,7 @@
     width: 100%;
     height: vw(85);
     position: relative;
-    background: #2d9efd;
+    background: $bgPageColor3;
   }
   .betw {
     width: 100%;
