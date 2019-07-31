@@ -4,10 +4,10 @@
     <div class="content">
      <img src="@/assets/dianbo_public_success@3x.png" alt="">
      <span class="bold des">提现申请已提交，等待人工审核</span>
-     <span>2018-08-20   22:30:58</span>
+     <span>{{t}}</span>
      <span>预计到账时间：1~5个工作日</span>
     </div>
-    <div class="button-g button">完成</div>
+    <div class="button-g button" @click="$router.go(-2)">完成</div>
 
   </div>
 </template>
@@ -23,33 +23,16 @@ export default {
   },
   data() {
     return {
-      getCode: "", //
-      selText: "", // 下拉选择neirong
-      placeholde: "扫描二维码或输入编码"
+      t: "",
     };
   },
   created() {
-    // this.wxConfig()
+    this.data_init()
   },
   methods: {
-    // 校验sn
-    async checkSn() {
-      let res = await api.checkSn({
-        query: {
-          sn: this.getCode
-        }
-      });
-      if (res.code === 0) {
-        this.$router.push("/useNext");
-        STROAGE({
-          type: "setItem",
-          key: "Sn",
-          item: this.getCode
-        });
-      } else {
-        this.getCode = "";
-        this.placeholde = "无效sn,请重新输入或者检查二维码是否正确";
-      }
+    data_init() {
+      let url = location.href.split('=')[1]
+      this.t = unescape(url)
     }
   }
 };

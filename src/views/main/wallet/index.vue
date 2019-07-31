@@ -3,20 +3,20 @@
     <mu-header class="muHeader" title="我的钱包" :left="true" :back="true"></mu-header>
     <div class="flex top">
       <span>昨日收益</span>
-      <span class="balance"><font class="bold">357.87</font>元
-  </span>
-      <span>累计收益31480.5元</span>
+      <span class="balance"><font class="bold">{{walletInfo.yesterdayIncome| moneyForamt}}</font>元
+    </span>
+      <span>累计收益 {{walletInfo.allIncome| moneyForamt}} 元</span>
     </div>
     <div class="content">
       <ul class="mu-list">
         <!-- <li class="noicon"> 
-            <span></span>
-            <span></span>
-          </li> -->
+              <span></span>
+              <span></span>
+            </li> -->
         <li class="r-icon" @click="menu(1)">
           <span class="flex2">提现</span>
           <div class="right flex8">
-            <span>可提现2890.2元</span>
+            <span>可提现 {{walletInfo.balance| moneyForamt}} 元</span>
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li>
@@ -24,7 +24,6 @@
         <li class="r-icon" @click="menu(2)">
           <span class="flex2">提现记录</span>
           <div class="right flex8">
-            <span>xx</span>
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li>
@@ -32,17 +31,17 @@
         <li class="r-icon">
           <span class="flex2">冻结金额</span>
           <div class="right flex8">
-            <span>0.00元</span>
+            <span>{{walletInfo.freezeFee | moneyForamt}}元</span>
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li>
         <!-- <li class="l-icon"> 
-            <div class="right">
-              <span>xx</span>
-              <img src="@/assets/dianbo_public_right@3x.png" alt="">
-            </div>
-            <span></span>
-          </li> -->
+              <div class="right">
+                <span>xx</span>
+                <img src="@/assets/dianbo_public_right@3x.png" alt="">
+              </div>
+              <span></span>
+            </li> -->
       </ul>
     </div>
     <p>
@@ -67,45 +66,83 @@
       return {
         getCode: "", //
         selText: "", // 下拉选择neirong
-        placeholde: '扫描二维码或输入编码'
+        walletInfo: {}
       };
     },
     created() {
-      // this.wxConfig()  
+      // 查询钱包信息
+      this.queryUserWalletInfo()
+      this.data_Init();
+    },
+    filters: {
+      moneyForamt: (a) => {
+        if (a) {
+          return (parseInt(a) / 100).toFixed(2)
+        } else {
+          return 0
+        }
+      }
     },
     methods: {
+      data_Init() {
+        let walletInfo = JSON.parse(
+          STROAGE({
+            type: "getItem",
+            key: "WalletInfo"
+          })
+        );
+        if (walletInfo) {
+          this.walletInfo = walletInfo
+        }
+      },
       useing() {
         this.checkSn();
       },
-      menu (index) {
+      menu(index) {
         switch (index) {
           case 1:
             this.$router.push('/withdraw')
             break;
           case 2:
-            this.$router.push('/withdrawRecord')
+            // 查询提现记录
+            this.queryWithdrawList()
             break;
           default:
             break;
         }
       },
-      //, 校验sn
-      async checkSn() {
-        let res = await api.checkSn({
+      // 查询提现记录
+      async queryWithdrawList() {
+        let res = await api.queryWithdrawList({
           query: {
-            sn: this.getCode
+            column: "createTime",
+            order: "desc",
+            pageNo: '',
+            pageSize: ''
           }
         });
         if (res.code === 0) {
-          this.$router.push("/useNext");
+          this.$router.push('/withdrawRecord')
+         
           STROAGE({
             type: "setItem",
-            key: "Sn",
-            item: this.getCode
+            key: "WithdrawList",
+            item: res.result.records
           });
         } else {
-          this.getCode = ''
-          this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
+          // ...
+        }
+      },
+      // 查询钱包信息
+      async queryUserWalletInfo() {
+        let res = await api.queryUserWalletInfo();
+        if (res.code === 0) {
+          this.walletInfo = res.result
+          STROAGE({
+            type: "setItem",
+            key: "WalletInfo",
+            item: res.result
+          });
         }
       }
     }

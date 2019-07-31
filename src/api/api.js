@@ -82,6 +82,30 @@ const signature = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/signa
  * 上传图片
  */
 const uploadProfile = (params) => apiRequest.apiRequest(params, apiUrl + '/v1.0/upload_profile_photo')
+/**
+ * 钱包
+ */
+// 查询钱包信息
+const queryUserWalletInfo = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/userWallet')
+// 体现申请
+const withdrawApply = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/withdrawApply')
+// 查询提现记录
+const queryWithdrawList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryWithdrawList')
+
+/**
+ * 设备故障
+ */
+// 故障设备列表
+const queryFailureEquList = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryUsersFeedbackList')
+// 故障详情
+const queryFailureEquInfo = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/queryUsersFeedbackInfo')
+// 提交故障处理
+const postDealWithResult = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/postDealWithResult')
+
+/**
+ * 意见反馈
+ */
+const opinionFeedback = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/opinionFeedback')
 
 export default {
   login,
@@ -105,5 +129,12 @@ export default {
   queryDeviceStatus,
   signature,
   deviceFeedback,
-  uploadProfile
+  uploadProfile,
+  queryUserWalletInfo,
+  withdrawApply,
+  queryWithdrawList,
+  queryFailureEquList,
+  queryFailureEquInfo,
+  postDealWithResult,
+  opinionFeedback
 }

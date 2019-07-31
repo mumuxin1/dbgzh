@@ -9,11 +9,11 @@
         <li class="w2 bold"><span>状态</span></li>
       </ul>
       <div class="line"></div>
-      <ul>
-        <li class="w3 left">2019.07.12 07:47:39</li>
+      <ul v-for="item in withdrawList" :key="item.index">
+        <li class="w3 left">{{item.createTime}}</li>
         <li class="w3">微信钱包</li>
-        <li class="w2">470.2 </li>
-        <li class="w2">成功</li>
+        <li class="w2">{{item.actualFee}} </li>
+        <li class="w2">{{item.reviewStatus === 1? '成功': '失败'}}</li>
       </ul>
     </div>
   </div>
@@ -32,32 +32,35 @@ export default {
     return {
       getCode: "", //
       selText: "", // 下拉选择neirong
-      placeholde: "扫描二维码或输入编码"
+      withdrawList: []
     };
   },
   created() {
-    // this.wxConfig()
+    this.queryWithdrawList()
   },
   methods: {
-    // 校验sn
-    async checkSn() {
-      let res = await api.checkSn({
-        query: {
-          sn: this.getCode
-        }
-      });
-      if (res.code === 0) {
-        this.$router.push("/useNext");
-        STROAGE({
-          type: "setItem",
-          key: "Sn",
-          item: this.getCode
+    // 查询提现记录
+      async queryWithdrawList() {
+        let res = await api.queryWithdrawList({
+          query: {
+            column: "createTime",
+            order: "desc",
+            pageNo: '',
+            pageSize: ''
+          }
         });
-      } else {
-        this.getCode = "";
-        this.placeholde = "无效sn,请重新输入或者检查二维码是否正确";
+        if (res.code === 0) {
+          this.$router.push('/withdrawRecord')
+          this.withdrawList = res.result.records
+          STROAGE({
+            type: "setItem",
+            key: "WithdrawList",
+            item: res.result.records
+          });
+        } else {
+          // ...
+        }
       }
-    }
   }
 };
 </script>

@@ -7,16 +7,16 @@
       <ul>
         <li class="tit">基本信息</li>
         <!-- <li class="selAdres">
-              <span>地址</span>
-              <div class="rticon">
-                <span>请选择</span>
-                <img src="@/assets/dianbo_public_right@3x.png" alt="">
-              </div>
-            </li>-->
+                      <span>地址</span>
+                      <div class="rticon">
+                        <span>请选择</span>
+                        <img src="@/assets/dianbo_public_right@3x.png" alt="">
+                      </div>
+                    </li>-->
         <li class="selAdres">
           <span>地址</span>
           <div class="rticon" :class="address === null ? 'fullInput': ''">
-            <!-- <input type="text" placeholder="请输入" v-model="address"> -->
+            <input type="text" placeholder="请输入" v-model="address">
             <!-- <input type="file" placeholder="请输入" v-model="address"> -->
           </div>
         </li>
@@ -69,8 +69,8 @@
           </el-select>
         </li>
         <span class="des mar48">
-              <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-            </span>
+                      <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                    </span>
         <span class="des">请选择充电 环境照片</span>
         <div class="upImg">
           <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
@@ -78,7 +78,7 @@
             <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
           </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-          <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg">
+          <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg" v-if="tempFilePaths.length < 4">
         </div>
       </ul>
       <div @click="next">
@@ -97,6 +97,8 @@
   import muheader from "@/components/header";
   import wx from "weixin-js-sdk";
   import api from "@/api/api";
+import { constants } from 'fs';
+import { parse } from 'path';
   export default {
     name: "step1",
     components: {
@@ -135,11 +137,13 @@
         startTime2: "",
         endTime2: "",
         tempFilePaths: [],
+        httpFilePaths: [], // 图片上传服务器返回地址
         addPhoto: true,
         text: "",
         placeholde: "扫描二维码或输入编码",
         disabled: false,
-        address: ""
+        address: "",
+        file: null
       };
     },
     created() {
@@ -158,41 +162,36 @@
       async uploadFile(e) {
         let _this = this
         console.log(e.path[0].files)
-        // var reader = new FileReader();
-        // // // reader.readAsDataURL(e.path[0].files[0]);//发起异步请求
-        // reader.readAsArrayBuffer(e.path[0].files[0])
-        // reader.onload = async function() {
-        //   //读取完成后，数据保存在对象的result属性中
-        //   // _this.tempFilePaths.push(this.result)
-        //   console.log(this.result)
-        //   console.log(new Blob([this.result]))
-        //   let res = await api.uploadProfile({
-        //     method: 'myupload',
-        //     query: {
-        //       file: this.result
-        //     }
-        //   })
-        // }
-        var params = new FormData();
-        params.append('file', e.path[0].files[0]);
-        console.log(params.get('file'))
-        let res = await api.uploadProfile({
-          method: 'myupload',
-          query: {
-            file: params
-          }
-        })
-        // var oReq = new XMLHttpRequest();
-        // oReq.open("POST", process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo');
-        // oReq.setRequestHeader("Content-Type", "application/json; charset=UTF-8")
-        // oReq.send(params);
+        let file = e.path[0].files
+        this.file = file
+        console.log(file,'11111')
+        // let reader = new FileReader();
+        for (let i = 0; i< file.length; i++) {
+          console.log(file[i], '2222')
+          let s = file[i]
+          let binaryData = [];
+          binaryData.push(file[i]);
+          let src = window.URL.createObjectURL(new Blob(binaryData, {
+            type: "application/zip"
+          }))
+          console.log(src, '333')
+          // let src = window.URL.createObjectURL(s)
+          this.tempFilePaths.push(src)
+        }
+        // var params = new FormData();
+        // params.append('file', e.path[0].files[0]);
+        // // console.log(params.get('file'))
+        // console.log(params)
         // let res = await api.uploadProfile({
-        //   method: 'POST',
+        //   method: 'myupload',
+        //   vim: this,
         //   query: {
-        //     file: this.tempFilePaths[0]
+        //     file: params
         //   }
         // })
-        // console.log(res)
+        // if (res) {
+        //   console.log(res)
+        // }
       },
       wxConfig() {
         let url = window.location.href.split('#')[0]
@@ -210,58 +209,23 @@
         }
         console.log(this.chargeData);
       },
-      chooseImg() {
-        wx.chooseImage({
-          count: 4, // 默认9
-          sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
-          sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
-          success: res => {
-            var localIds = res.localIds;
-            res.localIds.forEach(element => {
-              this.tempFilePaths.push(element);
-            });
-            console.log(this.tempFilePaths)
-            if (this.tempFilePaths.length >= 3) {
-              this.addPhoto = false;
-            } else {
-              this.addPhoto = true;
-            } // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-          }
-        });
-      },
       del(index) {
         this.tempFilePaths.splice(index, 1);
         this.addPhoto = true;
       },
       next() {
-        // 检测输入庄主信息
-        // wx.uploadImage({
-        //     localId: '', // 需要上传的图片的本地ID，由chooseImage接口获得
-        //     isShowProgressTips: 1, // 默认为1，显示进度提示
-        //     success: function(res) {
-        //       var serverId = res.serverId; // 返回图片的服务器端ID
-        //       console.log(serverId)
-        //     }
-        //   });
-        this.tempFilePaths.forEach(el => {
-          wx.uploadImage({
-            localId: el, // 需要上传的图片的本地ID，由chooseImage接口获得
-            isShowProgressTips: 1, // 默认为1，显示进度提示
-            success: function(res) {
-              var serverId = res.serverId; // 返回图片的服务器端ID
-              console.log(serverId)
-              wx.downloadImage({
-                serverId: serverId, // 需要下载的图片的服务器端ID，由uploadImage接口获得
-                isShowProgressTips: 1, // 默认为1，显示进度提示
-                success: function(res) {
-                  var localId = res.localId; // 返回图片下载后的本地ID
-                }
-              });
-            }
-          });
-        })
-        // let falg = this.textDectorers();
-        // if (!falg) return false;
+        let falg = this.textDectorers();
+        if (!falg) return false;
+        // new Promise((resolve, reject) => {
+          // let falg = this.tempFilePaths.length
+          this.tempFilePaths.forEach((el, index) => {
+            var params = new FormData();
+            params.append('file', this.file[index]);
+            this.uploadImages(params, index)
+          })
+        // }).then((a) => {
+        //   console.log(this.httpFilePaths, 'kkkkkkkkkkkkkk')
+        // })
         this.disabled = true;
         // this.applicationOwner();
       },
@@ -300,11 +264,27 @@
         if (!this.selText2) {
           return false;
         }
-        console.log('ddd')
         falg = true;
         if (falg) {
           return true;
         }
+      },
+      async uploadImages (params, index) {
+        let res =  await api.uploadProfile({
+              method: 'myupload',
+              query: {
+                file: params
+              }
+            })
+          if (res.code === 200) {
+            console.log(res.result.headUrl)
+            console.log(index)
+            this.httpFilePaths.push(res.result.headUrl)
+            if (index === this.tempFilePaths.length - 1) {
+            console.log('success', this.httpFilePaths)
+              this.applicationOwner();
+            }
+          }
       },
       async applicationOwner() {
         let res = await api.applicationOwner({
@@ -318,7 +298,7 @@
             voltage: this.power,
             groundWireStatus: this.selText,
             cooperationType: this.selText2,
-            imgs: "img/demo.jpg,img/demo2.png"
+            imgs: this.httpFilePaths.toString(',')
           }
         });
         if (res.code === 200) {
@@ -495,11 +475,12 @@
         text-align: left;
       }
       .upImg {
-        width: 100%;
+        width: 102%;
         height: vw(150);
         flex-wrap: wrap;
         display: flex;
         margin-bottom: vw(32);
+        margin-left: vw(-10);
         img {
           width: vw(60);
           height: vw(48); // background: red;
@@ -535,6 +516,9 @@
             margin: 0;
           }
         }
+        .nomarRi {
+          margin-right: 0;
+        }
       }
     }
     .button {
@@ -551,10 +535,12 @@
       color: red;
     }
     .el-button--default {
-      width: 94% !important;
+      width: 92% !important;
     }
     .el-button {
       padding: 0;
+      height: vw(90) !important;
+      line-height: vw(90) !important;
     }
   }
 </style>

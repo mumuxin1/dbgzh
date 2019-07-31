@@ -1,31 +1,33 @@
 <template>
   <div class="applicationRecord">
     <mu-header class="muHeader" title="设备故障" :left="true" :back="true"></mu-header>
-    <div class="content" :class="failureList.length > 0? '' : 'fullbg'">
-      <ul v-for="item in applyList" :key="item.index" @click="details">
+    <div class="content" :class="failureEquList.length > 0? '' : 'fullbg'">
+      <ul v-for="item in failureEquList" :key="item.index" @click="details(item.fbId)">
         <li>
           <span class="">站点名称</span>
-          <span>{{item.deviceModelName}}</span>
+          <span>{{item.bsName}}</span>
 
-          <!-- <div class="liButton" v-if="item.status === 1">审核中</div> -->
+          <div class="liButton red" v-if="item.dealStatus === 1">新故障</div>
+          <div class="liButton blu" v-if="item.dealResult === 1">已解决</div>
+          <div class="liButton" v-if="item.dealResult === 2">未解决</div>
         </li>
         <li>
           <span class="">设备编号</span>
-          <span>{{item.deviceModelName}}</span>
+          <span>{{item.sn}}</span>
         </li>
         <li>
-          <span class="">所住地址</span>
-          <span>{{item.deviceNum}}</span>
+          <span class="">安装位置</span>
+          <span>{{item.installationLocation}}</span>
         </li>
         <li>
           <span class="">客户名称</span>
-          <span>{{item.deviceNum}}</span>
+          <span>{{item.nickName}}</span>
         </li>
         <li>
           <span class="">反馈时间</span>
-          <span>{{item.deviceNum}}</span>
+          <span>{{item.createTime}}</span>
         </li>
-        <div class="navButton" @click="cancelApply(item.id)" v-if="item.status === 1">撤销申请</div>
+        <div class="navButton" @click="cancelApply(item.id)" v-if="item.dealResult !== 2">去处理</div>
       </ul>
     </div>
   </div>
@@ -43,7 +45,7 @@ export default {
   data() {
     return {
       selText: "", // sousuoneirong
-      failureList: "", // 故障列表
+      failureEquList: "", // 故障列表
       deviceList: [],
       bsId: "",
       startTime: "",
@@ -55,8 +57,8 @@ export default {
   },
   created() {
     this.data_Init();
-    // 查询申请记录
-    // this.queryfailureList();
+    // 查询故障设备列表
+    this.queryFailureEquList();
   },
   filters: {
     moneyFormat: params => {
@@ -64,54 +66,27 @@ export default {
     }
   },
   methods: {
-    // data_Init() {
-    //   let failureList = JSON.parse(
-    //     STROAGE({
-    //       type: "getItem",
-    //       key: "FailureList"
-    //     })
-    //   );
-    //   if (failureList) {
-    //     this.failureList = failureList;
-    //   }
-    //   console.log(this.failureList);
-    // },
     data_Init() {
-      let applyList = JSON.parse(
+      let failureEquList = JSON.parse(
         STROAGE({
           type: "getItem",
-          key: "ApplyList"
+          key: "FailureEquList"
         })
       );
-      if (applyList) {
-        this.applyList = applyList;
+      if (failureEquList) {
+        this.failureEquList = failureEquList;
       }
-      console.log(this.applyList);
+      console.log(this.failureEquList);
     },
-    details () {
-      this.$router.push('/dealWithFailure')
+    details (fbId) {
+      // 查询故障设备详情
+
+      this.queryFailureEquInfo(fbId)
+      
     },
-    cancelApply(id) {
-      // 撤销申请
-      let options = {
-        title: "确认要撤销申请吗？",
-        message: "撤销后不可恢复，需要重新申请",
-        showCancelButton: true,
-        center: true
-      };
-      MessageBox(options)
-        .then(actions => {
-          if (actions === "confirm") {
-            this.cancelUserApply(id);
-          }
-        })
-        .catch(() => {
-          console.log("取消");
-        });
-    },
-    // 查询申请记录
-    async queryfailureList() {
-      let res = await api.queryApplyList({
+    // 查询故障设备列表
+    async queryFailureEquList() {
+      let res = await api.queryFailureEquList({
         query: {
           column: "createTime",
           order: "desc",
@@ -123,21 +98,25 @@ export default {
         this.failureList = res.result.records;
         STROAGE({
           type: "setItem",
-          key: "FailureList",
+          key: "FailureEquList",
           item: res.result.records
         });
       }
     },
-    // 撤销申请
-    async cancelUserApply(id) {
-      let res = await api.cancelUserApply({
+    // 查询故障设备详情
+    async queryFailureEquInfo(fbId) {
+      let res = await api.queryFailureEquInfo({
         query: {
-          id: id
+          fbId: fbId
         }
       });
       if (res.code === 0) {
-        // 查询申请记录
-        this.queryApplyList();
+        STROAGE({
+          type: "setItem",
+          key: "FailureEquDetails",
+          item: res.result
+        });
+        this.$router.push(`/dealWithFailure?fbId=${fbId}`)
       }
     }
   }
@@ -205,13 +184,20 @@ export default {
         color: #56baf9;
         border-color: #56baf9;
       }
+      .red{
+        border-color: #ff5858;
+        color: #ff5858;
+      }
       .navButton {
-        width: 100%;
-        height: vw(90);
-        line-height: vw(90);
+        position: absolute;
+        bottom: vw(20);
+        right: vw(32);
+        width: 19%;
+        height: vw(64);
+        line-height: vw(64);
         background: $bgPageColor3;
         color: $fontColor3;
-        margin-top: vw(30);
+        // margin-top: vw(30);
         border-radius: vw(10);
       }
     }

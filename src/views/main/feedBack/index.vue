@@ -1,26 +1,21 @@
 <template>
-  <div class="dealWithResult">
-    <mu-header class="muHeader" title="故障上报" :left="true" :back="true"></mu-header>
+  <div class="feedBack">
+    <mu-header class="muHeader" title="意见反馈" :left="true" :back="true"></mu-header>
     <div class="content">
-      <div class="tit">基本信息</div>
+      <div class="tit">请选择你想反馈的问题点</div>
       <div class="radio">
-        <div class="sel" @click="selACtive = 1">
-          <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-if="selACtive === 0 || selACtive === ''">
-          <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === 1">
-          <span>已解决</span>
-        </div>
-        <div class="sel" @click="selACtive = 0">
-          <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-if="selACtive === 1 || selACtive === ''">
-          <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === 0">
-          <span>未解决</span>
+        <div class="sel" @click="selACtives(item)" v-for="item in selOptions" :key="item.index">
+          <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === item.index">
+          <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-else>
+          <span>{{item.des}}</span>
         </div>
       </div>
-      <div class="tit">请描述设备具体故障</div>
+      <div class="tit">请补充详细问题和意见</div>
       <div class="text">
-        <textarea class="tx" placeholder="请输入你需要备注的信息" maxlength="140" v-model="text"></textarea>
+        <textarea class="tx" placeholder="请输入不少于10个字的描述" maxlength="140" v-model="text"></textarea>
         <div class="des">/140</div>
       </div>
-      <div class="tit">请上传图片</div>
+      <div class="tit">请提供相关问题的截图或图片</div>
       <div class="upImg">
         <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
           <img :src="item" alt="" class="img">
@@ -44,10 +39,6 @@
     STROAGE
   } from '@/utils/muxin'
   import muheader from "../../../components/header";
-  import {
-    truncate
-  } from 'fs';
-import { fbind } from 'q';
   export default {
     name: "dealWithResult",
     components: {
@@ -60,18 +51,30 @@ import { fbind } from 'q';
         tempFilePaths: [1],
         text: "",
         selACtive: '',
+        selOptions: [{
+            index: 0,
+            des: '功能异常:功能故障或不可用'
+          }, {
+            index: 1,
+            des: '产品建议:用的不爽，我有建议'
+          },
+          {
+            index: 2,
+            des: '终端异常:隐私、欺诈等'
+          },
+          {
+            index: 3,
+            des: '其他意见'
+          }
+        ],
         tipContent: '', // 提示消息
-        disabled: false,
-        fbId: null
+        disabled: false
       };
     },
-    created() {
-      this.fbId = location.href.split('=')[1]
-    },
     methods: {
-      blur() {
-        // 校验sn
-        this.checkSn();
+      selACtives(item) {
+        this.selACtive = item.index
+        this.text = item.des
       },
       chooseImg() {
         wx.chooseImage({
@@ -94,35 +97,32 @@ import { fbind } from 'q';
       submitF() {
         if (this.selACtive === '') {
           this.disabled = false
-          this.tipContent = '请选择故障是否已解决'
+          this.tipContent = '请选择反馈问题点'
           return false
         }
-        if (this.text === "") {
+        if (this.text.length < 10) {
           this.disabled = false
-          this.tipContent = '请输入故障描述'
+          this.tipContent = '请输入意见描述(不少于10个字)'
           return false
         }
         this.disabled = true
-        this.postDealWithResult(this.fbId);
+        this.opinionFeedback(this.fbId);
       },
       del(index) {
         this.tempFilePaths.splice(index, 1);
         this.addPhoto = true
       },
-      // 设备故障上报
-      async postDealWithResult(fbId) {
-        let res = await api.postDealWithResult({
+      // 意见反馈上报
+      async opinionFeedback() {
+        let res = await api.opinionFeedback({
           method: 'POST',
           query: {
-            "fbId": fbId,
-            "dealResult": this.selACtive,
-            "dealRemark": this.text,
-            "dealImgs": "img/demo.png,img/demo.jpg"
+            "fbContent": this.text,
+            "fbImages": "img/demo.png,img/demo.jpg"
           }
         });
-        if (res.code === 0) {
-          // ...
-          this.$router.go(-2)
+        if (res.code === 200) {
+          this.$router.go(-1)
         } else {}
       },
       // 校验sn
@@ -148,7 +148,7 @@ import { fbind } from 'q';
 </script>
 <style lang="scss" scoped>
   @import "../../../styles/theme.scss";
-  .dealWithResult {
+  .feedBack {
     width: 100%;
     height: 100%;
     display: flex;
@@ -170,13 +170,12 @@ import { fbind } from 'q';
       }
       .radio {
         widows: 100%;
-        height: vw(40);
         display: flex;
-        align-items: center;
-        margin-bottom: vw(32);
+        flex-direction: column; // align-items: center;
+        // margin-bottom: vw(32);
         .sel {
           display: flex;
-          margin-right: vw(32);
+          margin-bottom: vw(32);
           img {
             width: vw(40);
             height: vw(40);

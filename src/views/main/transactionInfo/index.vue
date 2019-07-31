@@ -183,6 +183,7 @@ export default {
     },
     tabNav(item) {
       this.orderType = item;
+      this.deviceList = []
       // switch (item) {
       //   case 1:
       //     break;

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 import {
   STROAGE
 } from './muxin'
@@ -17,7 +18,7 @@ function makeQuery(queryObject) {
 }
 const apiRequest = async (params = {}, url) => {
   let data = params.query || {}
-  params.method = params.method || 'GET' 
+  params.method = params.method || 'GET'
   url = params.method === 'GET' ? url + makeQuery(params.query) : url
   // let contentType = parseInt(params.contentType) === 2 ? 'application/x-www-form-urlencoded; charset=utf-8' : 'application/json'
   //   // data.sign = SIGN
@@ -35,66 +36,55 @@ const apiRequest = async (params = {}, url) => {
   //   data.
   // }
   if (params.method === 'myupload') {
-    let instance = axios.create({
+    let self = params.vim
+    let myuploads = axios.create({
       baseURL: url,
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    instance.post(url, data).then(res => {
+    // Vue.prototype.myuploads = myuploads
+
+    try {
+      console.log(data.file)
+      let res = await myuploads.post(url, data.file)
       return res.data
-    }).catch(error => {
-      console.log(error);
-    })
-  }
-  let httpDefaultOpts = {
-    method: params.method || 'GET',
-    url: url,
-    timeout: 10000,
-    data: data,
-    headers: params.method === 'GET' ? {
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': 'application/json',
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Access-Token': token
-    } : {
-      'X-Requested-With': 'XMLHttpRequest',
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Access-Token': token
+    } catch (err) {
+      console.log('上传图片错误信息', err)
+    }
+  //  myuploads.post(url, data.file).then(res => {
+  //     console.log(res)
+  //     return res.data
+  //   }).catch(error => {
+  //     console.log(error);
+  //   })
+  } else {
+    let httpDefaultOpts = {
+      method: params.method || 'GET',
+      url: url,
+      timeout: 10000,
+      data: data,
+      headers: params.method === 'GET' ? {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Access-Token': token
+      } : {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Access-Token': token
+      }
+    }
+    // let falg
+    let res
+    try {
+      res = await axios(httpDefaultOpts)
+      console.log('res-------------' + url, res.data)
+
+      return res.data
+    } catch (err) {
+      return err
     }
   }
-  // let falg
-  let res
-  try {
-    res = await axios(httpDefaultOpts)
-    console.log('res-------------' + url, res.data)
-
-    return res.data
-  } catch (err) {
-    return err
-  }
-  // console.log('request----', res)
-
-  // new Promise((resolve, reject) => {
-  //   axios(httpDefaultOpts).then(
-  //     (res) => {
-  //       resolve(res)
-  //     }
-  //   ).catch(
-  //     (response) => {
-  //       reject(response)
-  //     }
-  //   )
-  // }).then(res => {
-  //   falg = true
-  //   console.log('res-------------' + url, res.data)
-  //   return res.data
-  // })
-  // setTimeout(() => {
-  //   if (!falg) {
-  //     console.log('网络不良加载超时')
-  //   }
-  // }, 300)
 }
 export default {
   apiRequest

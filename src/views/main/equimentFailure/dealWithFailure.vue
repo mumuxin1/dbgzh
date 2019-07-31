@@ -3,36 +3,30 @@
     <mu-header class="muHeader" title="故障详情" :left="true" :back="true"></mu-header>
     <div class="content">
       <ul>
-       
         <li>
           <span class="">站点名称</span>
-          <span>xxxxx</span>
-
+          <span>{{failureEquDetails.bsName}}</span>
           <!-- <div class="liButton" v-if="item.status === 1">审核中</div> -->
         </li>
         <div class="line"></div>
         <li>
           <span class="">设备编号</span>
-          <span>xxxxx</span>
-         
+          <span>{{failureEquDetails.sn}}</span>
         </li>
         <div class="line"></div>
         <li>
-          <span class="">所住地址</span>
-          <span>xxxxx</span>
-          
+          <span class="">安装位置</span>
+          <span>{{failureEquDetails.installationLocation}}</span>
         </li>
         <div class="line"></div>
         <li>
           <span class="">客户名称</span>
-          <span>xxxxx</span>
-          
+          <span>{{failureEquDetails.nickName}}</span>
         </li>
         <div class="line"></div>
         <li>
           <span class="">反馈时间</span>
-          <span>xxxxx</span>
-          
+          <span>{{failureEquDetails.createTime}}</span>
         </li>
         <div class="line"></div>
         <span class="des">反馈图片</span>
@@ -42,45 +36,42 @@
             <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
           </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-          <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg">
+          <!-- <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg"> -->
         </div>
         <div class="btn">
           <span>取消</span>
           <span @click="dealWith">处理</span>
         </div>
-        
       </ul>
       <div class="dotted-line">
       </div>
-      <ul class="other">
-         <li>
+      <ul class="other" v-if="failureEquDetails.dealStatus === 3">
+        <li>
           <span class="bold">处理人</span>
-          <span>xxxxx</span>
-
+          <span>{{failureEquDetails.dealUserName}}</span>
           <!-- <div class="liButton" v-if="item.status === 1">审核中</div> -->
         </li>
         <div class="line"></div>
         <li>
           <span class="bold">处理时间</span>
-          <span>xxxxx</span>
-         
-        </li> 
+          <span>{{failureEquDetails.dealTime}}</span>
+        </li>
         <li class="detail">
           <span class="bold">具体情况</span>
-          <span class="wrap">xxxxdsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffx</span>
-        </li>
-        <div class="upImg">
-          <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-            <img :src="item" alt="" class="img">
-            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+          <span class="wrap">{{failureEquDetails.dealRemark}}</span>
+          <div class="upImg">
+            <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
+              <img :src="item" alt="" class="img">
+              <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+            </div>
+            <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
+            <!-- <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg"> -->
           </div>
-          <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-          <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg">
-        </div>
-        <img src="@/assets/dianbo_guzhang_yichuli@3x.png" alt="" class="status">
-      </ul>
+          <img src="@/assets/dianbo_guzhang_yichuli@3x.png" alt="" class="status">
+        </li>
+        </ul>
+      </div>
     </div>
-  </div>
 </template>
 <script>
   import {
@@ -97,27 +88,9 @@
     },
     data() {
       return {
-        chargeData: [],
+        failureEquDetails: {},
+        fbId: null,
         selText: [],
-        selOptions: [{
-            value: 1,
-            label: "是"
-          },
-          {
-            value: 2,
-            label: "否"
-          }
-        ],
-        selText2: [],
-        selOptions2: [{
-            value: 1,
-            label: "提供场地申请合作"
-          },
-          {
-            value: 2,
-            label: "投资合作"
-          }
-        ],
         startTime: "", // 选择开始时间
         endTime: "", // 选择结束时间
         openTime: "", // 请求参数 开放时间
@@ -130,13 +103,14 @@
         tempFilePaths: [],
         addPhoto: true,
         text: "",
-        placeholde: "扫描二维码或输入编码",
         disabled: false,
         address: ""
       };
     },
     created() {
       this.data_Init();
+      // 查询故障设备详情
+      this.queryFailureEquInfo(this.fbId)
     },
     filters: {
       moneyFormat: params => {
@@ -149,23 +123,23 @@
       },
       async uploadFile(e) {},
       data_Init() {
-        let chargeList = STROAGE({
+        this.fbId = location.href.split('=')[1]
+        let failureEquDetails = STROAGE({
           type: "getItem",
-          key: "ChargeList"
+          key: "FailureEquDetails"
         });
-        if (chargeList) {
-          this.chargeData = JSON.parse(chargeList);
+        if (failureEquDetails) {
+          this.failureEquDetails = JSON.parse(failureEquDetails);
         }
-        console.log(this.chargeData);
+        console.log(this.failureEquDetails);
       },
-      
       del(index) {
         this.tempFilePaths.splice(index, 1);
         this.addPhoto = true;
       },
       dealWith() {
         console.log(1)
-        this.$router.push('/dealWithResult')
+        this.$router.push(`/dealWithResult?fbId=${this.fbId}`)
       },
       // 检测输入桩主信息
       textDectorers() {
@@ -227,30 +201,21 @@
           this.$router.push("/reviewProgress");
         }
       },
-      // 查询微信JSSDK权限验证配置参数
-      async signature(url) {
-        let res = await api.signature({
+      // 查询故障设备详情
+      async queryFailureEquInfo(id) {
+        let res = await api.queryFailureEquInfo({
           query: {
-            url: url
+            fbId: id
           }
         });
         if (res.code === 0) {
-          wx.config({
-            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-            appId: res.result.appId, // 必填，公众号的唯一标识
-            timestamp: res.result.timestamp, // 必填，生成签名的时间戳
-            nonceStr: res.result.nonceStr, // 必填，生成签名的随机串
-            signature: res.result.signature, // 必填，签名
-            jsApiList: ['openLocation', 'getLocalImgData', 'scanQRCode', 'chooseImage', 'uploadImage', 'downloadImage'] // 必填，需要使用的JS接口列表
+          this.failureEquDetails = res.result
+          STROAGE({
+            type: "setItem",
+            key: "FailureEquDetails",
+            item: res.result
           });
-          wx.ready(function() {})
-          wx.error(function(res) {
-            console.log(res)
-            // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
-          });
-          // console.log('有效sn')
-        } else {
-          // console.log('无效sn')
+          this.$router.push('/dealWithFailure')
         }
       }
     }
@@ -285,10 +250,9 @@
           color: #333333;
           font-weight: bold;
         }
-        .line{
+        .line {
           width: 100%;
-          height: vw(2);
-          // margin: vw(1) 0;
+          height: vw(2); // margin: vw(1) 0;
           background: $borderColor1;
         }
         li {
@@ -298,54 +262,53 @@
           text-align: left;
           color: #333333;
           align-items: center;
-          :nth-child(1){
+           :nth-child(1) {
             flex: 2;
           }
-          :nth-child(2){
+           :nth-child(2) {
             color: $fontColor2;
             margin-left: vw(32);
             flex: 8;
           }
         }
-        
-        .btn{
+        .btn {
           width: 100%;
           display: flex;
           justify-content: center;
           margin: vw(45) 0;
-          span{
+          span {
             width: vw(144);
             height: vw(64);
             line-height: vw(64);
             border-radius: vw(4);
           }
-          :nth-child(1){
+           :nth-child(1) {
             margin-right: vw(183);
             background: $bgPageColor1;
-            color:$fontColor2;
+            color: $fontColor2;
           }
-             :nth-child(2){
+           :nth-child(2) {
             background: $bgPageColor3;
-            color:$fontColor3;
+            color: $fontColor3;
           }
         }
       }
-     .other{
-       border-top: vw(1) dotted #e5e5e5;
-       .detail{
-         min-height: vw(120);
-         padding: vw(45) 0;
-       }
-       .wrap{
-            word-break: break-all;
-       }
-       .status{
-         width: vw(115);
-         height: vw(115);
-        margin-bottom: vw(45);
-        align-self: center;
-       }
-     }
+      .other {
+        border-top: vw(1) dotted #e5e5e5;
+        .detail {
+          min-height: vw(120);
+          padding: vw(45) 0;
+        }
+        .wrap {
+          word-break: break-all;
+        }
+        .status {
+          width: vw(115);
+          height: vw(115);
+          margin-bottom: vw(45);
+          align-self: center;
+        }
+      }
       .des {
         margin: vw(32) 0;
         text-align: left;
@@ -356,7 +319,7 @@
         height: vw(150);
         flex-wrap: wrap;
         display: flex;
-        margin-bottom: vw(32);
+        // margin-bottom: vw(32);
         img {
           width: vw(60);
           height: vw(48); // background: red;

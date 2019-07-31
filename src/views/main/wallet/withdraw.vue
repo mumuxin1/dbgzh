@@ -7,12 +7,12 @@
             <span>提现至</span>
             <span class="c9">微信钱包</span>
           </li><li class="noicon"> 
-            <span>可提现金额<font style="color: #56baf9">2890.2</font>元</span>
-            <span class="cb">全部提现</span>
+            <span>可提现金额<font style="color: #56baf9"> {{walletInfo.balance| moneyForamt}} </font>元</span>
+            <span class="cb" @click="all">全部提现</span>
           </li><li class="noicon"> 
             <span>提现金额</span>
             <div class="right w7">
-              <input type="number" maxlength="4" class="w8">
+              <input type="number" maxlength="4" class="w8" v-model="withdraw">
               <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="">
               <span>元</span>
             </div>
@@ -26,12 +26,17 @@
           </li> -->
       </ul>
     </div>
-    <div class="button-g button" @click="finish">提现</div>
+    <!-- <div class="button-g button" @click="finish">提现</div> -->
+    <div @click="finish">
+        <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
+          <el-button>下一步</el-button>
+        </el-tooltip>
+      </div>
   </div>
 </template>
 <script>
 import muheader from "@/components/header";
-import { STROAGE } from "@/utils/muxin";
+import { STROAGE, timeFormat } from "@/utils/muxin";
 import api from "@/api/api";
 import wx from "weixin-js-sdk";
 export default {
@@ -41,35 +46,75 @@ export default {
   },
   data() {
     return {
-      getCode: "", //
-      selText: "", // 下拉选择neirong
-      placeholde: "扫描二维码或输入编码"
+      walletInfo: {},
+      withdraw: '',
+      tipContent: '请输入提现金额',
+      disabled: false
     };
   },
   created() {
-    // this.wxConfig()
+      this.data_Init();
+    
   },
-  methods: {
-    finish () {
-      this.$router.push('/withdrawSuccess')
+  filters: {
+      moneyForamt: (a) => {
+        if (a) {
+          return (parseInt(a) / 100).toFixed(2)
+        } else {
+          return 0
+        }
+      }
     },
-    // 校验sn
-    async checkSn() {
-      let res = await api.checkSn({
+  methods: {
+    data_Init() {
+        let walletInfo = JSON.parse(
+          STROAGE({
+            type: "getItem",
+            key: "WalletInfo"
+          })
+        );
+        if (walletInfo) {
+          this.walletInfo = walletInfo
+        }
+      },
+    finish () {
+      console.log(this.withdraw, this.walletInfo.balance)
+      if (this.withdraw >( this.walletInfo.balance / 100)) {
+        this.disabled = false
+        this.tipContent = '提现金额大于余额，请重新输入'
+        return false
+      }
+      if (this.withdraw === '') {
+        this.disabled = false
+        return false
+      }
+      this.disabled = true
+
+      // 提现
+      this.withdrawApply()
+    },
+    all () {
+      if (this.walletInfo.balance) {
+          this.withdraw =  (parseInt(this.walletInfo.balance) / 100).toFixed(2)
+          console.log(typeof this.withdraw)
+        } else {
+          this.withdraw =  0
+        }
+    },
+    // 提现
+    async withdrawApply() {
+      let res = await api.withdrawApply({
+        method: 'POST',
         query: {
-          sn: this.getCode
+          "totalFee": parseFloat(this.withdraw),
+	        "payMethod": 1
         }
       });
       if (res.code === 0) {
-        this.$router.push("/useNext");
-        STROAGE({
-          type: "setItem",
-          key: "Sn",
-          item: this.getCode
-        });
+        let t = timeFormat(null, '-', 'yyyy-mm-dd 00:00:00')
+        this.$router.push(`/withdrawSuccess?t=${t}你好}`)
       } else {
-        this.getCode = "";
-        this.placeholde = "无效sn,请重新输入或者检查二维码是否正确";
+        //...
       }
     }
   }
@@ -121,5 +166,14 @@ export default {
     line-height: vw(90);
     color: $fontColor3;
   }
+  .el-button--default {
+      width: 92% !important;
+    }
+    .el-button {
+      padding: 0;
+    height: vw(90) !important;
+    line-height: vw(90) !important;
+
+    }
 }
 </style>

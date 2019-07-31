@@ -126,6 +126,11 @@ export default new Router({
       path: '/withdrawSuccess',
       name: 'withdrawRecord',
       component: () => import('@/views/main/wallet/withdrawSuccess.vue')
+    },
+    {
+      path: '/feedBack',
+      name: 'feedBack',
+      component: () => import('@/views/main/feedBack/index.vue')
     }
   ]
 })

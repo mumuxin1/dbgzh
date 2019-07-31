@@ -9,9 +9,9 @@
         </div>
         <div class="info">
           <!-- <div class="cow">
-                          <span class="tit">昵称</span>
-                          <span class="txt">{{userInfo.userInfo.avatar.realname}}</span>
-            </div>-->
+                            <span class="tit">昵称</span>
+                            <span class="txt">{{userInfo.userInfo.avatar.realname}}</span>
+              </div>-->
           <div class="cow">
             <span class="tit">号码</span>
             <span class="txt">{{userInfo.phone}}</span>
@@ -101,9 +101,9 @@
         // 查询微信JSSDK权限验证配置参数
         this.signature(url)
       },
-      pageDebugs () {
+      pageDebugs() {
         this.pageDebug++
-        console.log(this.pageDebug)
+          console.log(this.pageDebug)
         if (this.pageDebug > 3) {
           this.$router.push('/step1')
           this.pageDebug = 0
@@ -125,11 +125,10 @@
             signature: res.result.signature, // 必填，签名
             jsApiList: ['openLocation', 'getLocalImgData', 'scanQRCode', 'chooseImage'] // 必填，需要使用的JS接口列表
           });
-          wx.ready(function(){
-          })
-          wx.error(function(res){
+          wx.ready(function() {})
+          wx.error(function(res) {
             console.log(res)
-              // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+            // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
           });
           // console.log('有效sn')
         } else {
@@ -159,20 +158,18 @@
           type: "getItem",
           key: "UserInfo"
         });
-          console.log(userInfo, 'kskk')
+        console.log(userInfo, 'kskk')
         if (userInfo) {
           userInfo = JSON.parse(userInfo);
           this.userInfo = userInfo.userInfo;
-          try{
+          try {
             if (!this.userInfo.avatar) {
-            this.avatar = 'http://file.startai.com.cn:3108/group1/M00/00/07/wKgQzV0S_uGAZkdAAAOrde8OqK8558.png';
-          } else {
-            this.avatar = this.userInfo.avatar
+              this.avatar = 'http://file.startai.com.cn:3108/group1/M00/00/07/wKgQzV0S_uGAZkdAAAOrde8OqK8558.png';
+            } else {
+              this.avatar = this.userInfo.avatar
+            }
+          } catch (err) {
           }
-          }catch (err) {
-
-          }
-          
         }
         this.pageSize = Math.ceil(this.$parent.clientHeight / 220);
         console.log(this.pageSize);
@@ -205,6 +202,8 @@
             break;
           case 4:
             this.$router.push('/wallet')
+            //查询钱包信息
+            this.queryUserWalletInfo()
             break;
           case 5:
             // 桩户信息
@@ -218,20 +217,14 @@
             this.queryApplyList();
             this.$router.push("/applicationRecord");
             break;
-
           case 7:
-            // 申请记录
-            // 查询申请记录
-            // this.queryApplyList();
-            this.$router.push("/equimentFailure");
+            // 查询故障设备列表
+            this.queryFailureEquList();
             break;
           case 8:
-            // 申请记录
-            // 查询申请记录
-            // this.queryApplyList();
-            // this.$router.push("/applicationRecord");
+            //意见反馈
+            this.$router.push("/feedBack");
             break;
-
           default:
             break;
         }
@@ -275,6 +268,26 @@
           });
         }
       },
+      // 查询故障设备列表
+      async queryFailureEquList() {
+        let res = await api.queryFailureEquList({
+          query: {
+            column: "createTime",
+            order: "desc",
+            pageNo: this.pageNo,
+            pageSize: this.pageSize
+          }
+        });
+        if (res.code === 0) {
+          STROAGE({
+            type: "setItem",
+            key: "FailureEquList",
+            item: res.result.records
+          });
+            this.$router.push("/equimentFailure");
+
+        }
+      },
       // 查询当前后台用户是否存在正在控制的设备
       async checkUserControlStatus() {
         let res = await api.checkUserControlStatus();
@@ -286,6 +299,17 @@
           }
         } else {
           //...
+        }
+      },
+      // 查询钱包信息
+      async queryUserWalletInfo() {
+        let res = await api.queryUserWalletInfo();
+        if (res.code === 0) {
+          STROAGE({
+            type: "setItem",
+            key: "WalletInfo",
+            item: res.result
+          });
         }
       }
     }

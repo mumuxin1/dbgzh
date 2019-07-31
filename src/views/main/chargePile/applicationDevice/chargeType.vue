@@ -189,27 +189,4 @@
       }
     }
   }
-  /deep/ {
-    // select
-    .el-input__inner {
-      height: vw(64);
-      color: #333333;
-      font-size: vw(28);
-      padding-left: vw(20);
-    }
-    .el-input__suffix-inner {
-      position: relative;
-      top: vw(-12);
-      right: vw(22);
-    }
-  }
-  .el-select-dropdown__item {
-    height: vw(64) !important;
-    line-height: vw(64) !important;
-    span {
-      display: block;
-      height: vw(64) !important;
-      line-height: vw(64) !important;
-    }
-  }
 </style>

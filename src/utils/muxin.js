@@ -64,7 +64,8 @@ export const NAVIGATOR = () => {
  * @method timeFormat
  */
 export const timeFormat = (t, sign, type) => {
-  let date = new Date(t)
+
+  let date = t? new Date(t) : new Date()
   let y = date.getFullYear()
   let m = date.getMonth() + 1
   let d = date.getDate() > 10 ? date.getDate() : '0' + date.getDate()
@@ -81,6 +82,10 @@ export const timeFormat = (t, sign, type) => {
     case 'yyyy-mm-dd':
       str = `${y}${sign}${m}${sign}${d}`
       break
+    case 'yyyy-mm-dd 00:00:00':
+      str = `${y}${sign}${m}${sign}${d} ${h}:${minutes}:${f}`
+      console.log(str)
+        break
     case 'yyyy-mm':
       str = `${y}${sign}${m}`
       break
