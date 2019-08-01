@@ -9,7 +9,7 @@
 
           <div class="liButton red" v-if="item.dealStatus === 1">新故障</div>
           <div class="liButton blu" v-if="item.dealResult === 1">已解决</div>
-          <div class="liButton" v-if="item.dealResult === 2">未解决</div>
+          <div class="liButton" v-if="item.dealResult === 2 && item.dealStatus !== 1">未解决</div>
         </li>
         <li>
           <span class="">设备编号</span>
@@ -27,7 +27,7 @@
           <span class="">反馈时间</span>
           <span>{{item.createTime}}</span>
         </li>
-        <div class="navButton" @click="cancelApply(item.id)" v-if="item.dealResult !== 2">去处理</div>
+        <div class="navButton" @click="cancelApply(item.id)" v-if="item.dealResult === 2">去处理</div>
       </ul>
     </div>
   </div>
@@ -48,8 +48,6 @@ export default {
       failureEquList: "", // 故障列表
       deviceList: [],
       bsId: "",
-      startTime: "",
-      endTime: "",
       pageNo: "",
       pageSize: "",
       applyList: []
@@ -95,7 +93,7 @@ export default {
         }
       });
       if (res.code === 0) {
-        this.failureList = res.result.records;
+        this.failureEquList = res.result.records;
         STROAGE({
           type: "setItem",
           key: "FailureEquList",

@@ -26,15 +26,18 @@
           <img :src="item" alt="" class="img">
           <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
         </div>
-        <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto">
+        <div class="selImg" v-if="tempFilePaths.length < 4">
+          <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
+        </div>
       </div>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
-    <div @click="submitF">
+    <div @click="submitF" v-if="!loading">
       <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
       </el-tooltip>
     </div>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
   </div>
 </template>
 <script>
@@ -47,7 +50,9 @@
   import {
     truncate
   } from 'fs';
-import { fbind } from 'q';
+  import {
+    fbind
+  } from 'q';
   export default {
     name: "dealWithResult",
     components: {
@@ -62,35 +67,19 @@ import { fbind } from 'q';
         selACtive: '',
         tipContent: '', // 提示消息
         disabled: false,
-        fbId: null
+        fbId: null,
+        disabled: false,
+        file: null,
+        loading: false,
+        tempFilePaths: [],
+        httpFilePaths: [], // 图片上传服务器返回地址
       };
     },
     created() {
       this.fbId = location.href.split('=')[1]
     },
     methods: {
-      blur() {
-        // 校验sn
-        this.checkSn();
-      },
-      chooseImg() {
-        wx.chooseImage({
-          count: 4, // 默认9
-          sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
-          sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
-          success: res => {
-            var localIds = res.localIds;
-            res.localIds.forEach(element => {
-              this.tempFilePaths.push(element);
-            });
-            if (this.tempFilePaths.length >= 3) {
-              this.addPhoto = false;
-            } else {
-              this.addPhoto = true;
-            } // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-          }
-        });
-      },
+     
       submitF() {
         if (this.selACtive === '') {
           this.disabled = false
@@ -102,46 +91,85 @@ import { fbind } from 'q';
           this.tipContent = '请输入故障描述'
           return false
         }
-        this.disabled = true
-        this.postDealWithResult(this.fbId);
+        this.disabled = true;
+        if (this.tempFilePaths.length > 0) {
+          this.tempFilePaths.forEach((el, index) => {
+            var params = new FormData();
+            params.append('file', this.file[index]);
+            this.uploadImages(params, index)
+          })
+        } else {
+          // 设备故障上报
+          this.postDealWithResult(this.fbId);
+        }
       },
       del(index) {
         this.tempFilePaths.splice(index, 1);
         this.addPhoto = true
       },
+      uploadFile(e) {
+        let file = e.target.files
+        this.file = file
+        for (let i = 0; i < file.length; i++) {
+          console.log(file[i], '2222')
+          let s = file[i]
+          let binaryData = [];
+          binaryData.push(file[i]);
+          let src
+          if (window.createObjectURL != undefined) {
+            src = window.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
+            // 　　url = window.URL.createObjectURL(file);
+            src = window.URL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.webkitURL != undefined) { //webkit or chrome
+            　　
+            // url = window.webkitURL.createObjectURL(file);
+            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          }
+          this.tempFilePaths.push(src)
+        }
+      },
+      async uploadImages(params, index) {
+        let res = await api.uploadProfile({
+          method: 'myupload',
+          query: {
+            file: params
+          }
+        })
+        this.loading = true
+        if (res.code === 200) {
+          console.log(res.result.headUrl)
+          this.httpFilePaths.push(res.result.headUrl)
+          if (index === this.tempFilePaths.length - 1) {
+            // 设备故障上报
+            // 设备故障上报
+            this.postDealWithResult(this.fbId);
+          }
+        }
+      },
       // 设备故障上报
       async postDealWithResult(fbId) {
+        this.loading = true
         let res = await api.postDealWithResult({
           method: 'POST',
           query: {
             "fbId": fbId,
             "dealResult": this.selACtive,
             "dealRemark": this.text,
-            "dealImgs": "img/demo.png,img/demo.jpg"
+            "dealImgs": this.httpFilePaths.toString(',') || ''
           }
         });
         if (res.code === 0) {
           // ...
+          this.loading = false
           this.$router.go(-2)
         } else {}
-      },
-      // 校验sn
-      async checkSn() {
-        let res = await api.checkSn({
-          query: {
-            sn: this.getCode
-          }
-        });
-        if (res.code === 0) {
-          STROAGE({
-            type: "setItem",
-            key: "Sn",
-            item: this.getCode
-          });
-        } else {
-          this.getCode = "";
-          this.placeholde = "无效sn,请重新输入或者检查二维码是否正确";
-        }
       }
     }
   };
@@ -195,16 +223,19 @@ import { fbind } from 'q';
         .tx {
           background: transparent;
           flex: 1;
+          font-size: vw(28)
         }
         .des {
           align-self: flex-end;
         }
       }
       .upImg {
-        width: 100%;
+        width: 102%;
         height: vw(150);
         flex-wrap: wrap;
         display: flex;
+        margin-bottom: vw(32);
+        margin-left: vw(-10);
         img {
           width: vw(60);
           height: vw(48); // background: red;
@@ -219,26 +250,33 @@ import { fbind } from 'q';
           background: #f5f5f5;
           margin: 0;
           margin-right: vw(10);
+          background: url('../../../assets/uploadImg.png') no-repeat;
+          background-size: cover;
+          input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+          }
         }
-        .uploadImg {
+      }
+      .uploadImg {
+        width: vw(150);
+        height: vw(150);
+        position: relative;
+        margin-right: vw(7);
+        .img {
           width: vw(150);
           height: vw(150);
-          position: relative;
-          margin-right: vw(7);
-          .img {
-            width: vw(150);
-            height: vw(150);
-            display: block; // background: greenyellow;
-            margin: 0;
-          }
-          .del {
-            width: vw(46);
-            height: vw(46);
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin: 0;
-          }
+          display: block; // background: greenyellow;
+          margin: 0;
+        }
+        .del {
+          width: vw(46);
+          height: vw(46);
+          position: absolute;
+          top: 0;
+          right: 0;
+          margin: 0;
         }
       }
     }
@@ -255,6 +293,11 @@ import { fbind } from 'q';
       padding: 0;
       height: vw(90) !important;
       line-height: vw(90) !important;
+    }
+    .is-loading {
+      background: $bgPageColor3 !important;
+      color: $fontColor3 !important;
+      font-size: 18px !important;
     }
   }
 </style>

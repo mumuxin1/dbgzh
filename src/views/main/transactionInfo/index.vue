@@ -253,27 +253,27 @@ export default {
       width: 100%;
       border-radius: vw(10);
       background: $bgPageColor2;
-      margin: vw(32) 0;
-      padding: vw(32);
+      margin: vh(32) 0;
+      padding: vh(32);
     }
     .sel {
       width: 100%;
-      height: vw(64);
+      height: vh(64);
       display: flex;
       align-items: center;
-      margin-bottom: vw(32);
+      margin-bottom: vh(32);
       span {
         flex: 3;
         text-align: left;
       }
       .el-input__inner {
-        height: vw(64) !important;
+        height: vh(64) !important;
       }
       .select_element {
         flex: 7;
         .el-input--suffix {
-          height: vw(64) !important;
-          padding: 0 vw(20);
+          height: vh(64) !important;
+          padding: 0 vh(20);
         }
       }
       .input_element {
@@ -282,7 +282,7 @@ export default {
     }
     .selectDate {
       width: 100%;
-      height: vw(64);
+      height: vh(64);
       display: flex; // margin-bottom: vw(40);
       .block {
         flex: 1;
@@ -296,8 +296,8 @@ export default {
           font-size: vw(24);
           .el-input__inner {
             background: #f5f5f5;
-            height: vw(61);
-            line-height: vw(61);
+            height: vh(61);
+            line-height: vh(61);
             margin-top: vw(1);
             margin-right: vw(1); // margin-left: vw(5)
             padding-left: vw(40);
@@ -329,21 +329,20 @@ export default {
     }
     .rieditor {
       width: vw(273);
-      height: vw(64);
+      height: vh(64);
       position: relative;
     }
     .headTit {
       width: 100%;
-      height: auto;
-      padding: vw(32) 0;
-      margin-bottom: vw(32);
+      padding: vh(32) 0;
+      margin-bottom: vh(32);
       background: $bgPageColor3;
       color: $fontColor3;
       border-radius: vw(10);
       .cow {
         width: 100%;
         &:first-child {
-          margin-bottom: vw(20);
+          margin-bottom: vh(20);
         }
         display: flex;
         span {
@@ -353,7 +352,7 @@ export default {
     }
     .nav {
       width: 100%;
-      height: vw(94);
+      height: vh(94);
       display: flex;
       align-items: center;
       border-radius: 0 vw(10);
@@ -362,8 +361,8 @@ export default {
       color: $fontColor2;
       span {
         flex: 1;
-        height: vw(94);
-        line-height: vw(94);
+        height: vh(94);
+        line-height: vh(94);
         &:nth-child(2) {
           border-left: vw(1) solid $borderColor1;
           border-right: vw(1) solid $borderColor1;
@@ -382,7 +381,6 @@ export default {
     }
     ul {
       width: 100%;
-      height: 50%;
       padding: vw(15) vw(32);
       background: white;
       display: flex;
@@ -407,10 +405,10 @@ export default {
         text-align: left;
         span {
           &:first-child {
-            flex: 3;
+           width: 25%;
           }
           &:nth-child(2) {
-            flex: 5;
+           width: 75%;
           }
         }
       }
@@ -418,6 +416,7 @@ export default {
         width: vw(110);
         height: auto;
         right: vw(32);
+        top: 50%;
         position: absolute;
         height: vw(40);
         line-height: vw(40);

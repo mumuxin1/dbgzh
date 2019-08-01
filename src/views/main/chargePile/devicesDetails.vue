@@ -46,7 +46,7 @@
           <span class="">开放时间设置</span>
           <div class="selTime">
             <div class="editor">
-              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="00:00" :picker-options="{
+              <el-time-picker v-model="startTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
                         start: '00:00',
                         end: '23:59',
                         format: 'HH:mm'
@@ -54,7 +54,7 @@
             </div>
             <span class="span">至</span>
             <div class="editor">
-              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH:mm" :picker-options="{
+              <el-time-picker v-model="endTime" placeholder="23:59" :editable="false" value-format="HH:mm" :picker-options="{
                         start: '00:00',
                         end: '23:59',
                         format: 'HH:mm'
@@ -62,12 +62,12 @@
             </div>
           </div>
         </li>
-        <!-- <li class="txone" @click="$router.push('/faultReport')">
+        <li class="txone" @click="$router.push(`/faultReport?sn=${deviceDetails.sn}`)">
             <span class="">故障上报</span>
             <div class="riIcon">
               <img src="@/assets/dianbo_public_right@3x.png" alt="">
             </div>
-          </li> -->
+          </li>
         <li class="txone">
           <span class="">设备状态</span>
           <div class="rieditor">
@@ -117,7 +117,7 @@
           }
         ],
         reName: "", // 修改名称
-        startTime: new Date(2019, 1, 10, 0, 0),
+        startTime: new Date(2019, 7, 10, 0, 0),
         endTime: new Date(2019, 7, 10, 23, 59),
         startTime2: "", // 开始时间请求参数
         endTime2: "",

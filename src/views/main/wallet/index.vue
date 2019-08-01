@@ -95,9 +95,6 @@
           this.walletInfo = walletInfo
         }
       },
-      useing() {
-        this.checkSn();
-      },
       menu(index) {
         switch (index) {
           case 1:

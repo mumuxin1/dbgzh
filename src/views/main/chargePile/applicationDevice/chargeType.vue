@@ -12,7 +12,7 @@
       </div>
       <div class="list" v-for="item in devicesTypeList" :key="item.index">
         <div class="left">
-          <img :src="item.deviceModelLogo" alt="">
+          <img :src="item.deviceModelLogo || defaultImg" alt="">
         </div>
         <div class="right">
           <span>{{item.deviceModelName}}</span>
@@ -37,6 +37,7 @@
     },
     data() {
       return {
+        defaultImg: require('../../../../assets/full.png'),
         devicesTypeList: [],
         selText: [],
         selOptions: [{
@@ -54,6 +55,8 @@
     },
     created() {
       this.data_Init()
+      // 查询申请设备类型
+        this.queryDeviceApplyList('')
     },
     methods: {
       data_Init() {

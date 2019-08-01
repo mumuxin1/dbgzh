@@ -23,23 +23,29 @@
         </li>
         <span class="des"><font style="fontWeight: bold">图片信息</font>(至少3张)</span>
         <span class="des">请选择充电点环境照片</span>
-         <div class="upImg">
-        <div class="selImg">
-          <img src="" alt="">
-          <span>添加图片</span>
+        <div class="upImg">
+          <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
+            <img :src="item" alt="" class="img">
+            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+          </div>
+          <div class="selImg" v-if="tempFilePaths.length < 4">
+            <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg" >
+          </div>
+          <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
         </div>
-        <div class="uploadImg">
-          <img src="" alt="" class="img">
-          <img src="" alt="" class="del">
-        </div>
-      </div>
         <p class="txdes">自用设备：只能被指定用户/车牌使用，平台显示在总数中 ，不能预定不能扫码，商户可修改状态
         </p>
       </ul>
     </div>
-    <div class="button-g button" @click="submit">
-      提交申请
+    <!-- <div class="button-g button" @click="submit">
+          提交申请
+        </div> -->
+    <div @click="submit" v-if="!loading">
+      <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
+        <el-button>提交申请</el-button>
+      </el-tooltip>
     </div>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button>
   </div>
 </template>
 <script>
@@ -48,7 +54,9 @@
   } from '@/utils/muxin'
   import muheader from "@/components/header";
   import api from '@/api/api'
-import { async } from 'q';
+  import {
+    async
+  } from 'q';
   export default {
     name: "applicationEquiment",
     components: {
@@ -65,7 +73,13 @@ import { async } from 'q';
           label: '投资'
         }],
         selDevices: [],
-        deviceNum: ''
+        deviceNum: '',
+        tipContent: '内容不能为空',
+        disabled: false,
+        file: null,
+        loading: false,
+        tempFilePaths: [],
+        httpFilePaths: [], // 图片上传服务器返回地址
       };
     },
     created() {
@@ -75,21 +89,107 @@ import { async } from 'q';
       data_Init() {
         // 。。。
         let selDevices = STROAGE({
-        type: 'getItem',
-        key: 'selDevicesType'
-      })
-      if (selDevices) {
-        this.selDevices =JSON.parse(selDevices)
-      }
+          type: 'getItem',
+          key: 'selDevicesType'
+        })
+        if (selDevices) {
+          this.selDevices = JSON.parse(selDevices)
+        }
       },
-      deviceType () {
+      deviceType() {
         this.$router.push('chargeType')
         // 查询申请设备类型
         this.queryDeviceApplyList()
       },
-      submit () {
+      submit() {
+        let falg = this.textDectorers();
+        if (!falg) return false;
+        // new Promise((resolve, reject) => {
+        // let falg = this.tempFilePaths.length
+        if (this.tempFilePaths.length > 0) {
+          this.tempFilePaths.forEach((el, index) => {
+            var params = new FormData();
+            params.append('file', this.file[index]);
+            this.uploadImages(params, index)
+          })
+        } else {
+          this.applicationEquiment(this.$parent.bsId)
+        }
+        this.disabled = true;
         // 申请设备
-        this.applicationEquiment(this.$parent.bsId)
+        
+      },
+      del(index) {
+        this.tempFilePaths.splice(index, 1);
+        this.addPhoto = true;
+      },
+      uploadFile(e) {
+        let file = e.target.files
+        this.file = file
+        // let reader = new FileReader();
+        // alert(file)
+        for (let i = 0; i < file.length; i++) {
+          console.log(file[i], '2222')
+          // alert(file[i])
+          let s = file[i]
+          let binaryData = [];
+          binaryData.push(file[i]);
+          let src
+          if (window.createObjectURL != undefined) { //basic
+            src = window.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))
+            // 　　url = window.createObjectURL(file);
+            　　
+          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
+            // 　　url = window.URL.createObjectURL(file);
+            src = window.URL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.webkitURL != undefined) { //webkit or chrome
+            　　
+            // url = window.webkitURL.createObjectURL(file);
+            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          }
+          this.tempFilePaths.push(src)
+        }
+      },
+      // 检测输入桩主信息
+      textDectorers() {
+        if (!this.selText) {
+          this.selText = null;
+          this.tipContent = '请输入合作类型'
+          return false;
+        }
+        if (!this.selDevices.deviceModelName) {
+          this.tipContent = '请选择设备类型'
+          return false;
+        }
+        if (!this.deviceNum) {
+          // this.phone = null;
+          this.tipContent = '请输入申请设备数量'
+          return false;
+        }
+        return true;
+      },
+      async uploadImages(params, index) {
+        let res = await api.uploadProfile({
+          method: 'myupload',
+          query: {
+            file: params
+          }
+        })
+        this.loading = true
+        if (res.code === 200) {
+          console.log(res.result.headUrl)
+          console.log(index)
+          this.httpFilePaths.push(res.result.headUrl)
+          if (index === this.tempFilePaths.length - 1) {
+            this.applicationEquiment(this.$parent.bsId)
+          }
+        }
       },
       // 申请设备
       async applicationEquiment(bsId) {
@@ -100,7 +200,7 @@ import { async } from 'q';
             merchantCooperation: this.selText,
             deviceModel: this.selDevices.id,
             deviceNum: this.deviceNum,
-            parkImgs: 'img/demo.png'
+            parkImgs: this.httpFilePaths.toString(',') || ''
           }
         })
         if (res.code === 200) {
@@ -108,7 +208,7 @@ import { async } from 'q';
         }
       },
       // 查询申请设备类型
-      async  queryDeviceApplyList () {
+      async queryDeviceApplyList() {
         let res = await api.queryDeviceApplyList({
           query: {
             column: 'createTime',
@@ -173,7 +273,7 @@ import { async } from 'q';
         .txFull {
           .select_element {
             width: vw(470);
-            height: vw(90);
+            height: vw(64);
             .el-input--suffix {
               height: vw(64) !important;
               padding: 0 vw(20);
@@ -197,12 +297,11 @@ import { async } from 'q';
             border-radius: vw(5);
             margin-right: vw(32);
             padding: 0 vw(32);
-            
           }
-          .span{
-              width: vw(48);
-              text-align: center;
-            }
+          .span {
+            width: vw(48);
+            text-align: center;
+          }
           .img {
             width: vw(48);
             height: vw(48);
@@ -221,64 +320,71 @@ import { async } from 'q';
           }
         }
       }
-      .des{
+      .des {
         margin-bottom: vw(32);
         color: #333333;
         text-align: left;
       }
-      .bold{
+      .bold {
         font-weight: bold;
       }
-      .txdes{
+      .txdes {
         font-size: vw(24);
         color: #999999;
         line-height: vw(46);
         text-align: left;
-
       }
-      .upImg{
-        width: 100%;
+      .upImg {
+        width: 102%;
         height: vw(150);
         flex-wrap: wrap;
         display: flex;
         margin-bottom: vw(32);
-        img{
+        margin-left: vw(-10);
+        img {
           width: vw(60);
-          height: vw(48);
-          background: red;
+          height: vw(48); // background: red;
           margin: vw(26);
         }
-        .selImg{
+        .selImg {
           display: flex;
-        flex-direction: column;
-        align-items: center;
+          flex-direction: column;
+          align-items: center;
           width: vw(150);
           height: vw(150);
           background: #f5f5f5;
-        }
-        .uploadImg{
-          width: vw(150);
-          height: vw(150);
-          position: relative;
-          margin-right: vw(7);
-          .img{
-            width: vw(150);
-            height: vw(150);
-            display: block;
-            background: greenyellow;
-            margin: 0;
-          }
-          .del{
-            width: vw(46);
-            height: vw(46);
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin: 0;
+          margin: 0;
+          margin-right: vw(10);
+          background: url('../../../../assets/uploadImg.png') no-repeat;
+          background-size: cover;
+          input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
           }
         }
       }
-    
+      .uploadImg {
+        width: vw(150);
+        height: vw(150);
+        position: relative;
+        margin-right: vw(7);
+        .img {
+          width: vw(150);
+          height: vw(150);
+          display: block;
+          background: greenyellow;
+          margin: 0;
+        }
+        .del {
+          width: vw(46);
+          height: vw(46);
+          position: absolute;
+          top: 0;
+          right: 0;
+          margin: 0;
+        }
+      }
     }
     .button {
       width: 94%;
@@ -288,7 +394,20 @@ import { async } from 'q';
       background: #56baf9;
       border-radius: vw(5);
       margin-top: vw(30);
-      margin:  0 auto;
+      margin: 0 auto;
+    }
+    .el-button {
+      padding: 0;
+      height: vw(90) !important;
+      line-height: vw(90) !important;
+    }
+    .is-loading {
+      background: $bgPageColor3 !important;
+      font-size: 18px !important;
+      color: $fontColor3 !important;
+    }
+    .el-button--default {
+      width: 92% !important;
     }
   }
 </style>

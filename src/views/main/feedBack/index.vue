@@ -21,15 +21,18 @@
           <img :src="item" alt="" class="img">
           <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
         </div>
-        <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto">
+        <div class="selImg" v-if="tempFilePaths.length < 4">
+          <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
+        </div>
       </div>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
-    <div @click="submitF">
+    <div @click="submitF" v-if="!loading">
       <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
       </el-tooltip>
     </div>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
   </div>
 </template>
 <script>
@@ -68,7 +71,11 @@
           }
         ],
         tipContent: '', // 提示消息
-        disabled: false
+        disabled: false,
+        file: null,
+        loading: false,
+        tempFilePaths: [],
+        httpFilePaths: [], // 图片上传服务器返回地址
       };
     },
     methods: {
@@ -106,11 +113,65 @@
           return false
         }
         this.disabled = true
-        this.opinionFeedback(this.fbId);
+        if (this.tempFilePaths.length > 0) {
+          this.tempFilePaths.forEach((el, index) => {
+            var params = new FormData();
+            params.append('file', this.file[index]);
+            this.uploadImages(params, index)
+          })
+        } else {
+          // 意见反馈上报
+          this.opinionFeedback();
+        }
       },
       del(index) {
         this.tempFilePaths.splice(index, 1);
         this.addPhoto = true
+      },
+      uploadFile(e) {
+        let file = e.target.files
+        this.file = file
+        for (let i = 0; i < file.length; i++) {
+          console.log(file[i], '2222')
+          let s = file[i]
+          let binaryData = [];
+          binaryData.push(file[i]);
+          let src
+          if (window.createObjectURL != undefined) {
+            src = window.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
+            // 　　url = window.URL.createObjectURL(file);
+            src = window.URL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.webkitURL != undefined) { //webkit or chrome
+            　　
+            // url = window.webkitURL.createObjectURL(file);
+            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          }
+          this.tempFilePaths.push(src)
+        }
+      },
+      async uploadImages(params, index) {
+        let res = await api.uploadProfile({
+          method: 'myupload',
+          query: {
+            file: params
+          }
+        })
+        this.loading = true
+        if (res.code === 200) {
+          console.log(res.result.headUrl)
+          this.httpFilePaths.push(res.result.headUrl)
+          if (index === this.tempFilePaths.length - 1) {
+            this.opinionFeedback();
+            // 意见反馈上报
+          }
+        }
       },
       // 意见反馈上报
       async opinionFeedback() {
@@ -118,30 +179,13 @@
           method: 'POST',
           query: {
             "fbContent": this.text,
-            "fbImages": "img/demo.png,img/demo.jpg"
+            "fbImages": this.httpFilePaths.toString(',') || ''
           }
         });
         if (res.code === 200) {
           this.$router.go(-1)
+          this.loading = false
         } else {}
-      },
-      // 校验sn
-      async checkSn() {
-        let res = await api.checkSn({
-          query: {
-            sn: this.getCode
-          }
-        });
-        if (res.code === 0) {
-          STROAGE({
-            type: "setItem",
-            key: "Sn",
-            item: this.getCode
-          });
-        } else {
-          this.getCode = "";
-          this.placeholde = "无效sn,请重新输入或者检查二维码是否正确";
-        }
       }
     }
   };
@@ -200,10 +244,12 @@
         }
       }
       .upImg {
-        width: 100%;
+        width: 102%;
         height: vw(150);
         flex-wrap: wrap;
         display: flex;
+        margin-bottom: vw(32);
+        margin-left: vw(-10);
         img {
           width: vw(60);
           height: vw(48); // background: red;
@@ -218,26 +264,33 @@
           background: #f5f5f5;
           margin: 0;
           margin-right: vw(10);
+          background: url('../../../assets/uploadImg.png') no-repeat;
+          background-size: cover;
+          input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+          }
         }
-        .uploadImg {
+      }
+      .uploadImg {
+        width: vw(150);
+        height: vw(150);
+        position: relative;
+        margin-right: vw(7);
+        .img {
           width: vw(150);
           height: vw(150);
-          position: relative;
-          margin-right: vw(7);
-          .img {
-            width: vw(150);
-            height: vw(150);
-            display: block; // background: greenyellow;
-            margin: 0;
-          }
-          .del {
-            width: vw(46);
-            height: vw(46);
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin: 0;
-          }
+          display: block; // background: greenyellow;
+          margin: 0;
+        }
+        .del {
+          width: vw(46);
+          height: vw(46);
+          position: absolute;
+          top: 0;
+          right: 0;
+          margin: 0;
         }
       }
     }
@@ -254,6 +307,11 @@
       padding: 0;
       height: vw(90) !important;
       line-height: vw(90) !important;
+    }
+    .is-loading {
+      background: $bgPageColor3 !important;
+      color: $fontColor3 !important;
+      font-size: 18px !important;
     }
   }
 </style>

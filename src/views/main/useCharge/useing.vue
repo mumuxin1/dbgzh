@@ -3,7 +3,7 @@
     <mu-header class="muHeader" title="使用充电桩" :left="true" :back="true"></mu-header>
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
-      <div class="getcode">
+      <div class="getcode" :class="getCode === null ? 'fullInput': ''">
         <input type="text" :placeholder="placeholde" v-model="getCode">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="" @click.stop="scanCode">
       </div>
@@ -62,8 +62,8 @@ export default {
           item: this.getCode
         });
       } else {
-        this.getCode = ''
-        this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
+        this.getCode = null
+        this.placeholde = res.message
       }
     }
   }
@@ -142,36 +142,8 @@ export default {
     margin: vw(32) vw(30);
     color: white;
   }
-}
-/deep/ {
-  // select
-  .el-input__inner {
-    height: vw(64);
-    color: #333333;
-    font-size: vw(28);
-    padding-left: vw(20);
-  }
-  .el-input__suffix-inner {
-    position: relative;
-    top: vw(-12);
-    right: vw(22);
-  } // Input
-  .input_element .el-input__inner {
-    padding-left: vw(60);
-  }
-  .el-input__prefix {
-    position: relative;
-    top: vw(-45);
-    left: vw(-222);
-  }
-}
-.el-select-dropdown__item {
-  height: vw(64) !important;
-  line-height: vw(64) !important;
-  span {
-    display: block;
-    height: vw(64) !important;
-    line-height: vw(64) !important;
-  }
+  .fullInput ::placeholder {
+      color: red;
+    }
 }
 </style>

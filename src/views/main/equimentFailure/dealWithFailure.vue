@@ -31,14 +31,14 @@
         <div class="line"></div>
         <span class="des">反馈图片</span>
         <div class="upImg">
-          <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-            <img :src="item" alt="" class="img">
-            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+          <div class="uploadImg" v-for="items in fbImg" :key="items.index">
+            <img :src="items" alt="" class="img">
+            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(items.index)">
           </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
           <!-- <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg"> -->
         </div>
-        <div class="btn">
+        <div class="btn" v-if="failureEquDetails.dealStatus === 1 || failureEquDetails.dealStatusdealResult === 2" >
           <span>取消</span>
           <span @click="dealWith">处理</span>
         </div>
@@ -59,16 +59,14 @@
         <li class="detail">
           <span class="bold">具体情况</span>
           <span class="wrap">{{failureEquDetails.dealRemark}}</span>
+        </li>
           <div class="upImg">
-            <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-              <img :src="item" alt="" class="img">
-              <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+            <div class="uploadImg" v-for="items in dealImg" :key="items.index">
+              <img :src="items" alt="" class="img">
+              <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(items.index)">
             </div>
-            <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-            <!-- <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg"> -->
           </div>
           <img src="@/assets/dianbo_guzhang_yichuli@3x.png" alt="" class="status">
-        </li>
         </ul>
       </div>
     </div>
@@ -91,20 +89,18 @@
         failureEquDetails: {},
         fbId: null,
         selText: [],
-        startTime: "", // 选择开始时间
-        endTime: "", // 选择结束时间
         openTime: "", // 请求参数 开放时间
         userName: "", // 姓名
         num: "", //现有总表容量
         phone: "", // 电话
         power: "", //入户总线电压
-        startTime2: "",
-        endTime2: "",
         tempFilePaths: [],
         addPhoto: true,
         text: "",
         disabled: false,
-        address: ""
+        address: "",
+        dealImg: [],
+        fbImg: []
       };
     },
     created() {
@@ -130,6 +126,8 @@
         });
         if (failureEquDetails) {
           this.failureEquDetails = JSON.parse(failureEquDetails);
+          this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
+          this.fbImg = this.failureEquDetails.fbImages.split(',') || []
         }
         console.log(this.failureEquDetails);
       },
@@ -141,66 +139,8 @@
         console.log(1)
         this.$router.push(`/dealWithResult?fbId=${this.fbId}`)
       },
-      // 检测输入桩主信息
-      textDectorers() {
-        let falg;
-        this.startTime2 = timeFormat(this.startTime, "-", "00:00");
-        this.endTime2 = timeFormat(this.endTime, "-", "00:00");
-        this.openTime = this.startTime2 + "-" + this.endTime2;
-        if (!this.address) {
-          this.address = null;
-          return false;
-        }
-        if (!this.userName) {
-          this.userName = null;
-          return false;
-        }
-        if (!this.phone) {
-          this.phone = null;
-          return false;
-        }
-        if (!this.openTime) {
-          return false;
-        }
-        if (!this.num) {
-          this.num = null;
-          return false;
-        }
-        if (!this.power) {
-          this.power = null;
-          return false;
-        }
-        if (!this.selText) {
-          return false;
-        }
-        if (!this.selText2) {
-          return false;
-        }
-        console.log('ddd')
-        falg = true;
-        if (falg) {
-          return true;
-        }
-      },
-      async applicationOwner() {
-        let res = await api.applicationOwner({
-          method: "POST",
-          query: {
-            address: "xxx",
-            realName: this.userName,
-            phone: this.phone,
-            openTime: this.openTime,
-            tableCapacity: this.num,
-            voltage: this.power,
-            groundWireStatus: this.selText,
-            cooperationType: this.selText2,
-            imgs: "img/demo.jpg,img/demo2.png"
-          }
-        });
-        if (res.code === 200) {
-          this.$router.push("/reviewProgress");
-        }
-      },
+      
+      
       // 查询故障设备详情
       async queryFailureEquInfo(id) {
         let res = await api.queryFailureEquInfo({
@@ -210,6 +150,8 @@
         });
         if (res.code === 0) {
           this.failureEquDetails = res.result
+          this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
+          this.fbImg = this.failureEquDetails.fbImages.split(',') || []
           STROAGE({
             type: "setItem",
             key: "FailureEquDetails",
@@ -295,6 +237,9 @@
       }
       .other {
         border-top: vw(1) dotted #e5e5e5;
+        display: flex;
+        flex-direction: column;
+        margin-top: vw(-8);
         .detail {
           min-height: vw(120);
           padding: vw(45) 0;
@@ -307,6 +252,7 @@
           height: vw(115);
           margin-bottom: vw(45);
           align-self: center;
+          margin-top: vw(32);
         }
       }
       .des {

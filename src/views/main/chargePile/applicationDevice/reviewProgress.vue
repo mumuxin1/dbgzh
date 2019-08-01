@@ -9,26 +9,20 @@
       </p>
       <div class="progres">
         <div class="step">
-          <div class="box"></div>
-          <span>添加设备</span>
+          <div class="box blu"></div>
+          <span class="cb">添加设备</span>
         </div>
-        
         <div class="step margin200">
-           <div class="line1 line"></div>
-          <div class="box"></div>
-          <span>审核中</span>
-      <div class="line2 line"></div>
-
+          <div class="line1 line"></div>
+          <div class="box blu"></div>
+          <span class="cb">审核中</span>
+          <div class="line2 line"></div>
         </div>
         <div class="step">
           <div class="box"></div>
-          <span>添加设备</span>
+          <span>审核通过</span>
         </div>
-       
-
       </div>
-      
-
     </div>
   </div>
 </template>
@@ -44,8 +38,7 @@
       "mu-header": muheader
     },
     data() {
-      return {
-      };
+      return {};
     },
     created() {
       this.data_Init()
@@ -117,7 +110,6 @@
       align-items: center;
       display: flex;
       flex-direction: column;
-
       img {
         width: vw(160);
         height: vw(160);
@@ -150,31 +142,38 @@
             border-radius: 50%;
             background: #cccccc;
           }
+          .blu{
+            background: $bgPageColor3;
+          }
           span {
             color: #cccccc;
             margin-top: vw(23);
           }
+          .cb{
+            color: $fontColor;
+          }
         }
-        .margin200{
+        .margin200 {
           margin: 0 vw(150);
-        position: relative;
-         .line{
-          width: vw(200);
-          height: vw(2);
-          background: #cccccc;
-          top: vw(25);
-          position: absolute;
-          z-index: 999;
-        }
-        .line{
-          right: vw(65);
-        }
-        .line2{
-          left: vw(65)
-        }
+          position: relative;
+          .line {
+            width: vw(200);
+            height: vw(2);
+            background: #cccccc;
+            top: vw(25);
+            position: absolute;
+            z-index: 999;
+          }
+          .line1 {
+            right: vw(65);
+            background: $bgPageColor3;
+
+          }
+          .line2 {
+            left: vw(65)
+          }
         }
       }
-      
     }
   }
 </style>

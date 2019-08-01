@@ -3,15 +3,13 @@
     <mu-header class="muHeader" title="使用充电桩" :left="true" :back="true"></mu-header>
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
-      <div class="getcode">
+      <div class="getcode" :class="getCode === null ? 'fullInput': ''">
         <input type="text" :placeholder="placeholde" v-model="getCode" @blur="blur">
         <img src="@/assets/dian_my_shiyong_saoyisao@3x.png" alt="" @click="scanCode">
       </div>
-      <div class="tit">充电桩状态</div>
-      <div class="state">
-        <span>上架</span>
-        <span>下架</span>
-        <span>离线</span>
+      <div class="tit">当前设备编号:</div>
+      <div class="getcode">
+        {{sn}}
       </div>
     </div>
     <div class="wave" @click="useing" v-if="!chargeSt">
@@ -60,13 +58,13 @@
           key: "Sn"
         });
         if (sn) {
-          this.getCode = sn
+          this.sn = sn
         }
       },
       blur() {
         // console.log('sss')
         // 校验sn
-        this.checkSn()
+        this.checkSn(this.getCode)
       },
       scanCode() {
         wx.scanQRCode({
@@ -74,8 +72,8 @@
           scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
           success: (res) => {
             let result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
-            this.getCode = res.resultStr.split('/').pop()
-            this.checkSn()
+           let sn = res.resultStr.split('/').pop()
+            this.checkSn(sn)
           }
         });
       },
@@ -104,21 +102,22 @@
         }
       },
       // 校验sn
-      async checkSn() {
+      async checkSn(sn) {
         let res = await api.checkSn({
           query: {
-            sn: this.getCode
+            sn: sn
           }
         });
         if (res.code === 0) {
+          this.sn = sn
           STROAGE({
           type: "setItem",
           key: "Sn",
-          item: this.getCode
+          item: sn
         });
         } else {
-         this.getCode = ''
-        this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
+         this.getCode = null
+        this.placeholde = res.message
         }
       },
       // 打开充电桩
@@ -157,8 +156,8 @@
         if (res.code === 0) {
           // ...
         } else {
-          this.getCode = ''
-          this.placeholde = '无效sn,请重新输入或者检查二维码是否正确'
+          this.getCode = null
+          this.placeholde = res.message
         }
       },
       webSocketCallback() {
@@ -277,36 +276,8 @@
       margin: vw(32) vw(30);
       color: white;
     }
-  }
-  /deep/ {
-    // select
-    .el-input__inner {
-      height: vw(64);
-      color: #333333;
-      font-size: vw(28);
-      padding-left: vw(20);
-    }
-    .el-input__suffix-inner {
-      position: relative;
-      top: vw(-12);
-      right: vw(22);
-    } // Input
-    .input_element .el-input__inner {
-      padding-left: vw(60);
-    }
-    .el-input__prefix {
-      position: relative;
-      top: vw(-45);
-      left: vw(-222);
-    }
-  }
-  .el-select-dropdown__item {
-    height: vw(64) !important;
-    line-height: vw(64) !important;
-    span {
-      display: block;
-      height: vw(64) !important;
-      line-height: vw(64) !important;
+    .fullInput ::placeholder {
+      color: red;
     }
   }
 </style>

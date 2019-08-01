@@ -208,6 +208,7 @@
           font-weight: bold;
           margin-bottom: vw(20);
         }
+
         li {
           width: 100%;
           height: vw(59);
@@ -215,6 +216,7 @@
           text-align: left;
           font-size: vw(30);
           color: #999999;
+          justify-content: flex-start;
         }
         .txFull {
           span {
@@ -233,10 +235,13 @@
             line-height: vw(59);
             &:nth-child(1) {
               margin-right: vw(30);
-              flex: 2.5;
+              width: 25%;
             }
             &:nth-child(2) {
-              flex: 7.5;
+             width: 55%;
+             overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
             }
           }
         }

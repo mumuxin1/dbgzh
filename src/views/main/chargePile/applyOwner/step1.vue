@@ -7,12 +7,12 @@
       <ul>
         <li class="tit">基本信息</li>
         <!-- <li class="selAdres">
-                      <span>地址</span>
-                      <div class="rticon">
-                        <span>请选择</span>
-                        <img src="@/assets/dianbo_public_right@3x.png" alt="">
-                      </div>
-                    </li>-->
+                          <span>地址</span>
+                          <div class="rticon">
+                            <span>请选择</span>
+                            <img src="@/assets/dianbo_public_right@3x.png" alt="">
+                          </div>
+                        </li>-->
         <li class="selAdres">
           <span>地址</span>
           <div class="rticon" :class="address === null ? 'fullInput': ''">
@@ -36,11 +36,19 @@
           <span>开放时间</span>
           <div class="selTime">
             <div class="rieditor">
-              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false"></el-time-picker>
+              <el-time-picker v-model="startTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
+                        start: '00:00',
+                        end: '23:59',
+                        format: 'HH:mm'
+                      }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="rieditor">
-              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false"></el-time-picker>
+              <el-time-picker v-model="endTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
+                        start: '00:00',
+                        end: '23:59',
+                        format: 'HH:mm'
+                      }"></el-time-picker>
             </div>
           </div>
         </li>
@@ -69,23 +77,26 @@
           </el-select>
         </li>
         <span class="des mar48">
-                      <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-                    </span>
+                          <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                        </span>
         <span class="des">请选择充电 环境照片</span>
-        <div class="upImg">
+        <div class="upImg" v-if="tempFilePaths.length < 4">
           <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
             <img :src="item" alt="" class="img">
             <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
           </div>
+          <div class="selImg">
+            <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg" >
+          </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-          <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg" v-if="tempFilePaths.length < 4">
         </div>
       </ul>
-      <div @click="next">
+      <div @click="next" v-if="!loading">
         <el-tooltip content="请输入完整信息" placement="top" class="button-g button" :disabled="disabled">
           <el-button>下一步</el-button>
         </el-tooltip>
       </div>
+      <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button>
     </div>
   </div>
 </template>
@@ -97,8 +108,12 @@
   import muheader from "@/components/header";
   import wx from "weixin-js-sdk";
   import api from "@/api/api";
-import { constants } from 'fs';
-import { parse } from 'path';
+  import {
+    constants
+  } from 'fs';
+  import {
+    parse
+  } from 'path';
   export default {
     name: "step1",
     components: {
@@ -127,8 +142,8 @@ import { parse } from 'path';
             label: "投资合作"
           }
         ],
-        startTime: "", // 选择开始时间
-        endTime: "", // 选择结束时间
+        startTime: new Date(2019, 7, 10, 0, 0),
+        endTime: new Date(2019, 7, 10, 23, 59),
         openTime: "", // 请求参数 开放时间
         userName: "", // 姓名
         num: "", //现有总表容量
@@ -143,7 +158,8 @@ import { parse } from 'path';
         placeholde: "扫描二维码或输入编码",
         disabled: false,
         address: "",
-        file: null
+        file: null,
+        loading: false
       };
     },
     created() {
@@ -159,25 +175,47 @@ import { parse } from 'path';
       fileChange(e) {
         console.log(e)
       },
-      async uploadFile(e) {
-        let _this = this
-        console.log(e.path[0].files)
-        let file = e.path[0].files
+      uploadFile(e) {
+        let file = e.target.files
         this.file = file
-        console.log(file,'11111')
         // let reader = new FileReader();
-        for (let i = 0; i< file.length; i++) {
+        // alert(file)
+        for (let i = 0; i < file.length; i++) {
           console.log(file[i], '2222')
+          // alert(file[i])
           let s = file[i]
           let binaryData = [];
           binaryData.push(file[i]);
-          let src = window.URL.createObjectURL(new Blob(binaryData, {
-            type: "application/zip"
-          }))
-          console.log(src, '333')
+          let src
+          if (window.createObjectURL != undefined) { //basic
+            src = window.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))
+            // 　　url = window.createObjectURL(file);
+            　　
+          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
+            // 　　url = window.URL.createObjectURL(file);
+            src = window.URL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          } else if (window.webkitURL != undefined) { //webkit or chrome
+            　　
+            // url = window.webkitURL.createObjectURL(file);
+            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
+              type: "application/zip"
+            }))　　
+          }
+          // let src = window.URL.createObjectURL(new Blob(binaryData, {
+          //   type: "application/zip"
+          // }))
+          // alert(src)
           // let src = window.URL.createObjectURL(s)
           this.tempFilePaths.push(src)
         }
+        // reader.readAsDataURL(file[0])
+        // reader.onload = async function () {
+        //   _this.tempFilePaths.push(this.result)
+        // }
         // var params = new FormData();
         // params.append('file', e.path[0].files[0]);
         // // console.log(params.get('file'))
@@ -217,12 +255,16 @@ import { parse } from 'path';
         let falg = this.textDectorers();
         if (!falg) return false;
         // new Promise((resolve, reject) => {
-          // let falg = this.tempFilePaths.length
+        // let falg = this.tempFilePaths.length
+        if (this.tempFilePaths.length > 0) {
           this.tempFilePaths.forEach((el, index) => {
             var params = new FormData();
             params.append('file', this.file[index]);
             this.uploadImages(params, index)
           })
+        } else {
+          this.applicationOwner();
+        }
         // }).then((a) => {
         //   console.log(this.httpFilePaths, 'kkkkkkkkkkkkkk')
         // })
@@ -231,7 +273,6 @@ import { parse } from 'path';
       },
       // 检测输入桩主信息
       textDectorers() {
-        let falg;
         this.startTime2 = timeFormat(this.startTime, "-", "00:00");
         this.endTime2 = timeFormat(this.endTime, "-", "00:00");
         this.openTime = this.startTime2 + "-" + this.endTime2;
@@ -264,27 +305,25 @@ import { parse } from 'path';
         if (!this.selText2) {
           return false;
         }
-        falg = true;
-        if (falg) {
-          return true;
-        }
+        return true;
       },
-      async uploadImages (params, index) {
-        let res =  await api.uploadProfile({
-              method: 'myupload',
-              query: {
-                file: params
-              }
-            })
-          if (res.code === 200) {
-            console.log(res.result.headUrl)
-            console.log(index)
-            this.httpFilePaths.push(res.result.headUrl)
-            if (index === this.tempFilePaths.length - 1) {
-            console.log('success', this.httpFilePaths)
-              this.applicationOwner();
-            }
+      async uploadImages(params, index) {
+        let res = await api.uploadProfile({
+          method: 'myupload',
+          query: {
+            file: params
           }
+        })
+        this.loading = true
+        if (res.code === 200) {
+          console.log(res.result.headUrl)
+          console.log(index)
+          this.httpFilePaths.push(res.result.headUrl)
+          if (index === this.tempFilePaths.length - 1) {
+            console.log('success', this.httpFilePaths)
+            this.applicationOwner();
+          }
+        }
       },
       async applicationOwner() {
         let res = await api.applicationOwner({
@@ -298,10 +337,11 @@ import { parse } from 'path';
             voltage: this.power,
             groundWireStatus: this.selText,
             cooperationType: this.selText2,
-            imgs: this.httpFilePaths.toString(',')
+            imgs: this.httpFilePaths.toString(',') || ''
           }
         });
         if (res.code === 200) {
+          this.loading = true
           this.$router.push("/reviewProgress");
         }
       },
@@ -314,7 +354,7 @@ import { parse } from 'path';
         });
         if (res.code === 0) {
           wx.config({
-            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
             appId: res.result.appId, // 必填，公众号的唯一标识
             timestamp: res.result.timestamp, // 必填，生成签名的时间戳
             nonceStr: res.result.nonceStr, // 必填，生成签名的随机串
@@ -495,6 +535,13 @@ import { parse } from 'path';
           background: #f5f5f5;
           margin: 0;
           margin-right: vw(10);
+          background: url('../../../../assets/uploadImg.png') no-repeat;
+          background-size: cover;
+          input {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+          }
         }
         .uploadImg {
           width: vw(150);
@@ -522,7 +569,7 @@ import { parse } from 'path';
       }
     }
     .button {
-      width: 94%;
+      width: 92%;
       height: vw(90);
       line-height: vw(90);
       color: white;
@@ -541,6 +588,11 @@ import { parse } from 'path';
       padding: 0;
       height: vw(90) !important;
       line-height: vw(90) !important;
+    }
+    .is-loading {
+      background: $bgPageColor3 !important;
+      font-size: 18px !important;
+      color: $fontColor3 !important;
     }
   }
 </style>

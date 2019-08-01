@@ -118,7 +118,7 @@
         });
         if (res.code === 0) {
           wx.config({
-            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
             appId: res.result.appId, // 必填，公众号的唯一标识
             timestamp: res.result.timestamp, // 必填，生成签名的时间戳
             nonceStr: res.result.nonceStr, // 必填，生成签名的随机串
@@ -220,6 +220,8 @@
           case 7:
             // 查询故障设备列表
             this.queryFailureEquList();
+            this.$router.push("/equimentFailure");
+
             break;
           case 8:
             //意见反馈
@@ -284,7 +286,6 @@
             key: "FailureEquList",
             item: res.result.records
           });
-            this.$router.push("/equimentFailure");
 
         }
       },
@@ -294,6 +295,11 @@
         if (res.code === 0) {
           if (res.result.status === 1) {
             this.$router.push("/useNext");
+            STROAGE({
+            type: "setItem",
+            key: "Sn",
+            item: res.result.sn
+          });
           } else {
             this.$router.push("useing");
           }

@@ -31,8 +31,6 @@ export default {
       applyList: "", // 下拉选择站点
       chargeList: [],
       bsId: "",
-      startTime: "",
-      endTime: "",
       pageNo: "",
       pageSize: "",
       orderList: [], // 订单列表详情
