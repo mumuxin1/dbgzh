@@ -49,11 +49,19 @@
       leftText: {
         type: String,
         default: ""
+      },
+      route: {
+        type: String,
+        default: ""
       }
     },
     methods: {
       goBack() {
-        this.$router.go(-1)
+        if (this.route === 'allpyOwner') {
+          this.$router.go(-2)
+        } else {
+          this.$router.go(-1)
+        }
       }
     },
   };

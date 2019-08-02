@@ -3,7 +3,7 @@ import Vue from 'vue'
 import {
   STROAGE
 } from './muxin'
-
+import vim from '../main.js'
 function makeQuery(queryObject) {
   if (!queryObject) return ''
   console.log('请求参数----》》》', queryObject)
@@ -39,8 +39,9 @@ const apiRequest = async (params = {}, url) => {
     let self = params.vim
     let myuploads = axios.create({
       baseURL: url,
+      timeout: 30000,
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       }
     });
     // Vue.prototype.myuploads = myuploads
@@ -51,13 +52,31 @@ const apiRequest = async (params = {}, url) => {
       return res.data
     } catch (err) {
       console.log('上传图片错误信息', err)
+      vim.$children.requestCallback({
+        message: err,
+        type: 'error',
+        center: true,
+        offset: 200
+      })
+      // return {
+      //   err: err,
+      //   errCode: 5001
+      // }
+      // let options = {
+      //   message: '上传图片出错!',
+      //   type: 'error',
+      //   center: true,
+      //   offset: 200
+
+      // }
+      // Message(options)
     }
-  //  myuploads.post(url, data.file).then(res => {
-  //     console.log(res)
-  //     return res.data
-  //   }).catch(error => {
-  //     console.log(error);
-  //   })
+    //  myuploads.post(url, data.file).then(res => {
+    //     console.log(res)
+    //     return res.data
+    //   }).catch(error => {
+    //     console.log(error);
+    //   })
   } else {
     let httpDefaultOpts = {
       method: params.method || 'GET',
@@ -82,7 +101,14 @@ const apiRequest = async (params = {}, url) => {
 
       return res.data
     } catch (err) {
-      return err
+      console.log(err)
+      console.log(vim.$children[0].requestCallback)
+      vim.$children[0].requestCallback({
+        message: err,
+        type: 'error',
+        center: true,
+        offset: 300
+      })
     }
   }
 }

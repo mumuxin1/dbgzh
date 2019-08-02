@@ -1,6 +1,6 @@
 <template>
   <div class="reviewProgress">
-    <mu-header class="muHeader" title="申请审核" :left="true" :back="true"></mu-header>
+    <mu-header class="muHeader" title="申请审核" :left="true" :back="true" :route="route"></mu-header>
     <div class="content">
       <img src="@/assets/dianbo_public_success@3x.png" alt="">
       <span>提交申请成功</span>
@@ -38,10 +38,14 @@
       "mu-header": muheader
     },
     data() {
-      return {};
+      return {
+        route: ''
+      };
     },
     created() {
       this.data_Init()
+      this.route = location.href.split('=')[1] || ''
+      console.log(this.route)
     },
     methods: {
       data_Init() {

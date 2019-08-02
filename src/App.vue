@@ -12,6 +12,8 @@
   import api from '@/api/api'
   import wx from 'weixin-js-sdk'
   import websocket from '@/utils/webSocket'
+import { Message } from 'element-ui';
+
   import {
     NAVIGATOR,
     STROAGE
@@ -25,6 +27,7 @@ import { Tree } from 'element-ui';
     mounted() {
       // this.wxConfig()
       this.socket_init()
+      console.log('kk')
     },
     data() {
       return {
@@ -34,7 +37,11 @@ import { Tree } from 'element-ui';
         sysUserId: '', // 充电站类型id
         webSocket: null,
         webSocketData: '',
-        webSocketCallback: (res) => {}
+        webSocketCallback: (res) => {},
+        requestCallback: (res) => {
+          console.log(res)
+          Message(res)
+        }
       }
     },
     methods: {

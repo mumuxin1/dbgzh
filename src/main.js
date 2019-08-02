@@ -25,7 +25,7 @@ Vue.use(Input)
   .use(DatePicker)
   .use(Tooltip)
   .use(wx)
-new Vue({
+const vue = new Vue({
   router,
   store,
   render: h => h(App)
@@ -54,3 +54,4 @@ new Vue({
     event.preventDefault()
   })
 })()
+export default vue

@@ -258,7 +258,7 @@ export default {
     }
     .sel {
       width: 100%;
-      height: vh(64);
+      height: vh(61);
       display: flex;
       align-items: center;
       margin-bottom: vh(32);
@@ -267,12 +267,12 @@ export default {
         text-align: left;
       }
       .el-input__inner {
-        height: vh(64) !important;
+        height: vh(61) !important;
       }
       .select_element {
         flex: 7;
         .el-input--suffix {
-          height: vh(64) !important;
+          height: vh(69) !important;
           padding: 0 vh(20);
         }
       }
@@ -282,7 +282,7 @@ export default {
     }
     .selectDate {
       width: 100%;
-      height: vh(64);
+      height: vh(61);
       display: flex; // margin-bottom: vw(40);
       .block {
         flex: 1;

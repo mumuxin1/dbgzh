@@ -93,6 +93,7 @@
       this.data_Init();
       this.wxConfig()
       this.socket_init()
+      console.log(this.$parent)
     },
     methods: {
       wxConfig() {

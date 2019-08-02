@@ -1,6 +1,6 @@
 .el-message-box--center{
-  width: 280px !important;
-  height: 160px !important;
+  width: 380px !important;
+  height: 200px !important;
   border-radius: 5px !important;
   padding-bottom: 0 !important;
   position: relative;
@@ -9,7 +9,7 @@
   border: 0 !important;
 }
 .el-message-box__title{
- font-size: 16px !important;
+ font-size: 20px !important;
  font-weight: bold !important;
  color: #333333 !important;
  /* margin: 24px 0 24px 0 !important; */
@@ -17,21 +17,21 @@
 .el-message-box__message{
   /* margin-bottom: 32px !important; */
   color: #999999 !important;
-  font-size: 14px !important;
+  font-size: 18px !important;
 }
 .el-message-box__btns{
   position: absolute;
   bottom: 0 !important;
   width: 100% !important;
-    height: 45px !important;
+    height: 60px !important;
   display: flex !important;
   /* margin-top: 15px !important; */
   border-top: 1px solid #e5e5e5;
 }
 .el-button--default {
-    height: 45px !important;
+    height: 60px !important;
   width: 50% !important;
-  font-size: 14px !important;
+  font-size: 18px !important;
 }
 .el-button--default span {
     flex: 1;

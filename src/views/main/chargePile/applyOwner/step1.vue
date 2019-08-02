@@ -7,12 +7,12 @@
       <ul>
         <li class="tit">基本信息</li>
         <!-- <li class="selAdres">
-                          <span>地址</span>
-                          <div class="rticon">
-                            <span>请选择</span>
-                            <img src="@/assets/dianbo_public_right@3x.png" alt="">
-                          </div>
-                        </li>-->
+                              <span>地址</span>
+                              <div class="rticon">
+                                <span>请选择</span>
+                                <img src="@/assets/dianbo_public_right@3x.png" alt="">
+                              </div>
+                            </li>-->
         <li class="selAdres">
           <span>地址</span>
           <div class="rticon" :class="address === null ? 'fullInput': ''">
@@ -36,19 +36,19 @@
           <span>开放时间</span>
           <div class="selTime">
             <div class="rieditor">
-              <el-time-picker v-model="startTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
-                        start: '00:00',
-                        end: '23:59',
-                        format: 'HH:mm'
-                      }"></el-time-picker>
+              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
+                            start: '00:00',
+                            end: '23:59',
+                            format: 'HH:mm'
+                          }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="rieditor">
-              <el-time-picker v-model="endTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
-                        start: '00:00',
-                        end: '23:59',
-                        format: 'HH:mm'
-                      }"></el-time-picker>
+              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
+                            start: '00:00',
+                            end: '23:59',
+                            format: 'HH:mm'
+                          }"></el-time-picker>
             </div>
           </div>
         </li>
@@ -77,16 +77,16 @@
           </el-select>
         </li>
         <span class="des mar48">
-                          <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-                        </span>
+                              <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                            </span>
         <span class="des">请选择充电 环境照片</span>
-        <div class="upImg" v-if="tempFilePaths.length < 4">
+        <div class="upImg">
           <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
             <img :src="item" alt="" class="img">
             <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
           </div>
-          <div class="selImg">
-            <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg" >
+          <div class="selImg" v-if="tempFilePaths.length < 4">
+            <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
           </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
         </div>
@@ -109,11 +109,9 @@
   import wx from "weixin-js-sdk";
   import api from "@/api/api";
   import {
-    constants
-  } from 'fs';
-  import {
-    parse
-  } from 'path';
+    Message
+  } from 'element-ui';
+import { setTimeout } from 'timers';
   export default {
     name: "step1",
     components: {
@@ -159,7 +157,8 @@
         disabled: false,
         address: "",
         file: null,
-        loading: false
+        loading: false,
+        uploadCount: 0 // 上传图片成功计数
       };
     },
     created() {
@@ -177,10 +176,24 @@
       },
       uploadFile(e) {
         let file = e.target.files
+        console.log(file)
         this.file = file
         // let reader = new FileReader();
         // alert(file)
         for (let i = 0; i < file.length; i++) {
+          console.log(file[i])
+            console.log(file[i].size > 10*1024*1024)
+
+          if (file[i].size > 10*1024*1024) {
+            let options = {
+            message: '上传图片不能超过10M!',
+            type: 'warning',
+            center: true,
+            offset: 450
+          }
+          Message(options)
+          continue
+          }
           console.log(file[i], '2222')
           // alert(file[i])
           let s = file[i]
@@ -252,6 +265,7 @@
         this.addPhoto = true;
       },
       next() {
+        this.uploadCount = 0
         let falg = this.textDectorers();
         if (!falg) return false;
         // new Promise((resolve, reject) => {
@@ -260,7 +274,10 @@
           this.tempFilePaths.forEach((el, index) => {
             var params = new FormData();
             params.append('file', this.file[index]);
-            this.uploadImages(params, index)
+            setTimeout(() => {
+              this.uploadImages(params, index)
+              clearTimeout()
+            }, 300);
           })
         } else {
           this.applicationOwner();
@@ -315,21 +332,34 @@
           }
         })
         this.loading = true
+        if (res.errCode === 5001) {
+          let options = {
+            message: '上传图片出错!' + res.err,
+            type: 'error',
+            center: true,
+            offset: 200
+          }
+          Message(options)
+          this.loading = false
+        }
         if (res.code === 200) {
+          this.uploadCount++
           console.log(res.result.headUrl)
           console.log(index)
           this.httpFilePaths.push(res.result.headUrl)
-          if (index === this.tempFilePaths.length - 1) {
+          if (this.uploadCount === this.tempFilePaths.length) {
+            console.log(this.uploadCount, this.tempFilePaths.length)
             console.log('success', this.httpFilePaths)
             this.applicationOwner();
           }
+        } else {
         }
       },
       async applicationOwner() {
         let res = await api.applicationOwner({
           method: "POST",
           query: {
-            address: "xxx",
+            address: this.address,
             realName: this.userName,
             phone: this.phone,
             openTime: this.openTime,
@@ -342,7 +372,7 @@
         });
         if (res.code === 200) {
           this.loading = true
-          this.$router.push("/reviewProgress");
+          this.$router.push("/reviewProgress?route=allpyOwner");
         }
       },
       // 查询微信JSSDK权限验证配置参数
@@ -366,9 +396,8 @@
             console.log(res)
             // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
           });
-          // console.log('有效sn')
         } else {
-          // console.log('无效sn')
+          // ...
         }
       }
     }
