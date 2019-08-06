@@ -131,6 +131,12 @@
           // console.log('有效sn')
         } else {
           // console.log('无效sn')
+          this.$parent.requestCallback({
+            message: res.message,
+            type: 'error',
+            center: true,
+            offset: 200
+          })
         }
       },
       // 关闭充电桩
@@ -158,6 +164,12 @@
         } else {
           this.getCode = null
           this.placeholde = res.message
+          this.$parent.requestCallback({
+            message: res.message,
+            type: 'error',
+            center: true,
+            offset: 200
+          })
         }
       },
       webSocketCallback() {

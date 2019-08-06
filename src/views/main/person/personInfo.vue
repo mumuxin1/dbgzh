@@ -295,12 +295,13 @@
         let res = await api.checkUserControlStatus();
         if (res.code === 0) {
           if (res.result.status === 1) {
+            console.log('ss', res.result.status)
             this.$router.push("/useNext");
             STROAGE({
-            type: "setItem",
-            key: "Sn",
-            item: res.result.sn
-          });
+              type: "setItem",
+              key: "Sn",
+              item: res.result.sn
+            });
           } else {
             this.$router.push("useing");
           }

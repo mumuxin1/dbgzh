@@ -7,12 +7,12 @@
       <ul>
         <li class="tit">基本信息</li>
         <!-- <li class="selAdres">
-                              <span>地址</span>
-                              <div class="rticon">
-                                <span>请选择</span>
-                                <img src="@/assets/dianbo_public_right@3x.png" alt="">
-                              </div>
-                            </li>-->
+                                  <span>地址</span>
+                                  <div class="rticon">
+                                    <span>请选择</span>
+                                    <img src="@/assets/dianbo_public_right@3x.png" alt="">
+                                  </div>
+                                </li>-->
         <li class="selAdres">
           <span>地址</span>
           <div class="rticon" :class="address === null ? 'fullInput': ''">
@@ -37,18 +37,18 @@
           <div class="selTime">
             <div class="rieditor">
               <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                            start: '00:00',
-                            end: '23:59',
-                            format: 'HH:mm'
-                          }"></el-time-picker>
+                                start: '00:00',
+                                end: '23:59',
+                                format: 'HH:mm'
+                              }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="rieditor">
               <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                            start: '00:00',
-                            end: '23:59',
-                            format: 'HH:mm'
-                          }"></el-time-picker>
+                                start: '00:00',
+                                end: '23:59',
+                                format: 'HH:mm'
+                              }"></el-time-picker>
             </div>
           </div>
         </li>
@@ -77,13 +77,13 @@
           </el-select>
         </li>
         <span class="des mar48">
-                              <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-                            </span>
+                                  <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                                </span>
         <span class="des">请选择充电 环境照片</span>
         <div class="upImg">
-          <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
+          <div class="uploadImg" v-for="(item, index) in tempFilePaths" :key="item.index">
             <img :src="item" alt="" class="img">
-            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
+            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(index)">
           </div>
           <div class="selImg" v-if="tempFilePaths.length < 4">
             <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
@@ -111,7 +111,9 @@
   import {
     Message
   } from 'element-ui';
-import { setTimeout } from 'timers';
+  import {
+    setTimeout
+  } from 'timers';
   export default {
     name: "step1",
     components: {
@@ -156,7 +158,7 @@ import { setTimeout } from 'timers';
         placeholde: "扫描二维码或输入编码",
         disabled: false,
         address: "",
-        file: null,
+        file: [],
         loading: false,
         uploadCount: 0 // 上传图片成功计数
       };
@@ -177,25 +179,16 @@ import { setTimeout } from 'timers';
       uploadFile(e) {
         let file = e.target.files
         console.log(file)
-        this.file = file
-        // let reader = new FileReader();
-        // alert(file)
         for (let i = 0; i < file.length; i++) {
-          console.log(file[i])
-            console.log(file[i].size > 10*1024*1024)
-
-          if (file[i].size > 10*1024*1024) {
-            let options = {
-            message: '上传图片不能超过10M!',
-            type: 'warning',
-            center: true,
-            offset: 450
-          }
-          Message(options)
-          continue
-          }
-          console.log(file[i], '2222')
-          // alert(file[i])
+          // 大于1M压缩
+          if (file[i].size > 1 * 1024 * 1024) {
+            this.fileResizetoFile(file[i], 0.4, (res) =>{
+              console.log(res, 'kkk')
+              this.file.push(res)
+            })
+          } else[
+            this.file.push(file[i])
+          ]
           let s = file[i]
           let binaryData = [];
           binaryData.push(file[i]);
@@ -218,31 +211,8 @@ import { setTimeout } from 'timers';
               type: "application/zip"
             }))　　
           }
-          // let src = window.URL.createObjectURL(new Blob(binaryData, {
-          //   type: "application/zip"
-          // }))
-          // alert(src)
-          // let src = window.URL.createObjectURL(s)
           this.tempFilePaths.push(src)
         }
-        // reader.readAsDataURL(file[0])
-        // reader.onload = async function () {
-        //   _this.tempFilePaths.push(this.result)
-        // }
-        // var params = new FormData();
-        // params.append('file', e.path[0].files[0]);
-        // // console.log(params.get('file'))
-        // console.log(params)
-        // let res = await api.uploadProfile({
-        //   method: 'myupload',
-        //   vim: this,
-        //   query: {
-        //     file: params
-        //   }
-        // })
-        // if (res) {
-        //   console.log(res)
-        // }
       },
       wxConfig() {
         let url = window.location.href.split('#')[0]
@@ -261,17 +231,21 @@ import { setTimeout } from 'timers';
         console.log(this.chargeData);
       },
       del(index) {
+        console.log(index)
         this.tempFilePaths.splice(index, 1);
+        this.file.splice(index, 1);
         this.addPhoto = true;
       },
       next() {
         this.uploadCount = 0
         let falg = this.textDectorers();
         if (!falg) return false;
+        this.disabled = true;
         // new Promise((resolve, reject) => {
         // let falg = this.tempFilePaths.length
+        this.loading = true
         if (this.tempFilePaths.length > 0) {
-          this.tempFilePaths.forEach((el, index) => {
+          this.file.forEach((el, index) => {
             var params = new FormData();
             params.append('file', this.file[index]);
             setTimeout(() => {
@@ -285,7 +259,6 @@ import { setTimeout } from 'timers';
         // }).then((a) => {
         //   console.log(this.httpFilePaths, 'kkkkkkkkkkkkkk')
         // })
-        this.disabled = true;
         // this.applicationOwner();
       },
       // 检测输入桩主信息
@@ -331,7 +304,6 @@ import { setTimeout } from 'timers';
             file: params
           }
         })
-        this.loading = true
         if (res.errCode === 5001) {
           let options = {
             message: '上传图片出错!' + res.err,
@@ -344,7 +316,7 @@ import { setTimeout } from 'timers';
         }
         if (res.code === 200) {
           this.uploadCount++
-          console.log(res.result.headUrl)
+            console.log(res.result.headUrl)
           console.log(index)
           this.httpFilePaths.push(res.result.headUrl)
           if (this.uploadCount === this.tempFilePaths.length) {
@@ -352,8 +324,7 @@ import { setTimeout } from 'timers';
             console.log('success', this.httpFilePaths)
             this.applicationOwner();
           }
-        } else {
-        }
+        } else {}
       },
       async applicationOwner() {
         let res = await api.applicationOwner({
@@ -399,6 +370,53 @@ import { setTimeout } from 'timers';
         } else {
           // ...
         }
+      },
+      // 压缩图片
+      fileResizetoFile(file, quality, fn) {
+        /**
+         * filetoDataURL(file,fn) 会将 File（Blob）类型文件转变为dataURL字符串,其中 file 参数传入一个File（Blob）类型文件;fn为回调方法，包含一个dataURL字符串的参数
+         */
+        function filetoDataURL(file, fn) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+            fn(e.target.result);
+          };
+          reader.readAsDataURL(file);
+        };
+        /**
+         * dataURLtoImage(dataurl,fn) 会将一串dataURL字符串转变为Image类型文件,其中dataurl参数传入一个dataURL字符串,fn为回调方法，包含一个Image类型文件的参数
+         */
+        function dataURLtoImage(dataurl, fn) {
+          var img = new Image();
+          img.onload = function() {
+            fn(img);
+          };
+          img.src = dataurl;
+        };
+        /**
+         * canvasResizetoDataURL(canvas,quality) 会将一个Canvas对象压缩转变为一个dataURL字符串,其中canvas参数传入一个Canvas对象;quality参数传入一个0-1的number类型，表示图片压缩质量;
+         */
+        function canvasResizetoFile(canvas, quality, fn) {
+          canvas.toBlob(function(blob) {
+            fn(blob);
+          }, 'image/jpeg', quality);
+        };
+        /**
+         * imagetoCanvas(image)会将一个Image对象转变为一个Canvas类型对象，其中image参数传入一个Image对象
+         */
+        function imagetoCanvas(image) {
+          var cvs = document.createElement("canvas");
+          var ctx = cvs.getContext('2d');
+          cvs.width = image.width;
+          cvs.height = image.height;
+          ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
+          return cvs;
+        };
+        filetoDataURL(file, function(dataurl) {
+          dataURLtoImage(dataurl, function(image) {
+            canvasResizetoFile(imagetoCanvas(image), quality, fn);
+          })
+        })
       }
     }
   };

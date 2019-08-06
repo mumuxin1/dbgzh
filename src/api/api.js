@@ -3,6 +3,8 @@ import apiRequest from '../utils/request.js'
 // apiRequest = apiRequest.apiRequest
 const apiUrl = process.env.VUE_APP_BASE_API
 // const apiUrl = '/api'
+// http://47.112.22.47:8082/shared-admin
+// http://192.168.1.132:8088/shared-admin
 console.log('接口地址---------》》》》' + process.env.VUE_APP_BASE_API)
 /**
  * login

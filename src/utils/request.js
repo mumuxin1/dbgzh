@@ -52,7 +52,7 @@ const apiRequest = async (params = {}, url) => {
       return res.data
     } catch (err) {
       console.log('上传图片错误信息', err)
-      vim.$children.requestCallback({
+      vim.$children[0].requestCallback({
         message: err,
         type: 'error',
         center: true,
@@ -103,12 +103,12 @@ const apiRequest = async (params = {}, url) => {
     } catch (err) {
       console.log(err)
       console.log(vim.$children[0].requestCallback)
-      vim.$children[0].requestCallback({
-        message: err,
-        type: 'error',
-        center: true,
-        offset: 300
-      })
+      // vim.$children[0].requestCallback({
+      //   message: err,
+      //   type: 'error',
+      //   center: true,
+      //   offset: 300
+      // })
     }
   }
 }
