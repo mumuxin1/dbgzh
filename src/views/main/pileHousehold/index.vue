@@ -13,17 +13,20 @@
         </li>
       </ul>
     </div>
+    <mu-uploadPicture></mu-uploadPicture>
   </div>
 </template>
 <script>
 import muheader from "../../../components/header";
+import uploadPic from "../../../components/uploadPicture";
 import { MessageBox } from "element-ui";
 import { STROAGE, timeFormat } from "@/utils/muxin";
 import api from "@/api/api";
 export default {
   name: "pileHousehold",
   components: {
-    "mu-header": muheader
+    "mu-header": muheader,
+    "mu-uploadPicture": uploadPic
   },
   data() {
     return {

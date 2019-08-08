@@ -106,7 +106,6 @@
     timeFormat
   } from "@/utils/muxin";
   import muheader from "@/components/header";
-  import wx from "weixin-js-sdk";
   import api from "@/api/api";
   import {
     Message
@@ -155,7 +154,6 @@
         httpFilePaths: [], // 图片上传服务器返回地址
         addPhoto: true,
         text: "",
-        placeholde: "扫描二维码或输入编码",
         disabled: false,
         address: "",
         file: [],
@@ -165,7 +163,6 @@
     },
     created() {
       this.data_Init();
-      this.wxConfig()
     },
     filters: {
       moneyFormat: params => {
@@ -213,12 +210,6 @@
           }
           this.tempFilePaths.push(src)
         }
-      },
-      wxConfig() {
-        let url = window.location.href.split('#')[0]
-        // url = url.substr(0, url.length - 1)
-        // 查询微信JSSDK权限验证配置参数
-        this.signature(url)
       },
       data_Init() {
         let chargeList = STROAGE({
@@ -346,31 +337,7 @@
           this.$router.push("/reviewProgress?route=allpyOwner");
         }
       },
-      // 查询微信JSSDK权限验证配置参数
-      async signature(url) {
-        let res = await api.signature({
-          query: {
-            url: url
-          }
-        });
-        if (res.code === 0) {
-          wx.config({
-            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-            appId: res.result.appId, // 必填，公众号的唯一标识
-            timestamp: res.result.timestamp, // 必填，生成签名的时间戳
-            nonceStr: res.result.nonceStr, // 必填，生成签名的随机串
-            signature: res.result.signature, // 必填，签名
-            jsApiList: ['openLocation', 'getLocalImgData', 'scanQRCode', 'chooseImage', 'uploadImage', 'downloadImage'] // 必填，需要使用的JS接口列表
-          });
-          wx.ready(function() {})
-          wx.error(function(res) {
-            console.log(res)
-            // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
-          });
-        } else {
-          // ...
-        }
-      },
+     
       // 压缩图片
       fileResizetoFile(file, quality, fn) {
         /**
