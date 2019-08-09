@@ -16,28 +16,23 @@
         <div class="des">/140</div>
       </div>
       <div class="tit">请提供相关问题的截图或图片</div>
-      <div class="upImg">
-        <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-          <img :src="item" alt="" class="img">
-          <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
-        </div>
-        <div class="selImg" v-if="tempFilePaths.length < 4">
-          <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
-        </div>
-      </div>
+       <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
     <div @click="submitF" v-if="!loading">
-      <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
+    <div class="button-g button">提交</div>
+
+      <!-- <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
-      </el-tooltip>
+      </el-tooltip> -->
     </div>
     <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
   </div>
 </template>
 <script>
-  import wx from "weixin-js-sdk";
   import api from "@/api/api";
+  import uploadPic from "../../../components/uploadPicture";
+
   import {
     STROAGE
   } from '@/utils/muxin'
@@ -45,7 +40,8 @@
   export default {
     name: "dealWithResult",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-uploadPicture": uploadPic
     },
     data() {
       return {
@@ -71,11 +67,12 @@
           }
         ],
         tipContent: '', // 提示消息
-        disabled: false,
+        disabled: true,
         file: null,
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
+        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
       };
     },
     methods: {
@@ -83,103 +80,41 @@
         this.selACtive = item.index
         this.text = item.des
       },
-      chooseImg() {
-        wx.chooseImage({
-          count: 4, // 默认9
-          sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
-          sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
-          success: res => {
-            var localIds = res.localIds;
-            res.localIds.forEach(element => {
-              this.tempFilePaths.push(element);
-            });
-            if (this.tempFilePaths.length >= 3) {
-              this.addPhoto = false;
-            } else {
-              this.addPhoto = true;
-            } // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-          }
-        });
-      },
+      
       submitF() {
         if (this.selACtive === '') {
-          this.disabled = false
-          this.tipContent = '请选择反馈问题点'
-          return false
+          this.$parent.requestCallback({
+        message: 'err',
+        type: 'warning',
+        center: true,
+        offset: 450
+      })
         }
+        // if (this.selACtive === '') {
+        //   this.disabled = false
+        //   this.tipContent = '请选择反馈问题点'
+        //   return false
+        // }
         if (this.text.length < 10) {
           this.disabled = false
           this.tipContent = '请输入意见描述(不少于10个字)'
           return false
         }
-        this.disabled = true
-        if (this.tempFilePaths.length > 0) {
-          this.tempFilePaths.forEach((el, index) => {
-            var params = new FormData();
-            params.append('file', this.file[index]);
-            this.uploadImages(params, index)
-          })
-        } else {
-          // 意见反馈上报
-          this.opinionFeedback();
-        }
-      },
-      del(index) {
-        this.tempFilePaths.splice(index, 1);
-        this.addPhoto = true
-      },
-      uploadFile(e) {
-        let file = e.target.files
-        this.file = file
-        for (let i = 0; i < file.length; i++) {
-          console.log(file[i], '2222')
-          let s = file[i]
-          let binaryData = [];
-          binaryData.push(file[i]);
-          let src
-          if (window.createObjectURL != undefined) {
-            src = window.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
-            // 　　url = window.URL.createObjectURL(file);
-            src = window.URL.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          } else if (window.webkitURL != undefined) { //webkit or chrome
-            　　
-            // url = window.webkitURL.createObjectURL(file);
-            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          }
-          this.tempFilePaths.push(src)
-        }
-      },
-      async uploadImages(params, index) {
-        let res = await api.uploadProfile({
-          method: 'myupload',
-          query: {
-            file: params
-          }
-        })
         this.loading = true
-        if (res.code === 200) {
-          console.log(res.result.headUrl)
-          this.httpFilePaths.push(res.result.headUrl)
-          if (index === this.tempFilePaths.length - 1) {
-            this.opinionFeedback();
-            // 意见反馈上报
-          }
-        }
+        this.disabled = true
+        this.$refs.upload.uploadImgs()
+      },
+      geturl (arrImg) {
+        console.log(arrImg, 'ooo')
+        this.opinionFeedback(arrImg)
       },
       // 意见反馈上报
-      async opinionFeedback() {
+      async opinionFeedback(arrImg) {
         let res = await api.opinionFeedback({
           method: 'POST',
           query: {
             "fbContent": this.text,
-            "fbImages": this.httpFilePaths.toString(',') || ''
+            "fbImages": arrImg.toString(',') || ''
           }
         });
         if (res.code === 200) {
@@ -200,12 +135,16 @@
     font-size: vw(30);
     background: #f6f6f6;
     color: $fontColor1;
+    position: absolute;
     .content {
-      height: auto;
+      height: 100%;
       background: white;
       margin: vw(30); // overflow-y: scroll;
       margin-bottom: 0;
       padding: vw(25) vw(30);
+      overflow-y: scroll;
+      position: relative;
+      top: 8%;
       .tit {
         text-align: left;
         color: #333333;
@@ -299,6 +238,8 @@
       line-height: vw(90);
       margin: vw(48) vw(30);
       color: white;
+      position: relative;
+      bottom: 0;
     }
     .el-button--default {
       width: 92% !important;

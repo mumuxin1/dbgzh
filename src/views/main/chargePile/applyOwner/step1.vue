@@ -181,7 +181,8 @@
           if (file[i].size > 1 * 1024 * 1024) {
             this.fileResizetoFile(file[i], 0.4, (res) =>{
               console.log(res, 'kkk')
-              this.file.push(res)
+              let files = new window.File([res], 'image.png', {type: "image/jpeg"})
+              this.file.push(files)
             })
           } else[
             this.file.push(file[i])

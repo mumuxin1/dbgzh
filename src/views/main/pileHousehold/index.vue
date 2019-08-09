@@ -13,12 +13,10 @@
         </li>
       </ul>
     </div>
-    <mu-uploadPicture></mu-uploadPicture>
   </div>
 </template>
 <script>
 import muheader from "../../../components/header";
-import uploadPic from "../../../components/uploadPicture";
 import { MessageBox } from "element-ui";
 import { STROAGE, timeFormat } from "@/utils/muxin";
 import api from "@/api/api";
@@ -26,7 +24,6 @@ export default {
   name: "pileHousehold",
   components: {
     "mu-header": muheader,
-    "mu-uploadPicture": uploadPic
   },
   data() {
     return {
@@ -37,7 +34,7 @@ export default {
       pageNo: "",
       pageSize: "",
       orderList: [], // 订单列表详情
-      orderType: 1 // 2 使用中 3预约
+      orderType: 1, // 2 使用中 3预约
     };
   },
   created() {
@@ -46,6 +43,7 @@ export default {
   mounted() {
     // 查询我的电站列表
     this.queryChargList();
+    console.log(uploadPic, 'xxx')
   },
   methods: {
     data_Init() {
@@ -130,7 +128,7 @@ export default {
   background: $bgPageColor1;
   .content {
     width: 100%;
-    height: 92%;
+    // height: 92%;
     padding: 0 vw(32);
     overflow-y: scroll;
     padding-top: vw(32);

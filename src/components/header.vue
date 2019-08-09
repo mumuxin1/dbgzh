@@ -57,7 +57,7 @@
     },
     methods: {
       goBack() {
-        if (this.route === 'allpyOwner') {
+        if (this.route === 'allpyOwner' || this.route === 'applyDevice') {
           this.$router.go(-2)
         } else {
           this.$router.go(-1)
@@ -73,6 +73,9 @@
     height: vw(85);
     position: relative;
     background: $bgPageColor3;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   .betw {
     width: 100%;

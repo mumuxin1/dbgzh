@@ -23,16 +23,7 @@
         </li>
         <span class="des"><font style="fontWeight: bold">图片信息</font>(至少3张)</span>
         <span class="des">请选择充电点环境照片</span>
-        <div class="upImg">
-          <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-            <img :src="item" alt="" class="img">
-            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
-          </div>
-          <div class="selImg" v-if="tempFilePaths.length < 4">
-            <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg" >
-          </div>
-          <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
-        </div>
+        <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
         <p class="txdes">自用设备：只能被指定用户/车牌使用，平台显示在总数中 ，不能预定不能扫码，商户可修改状态
         </p>
       </ul>
@@ -53,6 +44,8 @@
     STROAGE
   } from '@/utils/muxin'
   import muheader from "@/components/header";
+  import uploadPic from "@/components/uploadPicture";
+
   import api from '@/api/api'
   import {
     async
@@ -60,7 +53,9 @@
   export default {
     name: "applicationEquiment",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-uploadPicture": uploadPic
+
     },
     data() {
       return {
@@ -80,6 +75,7 @@
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
+        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
       };
     },
     created() {
@@ -101,20 +97,15 @@
         // 查询申请设备类型
         this.queryDeviceApplyList()
       },
+      geturl (arrImg) {
+        console.log(arrImg, 'ooo')
+        this.applicationEquiment(this.$parent.bsId, arrImg)
+      },
       submit() {
         let falg = this.textDectorers();
         if (!falg) return false;
-        // new Promise((resolve, reject) => {
-        // let falg = this.tempFilePaths.length
-        if (this.tempFilePaths.length > 0) {
-          this.tempFilePaths.forEach((el, index) => {
-            var params = new FormData();
-            params.append('file', this.file[index]);
-            this.uploadImages(params, index)
-          })
-        } else {
-          this.applicationEquiment(this.$parent.bsId)
-        }
+        this.loading = true
+        this.$refs.upload.uploadImgs()
         this.disabled = true;
         // 申请设备
         
@@ -187,12 +178,12 @@
           console.log(index)
           this.httpFilePaths.push(res.result.headUrl)
           if (index === this.tempFilePaths.length - 1) {
-            this.applicationEquiment(this.$parent.bsId)
+            this.applicationEquiment(this.$parent.bsId, arrImg)
           }
         }
       },
       // 申请设备
-      async applicationEquiment(bsId) {
+      async applicationEquiment(bsId, arrImg) {
         let res = await api.applicationEquiment({
           method: 'POST',
           query: {
@@ -200,11 +191,11 @@
             merchantCooperation: this.selText,
             deviceModel: this.selDevices.id,
             deviceNum: this.deviceNum,
-            parkImgs: this.httpFilePaths.toString(',') || ''
+            parkImgs: arrImg.toString(',') || ''
           }
         })
         if (res.code === 200) {
-          this.$router.push('/reviewProgress')
+          this.$router.push('/reviewProgress?route=applyDevice')
         }
       },
       // 查询申请设备类型

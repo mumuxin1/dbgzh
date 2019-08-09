@@ -21,15 +21,7 @@
         <div class="des">/140</div>
       </div>
       <div class="tit">请上传图片</div>
-      <div class="upImg">
-        <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-          <img :src="item" alt="" class="img">
-          <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
-        </div>
-        <div class="selImg" v-if="tempFilePaths.length < 4">
-          <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
-        </div>
-      </div>
+      <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
     <div @click="submitF" v-if="!loading">
@@ -47,6 +39,8 @@
     STROAGE
   } from '@/utils/muxin'
   import muheader from "../../../components/header";
+  import uploadPic from "@/components/uploadPicture";
+
   import {
     truncate
   } from 'fs';
@@ -56,7 +50,9 @@
   export default {
     name: "dealWithResult",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-uploadPicture": uploadPic
+
     },
     data() {
       return {
@@ -73,13 +69,16 @@
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
+        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
       };
     },
     created() {
       this.fbId = location.href.split('=')[1]
     },
     methods: {
-     
+      geturl (arrImg) {
+        this.postDealWithResult(this.fbId, arrImg);
+      },
       submitF() {
         if (this.selACtive === '') {
           this.disabled = false
@@ -92,69 +91,12 @@
           return false
         }
         this.disabled = true;
-        if (this.tempFilePaths.length > 0) {
-          this.tempFilePaths.forEach((el, index) => {
-            var params = new FormData();
-            params.append('file', this.file[index]);
-            this.uploadImages(params, index)
-          })
-        } else {
-          // 设备故障上报
-          this.postDealWithResult(this.fbId);
-        }
-      },
-      del(index) {
-        this.tempFilePaths.splice(index, 1);
-        this.addPhoto = true
-      },
-      uploadFile(e) {
-        let file = e.target.files
-        this.file = file
-        for (let i = 0; i < file.length; i++) {
-          console.log(file[i], '2222')
-          let s = file[i]
-          let binaryData = [];
-          binaryData.push(file[i]);
-          let src
-          if (window.createObjectURL != undefined) {
-            src = window.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          } else if (window.URL != undefined) { //mozilla(firefox)兼容火狐
-            // 　　url = window.URL.createObjectURL(file);
-            src = window.URL.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          } else if (window.webkitURL != undefined) { //webkit or chrome
-            　　
-            // url = window.webkitURL.createObjectURL(file);
-            src = window.webkitURL.createObjectURL(new Blob(binaryData, {
-              type: "application/zip"
-            }))　　
-          }
-          this.tempFilePaths.push(src)
-        }
-      },
-      async uploadImages(params, index) {
-        let res = await api.uploadProfile({
-          method: 'myupload',
-          query: {
-            file: params
-          }
-        })
-        this.loading = true
-        if (res.code === 200) {
-          console.log(res.result.headUrl)
-          this.httpFilePaths.push(res.result.headUrl)
-          if (index === this.tempFilePaths.length - 1) {
-            // 设备故障上报
-            // 设备故障上报
-            this.postDealWithResult(this.fbId);
-          }
-        }
+        this.loading = true;
+        this.$refs.upload.uploadImgs()
+        
       },
       // 设备故障上报
-      async postDealWithResult(fbId) {
+      async postDealWithResult(fbId, arrImg) {
         this.loading = true
         let res = await api.postDealWithResult({
           method: 'POST',
@@ -162,7 +104,7 @@
             "fbId": fbId,
             "dealResult": this.selACtive,
             "dealRemark": this.text,
-            "dealImgs": this.httpFilePaths.toString(',') || ''
+            "dealImgs": arrImg.toString(',') || ''
           }
         });
         if (res.code === 0) {

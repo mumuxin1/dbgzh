@@ -13,6 +13,7 @@
   </div>
 </template>
 <script>
+  import axios from 'axios'
   export default {
     name: "uploadPicture",
     props: {
@@ -27,10 +28,6 @@
         default: () => {
           return []
         }
-      },
-      addPhoto: {
-        type: Boolean,
-        default: false
       },
       file: {
         type: Array,
@@ -53,22 +50,31 @@
         console.log(index)
         this.tempFilePaths.splice(index, 1);
         this.file.splice(index, 1);
-        this.addPhoto = true;
       },
       // 选择图片 压缩
       uploadFile(e) {
         let file = e.target.files
         console.log(file)
+        function blobToFile(theBlob, fileName) {
+          theBlob.lastModifiedDate = new Date();
+          theBlob.name = fileName;
+          return theBlob;
+        }
         for (let i = 0; i < file.length; i++) {
           // 大于1M压缩
           if (file[i].size > 1 * 1024 * 1024) {
             this.fileResizetoFile(file[i], 0.4, (res) => {
               console.log(res, 'kkk')
-              this.file.push(res)
+              let files = new window.File([res], 'image.png', {
+                type: "image/jpeg"
+              })
+              console.log(files)
+              this.file.push(files)
             })
           } else [
             this.file.push(file[i])
           ]
+          console.log(this.file, 'lll')
           let s = file[i]
           let binaryData = [];
           binaryData.push(file[i]);
@@ -111,10 +117,10 @@
          */
         function dataURLtoImage(dataurl, fn) {
           var img = new Image();
+          img.src = dataurl;
           img.onload = function() {
             fn(img);
           };
-          img.src = dataurl;
         };
         /**
          * canvasResizetoDataURL(canvas,quality) 会将一个Canvas对象压缩转变为一个dataURL字符串,其中canvas参数传入一个Canvas对象;quality参数传入一个0-1的number类型，表示图片压缩质量;
@@ -142,7 +148,7 @@
         })
       },
       // 上传服务器
-      async uploadImg(file, successm, err) {
+      async uploadImg(file, success, err) {
         let myuploads = axios.create({
           baseURL: this.url,
           timeout: 30000,
@@ -151,18 +157,46 @@
           }
         })
         try {
-          console.log(data.file)
-          let res = await myuploads.post(url, file)
-          let success = function (res) {}
-          return success
+          let res = await myuploads.post(this.url, file)
+          // let success = function(res) {}
+          console.log(res)
+          success(res.data)
         } catch (err) {
-          console.log('上传图片错误信息', err)
-          let err = function (err) {}
-          return err
+          console.log('上传图片错误信息cc', err)
+          let error = function(err) {}
+          return error(err)
         }
+      },
+      uploadImgs() {
+        let _this = this
+        if (this.file.length === 0) {
+          this.$emit('geturl', [])
+          return false
+        }
+        new Promise(function(resolve, reject) {
+          console.log(_this)
+          let a = _this.file.length
+          _this.file.forEach(el => {
+            var params = new FormData();
+            params.append('file', el);
+            console.log(params.get('file'))
+            _this.uploadImg(params, (res) => {
+              console.log(res, 'sss')
+              if (res.code === 200) {
+                a--
+                console.log(res.result.headUrl)
+                _this.httpFilePaths.push(res.result.headUrl)
+                if (a === 0) {
+                  console.log('success', _this.httpFilePaths)
+                  _this.$emit('geturl', _this.httpFilePaths)
+                  resolve(_this.httpFilePaths)
+                }
+              }
+            })
+          })
+        });
       }
     }
-
   }
 </script>
 <style lang="scss" scoped>

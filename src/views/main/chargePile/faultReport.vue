@@ -14,15 +14,8 @@
         <div class="des">/140</div>
       </div>
       <div class="tit">请上传图片</div>
-      <div class="upImg">
-        <div class="uploadImg" v-for="item in tempFilePaths" :key="item.index">
-          <img :src="item" alt="" class="img">
-          <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(item.index)">
-        </div>
-        <div class="selImg" v-if="tempFilePaths.length < 4">
-          <input type="file" multiple accept='image/*' @change="uploadFile($event)" ref="upImg">
-        </div>
-      </div>
+      <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
+
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
     <div @click="submitF" v-if="!loading">
@@ -39,11 +32,14 @@
   import {
     STROAGE
   } from '@/utils/muxin'
+  import uploadPic from "@/components/uploadPicture";
   import muheader from "../../../components/header";
   export default {
     name: "faultReport",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-uploadPicture": uploadPic
+
     },
     data() {
       return {
@@ -59,29 +55,27 @@
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
+        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
       };
     },
     created() {
       this.getCode = location.href.split('=')[1]
     },
     methods: {
+      geturl (arrImg) {
+        this.deviceFeedback(arrImg)
+      },
       submitF() {
         
         let falg = this.textDectorers();
         if (!falg) return false;
+        this.disabled = true;
         // new Promise((resolve, reject) => {
         // let falg = this.tempFilePaths.length
-        if (this.tempFilePaths.length > 0) {
-          this.tempFilePaths.forEach((el, index) => {
-            var params = new FormData();
-            params.append('file', this.file[index]);
-            this.uploadImages(params, index)
-          })
-        } else {
-          // 设备故障上报
-          this.deviceFeedback();
-        }
-        this.disabled = true;
+        this.loading = true;
+        this.$refs.upload.uploadImgs()
+        
+          
       },
       
       del(index) {
@@ -144,18 +138,18 @@
           this.httpFilePaths.push(res.result.headUrl)
           if (index === this.tempFilePaths.length - 1) {
             // 设备故障上报
-          this.deviceFeedback();
+          this.deviceFeedback(arrImg);
           }
         }
       },
       // 设备故障上报
-      async deviceFeedback() {
+      async deviceFeedback(arrImg) {
         let res = await api.deviceFeedback({
           method: 'POST',
           query: {
             sn: this.getCode,
             fbContent: this.text,
-            fbImages: this.httpFilePaths.toString(',') || ''
+            fbImages: arrImg.toString(',') || ''
           }
         });
         if (res.code === 200) {
