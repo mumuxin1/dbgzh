@@ -3,16 +3,16 @@
     <mu-header class="muHeader" title="申请桩主" :left="false" :back="true"></mu-header>
     <!-- <input id="upload_file" type="file" accept='image/*' name="file"  @change="fileChange($event)"/> -->
     <!-- <input type="file"  id="upload_file" multiple accept='image/*'> -->
-    <div class="content">
+    <div class="content openScroll">
       <ul>
         <li class="tit">基本信息</li>
         <!-- <li class="selAdres">
-                                  <span>地址</span>
-                                  <div class="rticon">
-                                    <span>请选择</span>
-                                    <img src="@/assets/dianbo_public_right@3x.png" alt="">
-                                  </div>
-                                </li>-->
+                                      <span>地址</span>
+                                      <div class="rticon">
+                                        <span>请选择</span>
+                                        <img src="@/assets/dianbo_public_right@3x.png" alt="">
+                                      </div>
+                                    </li>-->
         <li class="selAdres">
           <span>地址</span>
           <div class="rticon" :class="address === null ? 'fullInput': ''">
@@ -37,18 +37,18 @@
           <div class="selTime">
             <div class="rieditor">
               <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                                start: '00:00',
-                                end: '23:59',
-                                format: 'HH:mm'
-                              }"></el-time-picker>
+                                    start: '00:00',
+                                    end: '23:59',
+                                    format: 'HH:mm'
+                                  }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="rieditor">
               <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                                start: '00:00',
-                                end: '23:59',
-                                format: 'HH:mm'
-                              }"></el-time-picker>
+                                    start: '00:00',
+                                    end: '23:59',
+                                    format: 'HH:mm'
+                                  }"></el-time-picker>
             </div>
           </div>
         </li>
@@ -77,8 +77,8 @@
           </el-select>
         </li>
         <span class="des mar48">
-                                  <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-                                </span>
+                                      <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                                    </span>
         <span class="des">请选择充电 环境照片</span>
         <div class="upImg">
           <div class="uploadImg" v-for="(item, index) in tempFilePaths" :key="item.index">
@@ -91,12 +91,13 @@
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
         </div>
       </ul>
-      <div @click="next" v-if="!loading">
-        <el-tooltip content="请输入完整信息" placement="top" class="button-g button" :disabled="disabled">
+      <!-- <div @click="next"  class="button-g button"  >
+            <el-tooltip content="请输入完整信息" placement="top" class="button-g button zzelem" :disabled="disabled" ref="tooltip" @click="next">
           <el-button>下一步</el-button>
         </el-tooltip>
-      </div>
-      <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button>
+          </div> -->
+      <!-- <el-button type="primary" :loading="true" class="button button-g" v-if="loading">申请中...</el-button> -->
+      <mu-LoadToast @submit="next" class="button" :content="content" :loading="loading" :tipContent.sync="tipContent"></mu-LoadToast>
     </div>
   </div>
 </template>
@@ -105,6 +106,7 @@
     STROAGE,
     timeFormat
   } from "@/utils/muxin";
+  import muLoadToast from '@/components/loadToast/loadToast'
   import muheader from "@/components/header";
   import api from "@/api/api";
   import {
@@ -116,7 +118,8 @@
   export default {
     name: "step1",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-LoadToast": muLoadToast
     },
     data() {
       return {
@@ -154,7 +157,8 @@
         httpFilePaths: [], // 图片上传服务器返回地址
         addPhoto: true,
         text: "",
-        disabled: false,
+        content: '下一步',
+        tipContent: '',
         address: "",
         file: [],
         loading: false,
@@ -169,6 +173,20 @@
         return (params / 100).toFixed(2);
       }
     },
+    // computed: {
+    //   full () {
+    //     if (this.address && this.userName&&this.phone && this.power && this.num
+    //      && this.openTime && this.selText !== '' && this.selText2 !== '')  {
+    //        console.log(1)
+    //        return true
+    //      } else {
+    //        console.log(2)
+    //        return false
+    //      }
+    //   }
+    // },
+    mounted() {
+    },
     methods: {
       fileChange(e) {
         console.log(e)
@@ -179,12 +197,14 @@
         for (let i = 0; i < file.length; i++) {
           // 大于1M压缩
           if (file[i].size > 1 * 1024 * 1024) {
-            this.fileResizetoFile(file[i], 0.4, (res) =>{
+            this.fileResizetoFile(file[i], 0.4, (res) => {
               console.log(res, 'kkk')
-              let files = new window.File([res], 'image.png', {type: "image/jpeg"})
+              let files = new window.File([res], 'image.png', {
+                type: "image/jpeg"
+              })
               this.file.push(files)
             })
-          } else[
+          } else [
             this.file.push(file[i])
           ]
           let s = file[i]
@@ -232,10 +252,8 @@
         this.uploadCount = 0
         let falg = this.textDectorers();
         if (!falg) return false;
-        this.disabled = true;
-        // new Promise((resolve, reject) => {
-        // let falg = this.tempFilePaths.length
         this.loading = true
+        this.content = '提交中'
         if (this.tempFilePaths.length > 0) {
           this.file.forEach((el, index) => {
             var params = new FormData();
@@ -260,33 +278,42 @@
         this.openTime = this.startTime2 + "-" + this.endTime2;
         if (!this.address) {
           this.address = null;
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.userName) {
           this.userName = null;
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.phone) {
           this.phone = null;
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.openTime) {
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.num) {
+          this.tipContent = '请输入完整内容！'
           this.num = null;
           return false;
         }
         if (!this.power) {
           this.power = null;
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.selText) {
+          this.tipContent = '请输入完整内容！'
           return false;
         }
         if (!this.selText2) {
+          this.tipContent = '请输入完整内容！'
           return false;
         }
+        this.full = false
         return true;
       },
       async uploadImages(params, index) {
@@ -296,6 +323,7 @@
             file: params
           }
         })
+        console.log(res)
         if (res.errCode === 5001) {
           let options = {
             message: '上传图片出错!' + res.err,
@@ -314,9 +342,24 @@
           if (this.uploadCount === this.tempFilePaths.length) {
             console.log(this.uploadCount, this.tempFilePaths.length)
             console.log('success', this.httpFilePaths)
+            this.$parent.requestCallback({
+              message: '图片上传success',
+              type: 'success',
+              center: true,
+              offset: 450,
+              duration: 3000
+            })
             this.applicationOwner();
           }
-        } else {}
+        } else if (res.code === 500) {
+          this.$parent.requestCallback({
+              message: res.message,
+              type: 'error',
+              center: true,
+              offset: 450,
+              duration: 6000
+            })
+        }
       },
       async applicationOwner() {
         let res = await api.applicationOwner({
@@ -335,10 +378,16 @@
         });
         if (res.code === 200) {
           this.loading = true
+          this.$parent.requestCallback({
+            message: '提交成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
           this.$router.push("/reviewProgress?route=allpyOwner");
         }
       },
-     
       // 压缩图片
       fileResizetoFile(file, quality, fn) {
         /**
@@ -603,6 +652,9 @@
       padding: 0;
       height: vw(90) !important;
       line-height: vw(90) !important;
+    }
+    .zzelem {
+      cursor: pointer;
     }
     .is-loading {
       background: $bgPageColor3 !important;

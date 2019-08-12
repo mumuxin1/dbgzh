@@ -27,7 +27,7 @@
           <span class="">反馈时间</span>
           <span>{{item.createTime}}</span>
         </li>
-        <div class="navButton" @click="cancelApply(item.id)" v-if="item.dealResult === 2">去处理</div>
+        <div class="navButton"  v-if="item.dealResult === 2">去处理</div>
       </ul>
     </div>
   </div>

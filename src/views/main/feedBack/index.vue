@@ -19,29 +19,32 @@
        <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
-    <div @click="submitF" v-if="!loading">
-    <div class="button-g button">提交</div>
+    <!-- <div @click="submitF" v-if="!loading">
+    <div class="button-g button">提交</div> -->
 
       <!-- <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
       </el-tooltip> -->
-    </div>
-    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
+    <!-- </div> -->
+    <!-- <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button> -->
+    <mu-LoadToast @submit="submitF" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
   </div>
 </template>
 <script>
   import api from "@/api/api";
   import uploadPic from "../../../components/uploadPicture";
-
+  import muLoadToast from '../../../components/loadToast/loadToast'
   import {
     STROAGE
   } from '@/utils/muxin'
   import muheader from "../../../components/header";
+import { setTimeout } from 'timers';
   export default {
     name: "dealWithResult",
     components: {
       "mu-header": muheader,
-      "mu-uploadPicture": uploadPic
+      "mu-uploadPicture": uploadPic,
+      "mu-LoadToast": muLoadToast
     },
     data() {
       return {
@@ -66,10 +69,12 @@
             des: '其他意见'
           }
         ],
+        content: '提交',
         tipContent: '', // 提示消息
         disabled: true,
         file: null,
         loading: false,
+        tipContent: '',
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
         url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
@@ -83,25 +88,16 @@
       
       submitF() {
         if (this.selACtive === '') {
-          this.$parent.requestCallback({
-        message: 'err',
-        type: 'warning',
-        center: true,
-        offset: 450
-      })
+          console.log('ss')
+          this.tipContent = '请选择反馈问题点'
+          return false
         }
-        // if (this.selACtive === '') {
-        //   this.disabled = false
-        //   this.tipContent = '请选择反馈问题点'
-        //   return false
-        // }
         if (this.text.length < 10) {
-          this.disabled = false
           this.tipContent = '请输入意见描述(不少于10个字)'
           return false
         }
+        this.tipContent = ''
         this.loading = true
-        this.disabled = true
         this.$refs.upload.uploadImgs()
       },
       geturl (arrImg) {
@@ -118,8 +114,15 @@
           }
         });
         if (res.code === 200) {
-          this.$router.go(-1)
+          this.$parent.requestCallback({
+            message: '提交成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
           this.loading = false
+          this.$router.go(-1)
         } else {}
       }
     }
@@ -129,22 +132,26 @@
   @import "../../../styles/theme.scss";
   .feedBack {
     width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    min-height: 100%;
+    // display: flex;
+    // flex-direction: column;
     font-size: vw(30);
     background: #f6f6f6;
     color: $fontColor1;
-    position: absolute;
+    // position: absolute;
+    // background: yellow;
     .content {
-      height: 100%;
+      height: auto;
       background: white;
       margin: vw(30); // overflow-y: scroll;
-      margin-bottom: 0;
+      // margin-bottom: 0;
       padding: vw(25) vw(30);
+      // padding-bottom: 0;
+      -webkit-overflow-scrolling: touch;
       overflow-y: scroll;
-      position: relative;
-      top: 8%;
+      // background: red;
+      // position: relative;
+      // top: 8%;
       .tit {
         text-align: left;
         color: #333333;
@@ -236,10 +243,10 @@
     .button {
       height: vw(90);
       line-height: vw(90);
-      margin: vw(48) vw(30);
       color: white;
-      position: relative;
-      bottom: 0;
+      // position: relative;
+      // bottom: 0;
+      margin-top: 0;
     }
     .el-button--default {
       width: 92% !important;

@@ -24,12 +24,13 @@
       <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
-    <div @click="submitF" v-if="!loading">
+    <!-- <div @click="submitF" v-if="!loading">
       <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
       </el-tooltip>
     </div>
-    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button> -->
+    <mu-LoadToast @submit="submitF" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
   </div>
 </template>
 <script>
@@ -40,6 +41,7 @@
   } from '@/utils/muxin'
   import muheader from "../../../components/header";
   import uploadPic from "@/components/uploadPicture";
+  import muLoadToast from '../../../components/loadToast/loadToast'
 
   import {
     truncate
@@ -51,7 +53,8 @@
     name: "dealWithResult",
     components: {
       "mu-header": muheader,
-      "mu-uploadPicture": uploadPic
+      "mu-uploadPicture": uploadPic,
+      "mu-LoadToast": muLoadToast
 
     },
     data() {
@@ -62,6 +65,7 @@
         text: "",
         selACtive: '',
         tipContent: '', // 提示消息
+        content: '提交',
         disabled: false,
         fbId: null,
         disabled: false,
@@ -90,7 +94,7 @@
           this.tipContent = '请输入故障描述'
           return false
         }
-        this.disabled = true;
+        this.content = '提交中...';
         this.loading = true;
         this.$refs.upload.uploadImgs()
         
@@ -109,6 +113,13 @@
         });
         if (res.code === 0) {
           // ...
+          this.$parent.requestCallback({
+            message: '提交成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
           this.loading = false
           this.$router.go(-2)
         } else {}

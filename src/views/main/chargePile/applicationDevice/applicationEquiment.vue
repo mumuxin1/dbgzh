@@ -31,12 +31,13 @@
     <!-- <div class="button-g button" @click="submit">
           提交申请
         </div> -->
-    <div @click="submit" v-if="!loading">
+    <!-- <div @click="submit" v-if="!loading">
       <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交申请</el-button>
       </el-tooltip>
     </div>
-    <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button> -->
+    <mu-LoadToast @submit="submit" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
   </div>
 </template>
 <script>
@@ -44,6 +45,7 @@
     STROAGE
   } from '@/utils/muxin'
   import muheader from "@/components/header";
+  import muLoadToast from '@/components/loadToast/loadToast'
   import uploadPic from "@/components/uploadPicture";
 
   import api from '@/api/api'
@@ -54,7 +56,9 @@
     name: "applicationEquiment",
     components: {
       "mu-header": muheader,
-      "mu-uploadPicture": uploadPic
+      "mu-uploadPicture": uploadPic,
+      "mu-LoadToast": muLoadToast
+
 
     },
     data() {
@@ -69,10 +73,10 @@
         }],
         selDevices: [],
         deviceNum: '',
-        tipContent: '内容不能为空',
+        tipContent: '',
         disabled: false,
-        file: null,
         loading: false,
+        content: '提交申请',
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
         url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
@@ -105,6 +109,7 @@
         let falg = this.textDectorers();
         if (!falg) return false;
         this.loading = true
+        this.content = '提交中'
         this.$refs.upload.uploadImgs()
         this.disabled = true;
         // 申请设备
@@ -195,7 +200,22 @@
           }
         })
         if (res.code === 200) {
+          this.$parent.requestCallback({
+            message: '提交成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
           this.$router.push('/reviewProgress?route=applyDevice')
+        } else if (res.code === 500) {
+          this.$parent.requestCallback({
+              message: res.message,
+              type: 'error',
+              center: true,
+              offset: 450,
+              duration: 6000
+            })
         }
       },
       // 查询申请设备类型
@@ -387,18 +407,6 @@
       margin-top: vw(30);
       margin: 0 auto;
     }
-    .el-button {
-      padding: 0;
-      height: vw(90) !important;
-      line-height: vw(90) !important;
-    }
-    .is-loading {
-      background: $bgPageColor3 !important;
-      font-size: 18px !important;
-      color: $fontColor3 !important;
-    }
-    .el-button--default {
-      width: 92% !important;
-    }
+    
   }
 </style>

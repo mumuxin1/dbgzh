@@ -39,8 +39,14 @@ import { Tree } from 'element-ui';
         webSocketData: '',
         webSocketCallback: (res) => {},
         requestCallback: (res) => {
-          console.log(res)
+          // console.log(res)
+          if (res === 'close') {
+            Message.close()
+          } else {
           Message(res)
+
+          }
+          
         }
       }
     },
@@ -78,6 +84,9 @@ import { Tree } from 'element-ui';
     text-align: center;
     color: #999999;
     width: 100%;
-    height: 100%
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 </style>

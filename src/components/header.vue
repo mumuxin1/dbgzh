@@ -73,9 +73,9 @@
     height: vw(85);
     position: relative;
     background: $bgPageColor3;
-    position: absolute;
-    top: 0;
-    left: 0;
+    // position: absolute;
+    // top: 0;
+    // left: 0;
   }
   .betw {
     width: 100%;

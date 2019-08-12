@@ -39,13 +39,12 @@ const apiRequest = async (params = {}, url) => {
     let self = params.vim
     let myuploads = axios.create({
       baseURL: url,
-      timeout: 30000,
+      timeout: 300000,
       headers: {
         'Content-Type': 'multipart/form-data',
       }
     });
     // Vue.prototype.myuploads = myuploads
-
     try {
       console.log(data.file)
       let res = await myuploads.post(url, data.file)
@@ -103,12 +102,12 @@ const apiRequest = async (params = {}, url) => {
     } catch (err) {
       console.log(err)
       console.log(vim.$children[0].requestCallback)
-      // vim.$children[0].requestCallback({
-      //   message: err,
-      //   type: 'error',
-      //   center: true,
-      //   offset: 300
-      // })
+      vim.$children[0].requestCallback({
+        message: err,
+        type: 'error',
+        center: true,
+        offset: 300
+      })
     }
   }
 }

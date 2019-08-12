@@ -170,6 +170,9 @@
     height: 100%;
     font-size: vw(28);
     background: #f6f6f6;
+    position: absolute;
+    top: 0;
+    left: 0;
     #upload_file {
       width: 100%;
       height: 50px;
