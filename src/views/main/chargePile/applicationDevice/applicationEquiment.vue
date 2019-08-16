@@ -21,22 +21,22 @@
           <input type="number" class="inputs" placeholder="请输入数量" v-model="deviceNum">
           <span class="span">台</span>
         </li>
-        <span class="des"><font style="fontWeight: bold">图片信息</font>(至少3张)</span>
+        <span class="des"><font style="fontWeight: bold">图片信息</font>(至少1张,至多4张)</span>
         <span class="des">请选择充电点环境照片</span>
-        <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
+        <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl" :maxLength="4"></mu-uploadPicture>
         <p class="txdes">自用设备：只能被指定用户/车牌使用，平台显示在总数中 ，不能预定不能扫码，商户可修改状态
         </p>
       </ul>
     </div>
     <!-- <div class="button-g button" @click="submit">
-          提交申请
-        </div> -->
+            提交申请
+          </div> -->
     <!-- <div @click="submit" v-if="!loading">
-      <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
-        <el-button>提交申请</el-button>
-      </el-tooltip>
-    </div>
-    <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button> -->
+        <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
+          <el-button>提交申请</el-button>
+        </el-tooltip>
+      </div>
+      <el-button type="primary" :loading="true" class="button button-g" v-else>申请中...</el-button> -->
     <mu-LoadToast @submit="submit" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
   </div>
 </template>
@@ -47,19 +47,20 @@
   import muheader from "@/components/header";
   import muLoadToast from '@/components/loadToast/loadToast'
   import uploadPic from "@/components/uploadPicture";
-
   import api from '@/api/api'
   import {
     async
   } from 'q';
+  import {
+    clearTimeout
+  } from 'timers';
+import { watch } from 'fs';
   export default {
     name: "applicationEquiment",
     components: {
       "mu-header": muheader,
       "mu-uploadPicture": uploadPic,
       "mu-LoadToast": muLoadToast
-
-
     },
     data() {
       return {
@@ -79,7 +80,8 @@
         content: '提交申请',
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
-        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
+        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo',
+        selectNum: 0 // 选则的图片数量
       };
     },
     created() {
@@ -101,19 +103,30 @@
         // 查询申请设备类型
         this.queryDeviceApplyList()
       },
-      geturl (arrImg) {
+      geturl(arrImg, type) {
+
+        if (type === 'selectNum') {
+          this.selectNum = arrImg
+          return
+        }
         console.log(arrImg, 'ooo')
         this.applicationEquiment(this.$parent.bsId, arrImg)
       },
-      submit() {
+      submit(type) {
         let falg = this.textDectorers();
+        if(type = 'hideToast') {
+          console.log('hjhjh')
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
         if (!falg) return false;
         this.loading = true
         this.content = '提交中'
         this.$refs.upload.uploadImgs()
         this.disabled = true;
         // 申请设备
-        
       },
       del(index) {
         this.tempFilePaths.splice(index, 1);
@@ -168,6 +181,17 @@
           this.tipContent = '请输入申请设备数量'
           return false;
         }
+        if (this.deviceNum > 9999) {
+          // this.phone = null;
+          this.tipContent = '申请设备数量最多为9999台'
+          return false;
+        }
+        console.log(this.tempFilePaths)
+        if (this.selectNum < 1) {
+          // this.phone = null;
+          this.tipContent = '请至少上传1张图片'
+          return false;
+        }
         return true;
       },
       async uploadImages(params, index) {
@@ -207,15 +231,18 @@
             offset: 450,
             duration: 600
           })
-          this.$router.push('/reviewProgress?route=applyDevice')
+          setTimeout(() => {
+            this.$router.push('/reviewProgress?route=applyDevice')
+            clearTimeout()
+          }, 600);
         } else if (res.code === 500) {
           this.$parent.requestCallback({
-              message: res.message,
-              type: 'error',
-              center: true,
-              offset: 450,
-              duration: 6000
-            })
+            message: res.message,
+            type: 'error',
+            center: true,
+            offset: 450,
+            duration: 6000
+          })
         }
       },
       // 查询申请设备类型
@@ -235,6 +262,20 @@
             key: 'DevicesTypeList',
             item: res.result.records
           })
+        }
+      }
+    },
+    watch:{
+      $route (newval, old) {
+        console.log(newval)
+        if (newval.name === 'applicationEquiment') {
+          let selDevices = STROAGE({
+          type: 'getItem',
+          key: 'selDevicesType'
+        })
+        if (selDevices) {
+          this.selDevices = JSON.parse(selDevices)
+        }
         }
       }
     }
@@ -396,17 +437,15 @@
           margin: 0;
         }
       }
-    }
-    .button {
-      width: 94%;
-      height: vw(90);
-      line-height: vw(90);
-      color: white;
-      background: #56baf9;
-      border-radius: vw(5);
-      margin-top: vw(30);
-      margin: 0 auto;
-    }
-    
+    } // .button {
+    //   width: 94%;
+    //   height: vw(90);
+    //   line-height: vw(90);
+    //   color: white;
+    //   background: #56baf9;
+    //   border-radius: vw(5);
+    //   margin-top: vw(30);
+    //   margin: 0 auto;
+    // }
   }
 </style>

@@ -9,9 +9,9 @@
         </div>
         <div class="info">
           <!-- <div class="cow">
-                            <span class="tit">昵称</span>
-                            <span class="txt">{{userInfo.userInfo.avatar.realname}}</span>
-              </div>-->
+                              <span class="tit">昵称</span>
+                              <span class="txt">{{userInfo.userInfo.avatar.realname}}</span>
+                </div>-->
           <div class="cow">
             <span class="tit">号码</span>
             <span class="txt">{{userInfo.phone}}</span>
@@ -92,7 +92,7 @@
     created() {
       this.data_Init();
       this.wxConfig()
-      this.socket_init()
+      
       console.log(this.$parent)
     },
     methods: {
@@ -137,21 +137,11 @@
         }
       },
       socket_init() {
-        let userInfo = STROAGE({
-          type: 'getItem',
-          key: 'UserInfo'
-        })
-        if (userInfo) {
-          userInfo = JSON.parse(userInfo).userInfo
-          let userId = userInfo.id
-          let url = `//47.112.22.47:8082/shared-admin/websocket?userid=${userId}`
-          // let url = `//192.168.1.132:8088/shared-admin/websocket?userid=${userId}`
-          this.$parent.webSocket = websocket(url)
-          this.$parent.webSocket.onmessage = (message) => {
-            console.log(message.data)
-            this.$parent.webSocketData = message.data
-            this.$parent.webSocketCallback(message.data)
-          }
+        this.$parent.webSocket = websocket()
+        this.$parent.webSocket.onmessage = (message) => {
+          console.log(message.data)
+          this.$parent.webSocketData = message.data
+          this.$parent.webSocketCallback(message.data)
         }
       },
       data_Init() {
@@ -161,6 +151,7 @@
         });
         console.log(userInfo, 'kskk')
         if (userInfo) {
+          this.socket_init()
           userInfo = JSON.parse(userInfo);
           this.userInfo = userInfo.userInfo;
           try {
@@ -169,8 +160,7 @@
             } else {
               this.avatar = this.userInfo.avatar
             }
-          } catch (err) {
-          }
+          } catch (err) {}
         }
         this.pageSize = Math.ceil(this.$parent.clientHeight / 220);
         console.log(this.pageSize);
@@ -222,7 +212,6 @@
             // 查询故障设备列表
             this.queryFailureEquList();
             this.$router.push("/equimentFailure");
-
             break;
           case 8:
             //意见反馈
@@ -287,7 +276,6 @@
             key: "FailureEquList",
             item: res.result.records
           });
-
         }
       },
       // 查询当前后台用户是否存在正在控制的设备

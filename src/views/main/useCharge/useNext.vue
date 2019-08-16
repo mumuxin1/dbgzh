@@ -1,6 +1,6 @@
 <template>
   <div class="useNext">
-    <mu-header class="muHeader" title="使用充电桩" :left="true" :back="true"></mu-header>
+    <mu-header class="muHeader" title="使用充电桩" :left="true" :back="true" :route="route"></mu-header>
     <div class="content">
       <div class="tit">请扫描设备二维码</div>
       <div class="getcode" :class="getCode === null ? 'fullInput': ''">
@@ -12,12 +12,13 @@
         {{sn}}
       </div>
     </div>
-    <div class="wave" @click="useing" v-if="!chargeSt">
-      开始使用
-    </div>
-    <span v-if="chargeSt" class="span">充电中...</span>
+    
+    <span  class="span" v-if="chargeSt">充电中...</span>
     <div class="wave1" @click="useing" v-if="chargeSt">
       停止使用
+    </div>
+    <div class="wave" @click="useing" v-if="!chargeSt">
+      开始使用
     </div>
   </div>
 </template>
@@ -41,6 +42,7 @@
         getCode: '', // 
         selText: '', // 下拉选择neirong
         chargeSt: 0,
+        route: '',
         placeholde: '扫描二维码或输入编码'
       };
     },
@@ -53,6 +55,7 @@
     },
     methods: {
       data_Init() {
+        this.route = location.href.split('=')[1] || ''
         let sn = STROAGE({
           type: "getItem",
           key: "Sn"
@@ -219,6 +222,7 @@
       margin-bottom: 0;
       padding: vw(25) vw(30);
       padding-bottom: 0;
+      position: relative;
       .tit {
         text-align: left;
         margin-bottom: vw(24);
@@ -266,8 +270,10 @@
       align-self: center;
       background: url('../../../assets/dianbtn.png');
       background-size: cover;
-      margin-top: vw(192);
+      // margin-top: vw(192);
       color: white;
+      position: absolute;
+      top: 55%;
     }
     .wave1 {
       width: vw(280);
@@ -277,10 +283,15 @@
       background: url('../../../assets/bgUseing.png');
       background-size: cover;
       color: white;
+      position: absolute;
+      top: 55%;
     }
     .span {
-      margin-top: vw(172);
-      margin-bottom: vw(20)
+      // margin-top: vw(172);
+      // margin-bottom: vw(20);
+      position: absolute;
+      top: 49%;
+      left: 45%;
     }
     .button {
       height: vw(90);

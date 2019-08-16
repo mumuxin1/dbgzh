@@ -109,7 +109,7 @@ export default {
           id: id
         }
       });
-      if (res.code === 0) {
+      if (res.code === 200) {
         // 查询申请记录
         this.queryApplyList();
       }

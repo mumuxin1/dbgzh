@@ -11,19 +11,20 @@
       <div class="tit">请描述设备具体故障</div>
       <div class="text">
         <textarea class="tx" placeholder="请描述设备具体故障" maxlength="140" v-model="text"></textarea>
-        <div class="des">/140</div>
+        <div class="des">{{text.length}}/140</div>
       </div>
       <div class="tit">请上传图片</div>
       <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
 
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
-    <div @click="submitF" v-if="!loading">
+    <!-- <div @click="submitF" v-if="!loading">
       <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
         <el-button>提交</el-button>
       </el-tooltip>
     </div>
-    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button>
+    <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button> -->
+    <mu-LoadToast @submit="submitF" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
   </div>
 </template>
 <script>
@@ -34,11 +35,15 @@
   } from '@/utils/muxin'
   import uploadPic from "@/components/uploadPicture";
   import muheader from "../../../components/header";
+  import muLoadToast from '../../../components/loadToast/loadToast'
+import { clearTimeout } from 'timers';
+
   export default {
     name: "faultReport",
     components: {
       "mu-header": muheader,
-      "mu-uploadPicture": uploadPic
+      "mu-uploadPicture": uploadPic,
+      "mu-LoadToast": muLoadToast
 
     },
     data() {
@@ -50,7 +55,7 @@
         text: "",
         placeholde: "扫描二维码或输入编码",
         tipContent: '',
-        disabled: false,
+        content: '提交',
         file: null,
         loading: false,
         tempFilePaths: [],
@@ -62,20 +67,25 @@
       this.getCode = location.href.split('=')[1]
     },
     methods: {
-      geturl (arrImg) {
+      geturl (arrImg, type) {
+        if (type) return
         this.deviceFeedback(arrImg)
       },
-      submitF() {
+      submitF(type) {
         
         let falg = this.textDectorers();
+        if(type = 'hideToast') {
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
         if (!falg) return false;
-        this.disabled = true;
+        this.loading = true;
         // new Promise((resolve, reject) => {
         // let falg = this.tempFilePaths.length
-        this.loading = true;
+        this.content = '提交中'
         this.$refs.upload.uploadImgs()
-        
-          
       },
       
       del(index) {
@@ -154,7 +164,18 @@
         });
         if (res.code === 200) {
           this.loading = false
-          this.$router.go(-1)
+          this.content = '提交'
+          this.$parent.requestCallback({
+            message: '提交成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
+          setTimeout(() => {
+            this.$router.go(-1)
+            clearTimeout()
+          }, 600);
         } else {}
       },
       // 校验sn
@@ -292,24 +313,11 @@
   .button {
     height: vw(90);
     line-height: vw(90);
-    margin: vw(48) vw(30);
+    // margin: vw(48) vw(30);
     color: white;
   }
   .fullInput ::placeholder {
     color: red;
   
   }
-  .el-button {
-      padding: 0;
-      height: vw(90) !important;
-      line-height: vw(90) !important;
-    }
-    .is-loading {
-      background: $bgPageColor3 !important;
-      color: $fontColor3 !important;
-      font-size: 18px !important;
-    }
-    .el-button--default {
-      width: 92% !important;
-    }
 </style>

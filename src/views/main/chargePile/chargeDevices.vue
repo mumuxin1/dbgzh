@@ -108,7 +108,7 @@
       details(sn) {
         this.queryDevicesDetails(sn)
         // 查询设备详情
-        this.$router.push('/devicesDetails')
+        this.$router.push(`/devicesDetails?sn=${sn}`)
       },
       async queryDevicesList(deviceStatus, sn) {
         let res = await api.queryDevicesList({

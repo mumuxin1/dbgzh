@@ -15,6 +15,13 @@
           <span class="">桩户联系方式</span>
           <input class="liInput" type="number" v-model="houseHoldDetails.phone">
         </li>
+        <li class="selAdres">
+          <span>地址</span>
+          <div class="rticon" @click="$router.push('/map')">
+            <span>{{$parent.selAdress}}</span>
+            <img src="@/assets/dianbo_public_right@3x.png" alt="">
+          </div>
+        </li>
         <!-- <li @click="openLocation">
           <span>地址</span>
           <div class="rticon">
@@ -22,15 +29,15 @@
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li> -->
-         <li class="txone">
+         <!-- <li class="txone">
           <span class="">地址</span>
           <input class="liInput" type="text" v-model="houseHoldDetails.address">
-        </li>
+        </li> -->
         <li class="txone">
           <span class="">营业时间</span>
           <div class="selTime">
             <div class="editor">
-              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="00:00" :picker-options="{
+              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
                         start: '00:00',
                         end: '23:59',
                         format: 'HH:mm'
@@ -38,7 +45,7 @@
             </div>
             <span class="span">至</span>
             <div class="editor">
-              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="00:00" :picker-options="{
+              <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
                         start: '00:00',
                         end: '23:59',
                         format: 'HH:mm'
@@ -136,6 +143,7 @@
         });
       },
       data_Init() {
+        // this.$parent.selAdress = '请选择'
         this.bsId = location.href.split('=')[1]
         let houseHoldDetails = JSON.parse(
           STROAGE({
@@ -145,6 +153,8 @@
         );
         if (houseHoldDetails) {
           this.houseHoldDetails = houseHoldDetails;
+        this.$parent.selAdress = houseHoldDetails.address
+
           if (this.houseHoldDetails.dbBaseStationCharging) {
             this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
           } else {
@@ -176,7 +186,18 @@
           }
         });
         if (res.code === 200) {
-          this.$router.go(-2);
+          this.$parent.requestCallback({
+            message: '保存成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
+          setTimeout(() => {
+            this.$router.go(-1);
+            clearTimeout()
+          }, 600);
+          
         }
       },
       // 查询桩户详情
@@ -193,6 +214,7 @@
             item: res.result
           });
           this.houseHoldDetails = res.result
+          this.$parent.selAdress =  this.houseHoldDetails.address
         }
       }
     }
@@ -303,5 +325,32 @@
       margin: 0 vw(32);
       margin-top: vw(30);
     }
+    .selAdres {
+          display: flex;
+          justify-content: space-between;
+          border-bottom: vw(1) solid #e5e5e5;
+          .rticon {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: vw(120);
+            flex: 1;
+            margin-left: vw(50);
+            span {
+              margin-right: vw(16);
+              align-self: center;
+            }
+            img {
+              width: vw(16);
+              height: vw(28);
+            }
+            input {
+              flex: 1;
+              height: vw(120);
+              font-size: vw(28);
+              text-align: right;
+            }
+          }
+        }
   }
 </style>

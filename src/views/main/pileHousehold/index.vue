@@ -43,7 +43,6 @@ export default {
   mounted() {
     // 查询我的电站列表
     this.queryChargList();
-    console.log(uploadPic, 'xxx')
   },
   methods: {
     data_Init() {
@@ -62,8 +61,8 @@ export default {
       let url = location.href .split('#')[0]
       // 查询桩户详情
       this.queryBsInfo(bsId);
-      location.href = url + '#/houseHoldDetails'+ '?bsid=' + bsId
-      // this.$router.push("/houseHoldDetails");
+      // location.href = url + '#/houseHoldDetails'+ '?bsid=' + bsId
+      this.$router.push("/houseHoldDetails"+ '?bsid=' + bsId);
     },
     // 查询申请记录
     async queryApplyList() {

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition name="fade-effect" mode="in-out">
-      <keep-alive :include="['home']">
+      <keep-alive :include="['devicesDetails', 'applicationEquiment', 'step1']">
         <router-view/>
       </keep-alive>
     </transition>
@@ -12,62 +12,55 @@
   import api from '@/api/api'
   import wx from 'weixin-js-sdk'
   import websocket from '@/utils/webSocket'
-import { Message } from 'element-ui';
-
+  import {
+    Message
+  } from 'element-ui';
   import {
     NAVIGATOR,
     STROAGE
   } from '@/utils/muxin'
-import { Tree } from 'element-ui';
+  import {
+    Tree
+  } from 'element-ui';
   export default {
     name: 'app',
     components: {},
-    async created() {
-    },
+    async created() {},
     mounted() {
-      // this.wxConfig()
-      this.socket_init()
-      console.log('kk')
+      // this.socket_init()
+      this.map_Init()
     },
     data() {
       return {
         clientHeight: document.body.clientHeight, // 页面可视区高度
         userType: '', // 1 桩主 2 桩户,
         bsId: '', // 充电站id
+        selAdress: '',
         sysUserId: '', // 充电站类型id
         webSocket: null,
         webSocketData: '',
+
         webSocketCallback: (res) => {},
         requestCallback: (res) => {
           // console.log(res)
           if (res === 'close') {
             Message.close()
           } else {
-          Message(res)
-
+            Message(res)
           }
-          
         }
       }
     },
     methods: {
+      map_Init () {
+        
+      },
       socket_init() {
-        let userInfo = STROAGE({
-          type: 'getItem',
-          key: 'UserInfo'
-        })
-        this.userInfo = userInfo
-        if (userInfo) {
-          userInfo = JSON.parse(userInfo).userInfo
-          let userId = userInfo.id
-          let url = `//47.112.22.47:8082/shared-admin/websocket?userid=${userId}`
-          // let url = `//192.168.1.132:8088/shared-admin/websocket?userid=${userId}`
-          this.webSocket = websocket(url)
-          this.webSocket.onmessage = (message) => {
-            console.log(message.data)
-            this.webSocketData = message.data
-            this.webSocketCallback(message.data)
-          }
+        this.webSocket = websocket()
+        this.webSocket.onmessage = (message) => {
+          console.log(message.data)
+          this.webSocketData = message.data
+          this.webSocketCallback(message.data)
         }
       }
     }
@@ -75,7 +68,7 @@ import { Tree } from 'element-ui';
 </script>
 
 <style lang="scss">
-@import"./styles/theme.scss";
+  @import"./styles/theme.scss";
   @import "./styles/rset.scss";
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;

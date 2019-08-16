@@ -13,7 +13,7 @@
             <span>提现金额</span>
             <div class="right w7">
               <input type="number" maxlength="4" class="w8" v-model="withdraw">
-              <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="">
+              <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="" @click="withdraw = ''" v-show="withdraw">
               <span>元</span>
             </div>
           </li>
@@ -84,6 +84,11 @@ export default {
         this.tipContent = '提现金额大于余额，请重新输入'
         return false
       }
+      if (this.withdraw < 1) {
+        this.disabled = false
+        this.tipContent = '提现金额小于零，请重新输入'
+        return false
+      }
       if (this.withdraw === '') {
         this.disabled = false
         return false
@@ -112,7 +117,7 @@ export default {
       });
       if (res.code === 0) {
         let t = timeFormat(null, '-', 'yyyy-mm-dd 00:00:00')
-        this.$router.push(`/withdrawSuccess?t=${t}你好}`)
+        this.$router.push(`/withdrawSuccess?t=${t}`)
       } else {
         //...
       }

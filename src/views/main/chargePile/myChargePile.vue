@@ -65,8 +65,8 @@
         let url = location.href .split('#')[0]
         // 查询充电桩设备列表
         this.queryDevicesList(bsId)
-        // this.$router.push('/chargeDevices')
-        location.href = url + '#/chargeDevices'+ '?bsid=' + bsId
+        this.$router.push('/chargeDevices' + '?bsid=' + bsId)
+        // location.href( url + '#/chargeDevices'+ '?bsid=' + bsId)
       },
       application(bsId) {
         console.log(this)

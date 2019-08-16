@@ -14,6 +14,7 @@
 </template>
 <script>
   import axios from 'axios'
+import { Select } from 'element-ui';
   export default {
     name: "uploadPicture",
     props: {
@@ -42,6 +43,10 @@
       url: {
         type: String,
         default: ''
+      },
+      maxLength: {
+        type: Number,
+        default: 4
       }
     },
     methods: {
@@ -53,15 +58,22 @@
       },
       // 选择图片 压缩
       uploadFile(e) {
+        
         let file = e.target.files
         console.log(file)
-        function blobToFile(theBlob, fileName) {
-          theBlob.lastModifiedDate = new Date();
-          theBlob.name = fileName;
-          return theBlob;
-        }
         for (let i = 0; i < file.length; i++) {
           // 大于1M压缩
+          console.log(i)
+          if (i > this.maxLength - 1) {
+            this.$parent.$parent.requestCallback({
+            message: `最多只能提交${this.maxLength}张图片`,
+            type: 'warning',
+            center: true,
+            offset: 400,
+            duration: 2000
+          })
+          break
+          }
           if (file[i].size > 1 * 1024 * 1024) {
             this.fileResizetoFile(file[i], 0.4, (res) => {
               console.log(res, 'kkk')
@@ -98,6 +110,7 @@
             }))　　
           }
           this.tempFilePaths.push(src)
+          this.$emit('geturl', this.tempFilePaths.length, 'selectNum')
         }
       },
       // 压缩图片
@@ -162,6 +175,16 @@
           console.log(res)
           success(res.data)
         } catch (err) {
+          console.dir(err)
+          if (err.response.status === 500) {
+        this.$parent.$parent.requestCallback({
+          message: '登录失效请重新登录',
+          type: 'error',
+          center: true,
+          offset: 300
+        })
+        this.$parent.$parent.$router.push('/')
+      }
           console.log('上传图片错误信息cc', err)
           let error = function(err) {}
           return error(err)
@@ -207,7 +230,8 @@
     position: relative;
     .upImg {
       width: 102%;
-      height: vw(150);
+      // height: vw(150);
+      height: auto;
       flex-wrap: wrap;
       display: flex;
       margin-bottom: vw(32);
@@ -239,6 +263,8 @@
         height: vw(150);
         position: relative;
         margin-right: vw(7);
+        margin-bottom: vw(7);
+
         .img {
           width: vw(150);
           height: vw(150);

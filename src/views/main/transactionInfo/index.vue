@@ -91,11 +91,11 @@
           </li>
           <li v-if="orderType === 1">
             <span class="">使用时长</span>
-            <span>{{item.sn}}</span>
+            <span>{{item.useDuration}}</span>
           </li>
           <li v-if="orderType !== 3">
             <span class="">充电时长</span>
-            <span>{{item.sn}}</span>
+            <span>{{item.chargingDuration}}</span>
           </li>
           <li v-if="orderType === 1">
             <span class="">消费金额</span>
@@ -103,11 +103,11 @@
           </li>
           <li v-if="orderType !== 1">
             <span class="">预约时长</span>
-            <span>{{item.actualFee}}</span>
+            <span>{{item.bookDuration}}</span>
           </li>
           <li v-if="orderType === 2">
             <span class="">使用时长</span>
-            <span>{{item.actualFee}}</span>
+            <span>{{item.useDuration}}</span>
           </li>
           <li v-if="orderType === 2">
             <span class="">已缴金额</span>
@@ -183,7 +183,7 @@ export default {
     },
     tabNav(item) {
       this.orderType = item;
-      this.deviceList = []
+      this.orderList = []
       // switch (item) {
       //   case 1:
       //     break;
@@ -230,6 +230,15 @@ export default {
       });
       if (res.code === 0) {
         this.orderList = res.result.records;
+        if (res.result.records.length === 0) {
+          this.$parent.requestCallback({
+            message: '暂无交易',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
+        }
       }
     }
   }

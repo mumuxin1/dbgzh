@@ -18,7 +18,7 @@
       <div class="tit">请描述设备具体故障</div>
       <div class="text">
         <textarea class="tx" placeholder="请输入你需要备注的信息" maxlength="140" v-model="text"></textarea>
-        <div class="des">/140</div>
+        <div class="des">{{text.length}}/140</div>
       </div>
       <div class="tit">请上传图片</div>
       <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
@@ -49,6 +49,8 @@
   import {
     fbind
   } from 'q';
+import { setTimeout } from 'timers';
+import { type } from 'os';
   export default {
     name: "dealWithResult",
     components: {
@@ -80,18 +82,30 @@
       this.fbId = location.href.split('=')[1]
     },
     methods: {
-      geturl (arrImg) {
+      geturl (arrImg, type) {
+        if (type) return
         this.postDealWithResult(this.fbId, arrImg);
       },
-      submitF() {
+      submitF(type) {
         if (this.selACtive === '') {
-          this.disabled = false
           this.tipContent = '请选择故障是否已解决'
+          if(type = 'hideToast') {
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
           return false
         }
         if (this.text === "") {
-          this.disabled = false
           this.tipContent = '请输入故障描述'
+          if(type = 'hideToast') {
+          console.log('hjhjh')
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
           return false
         }
         this.content = '提交中...';
@@ -120,8 +134,12 @@
             offset: 450,
             duration: 600
           })
+          setTimeout(() => {
+            this.$router.go(-2)
+            clearTimeout()
+          }, 600);
           this.loading = false
-          this.$router.go(-2)
+          
         } else {}
       }
     }
@@ -236,21 +254,8 @@
     .button {
       height: vw(90);
       line-height: vw(90);
-      margin: vw(48) vw(30);
+      // margin: vw(48) vw(30);
       color: white;
-    }
-    .el-button--default {
-      width: 92% !important;
-    }
-    .el-button {
-      padding: 0;
-      height: vw(90) !important;
-      line-height: vw(90) !important;
-    }
-    .is-loading {
-      background: $bgPageColor3 !important;
-      color: $fontColor3 !important;
-      font-size: 18px !important;
     }
   }
 </style>

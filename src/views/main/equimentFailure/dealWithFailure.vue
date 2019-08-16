@@ -33,13 +33,12 @@
         <div class="upImg">
           <div class="uploadImg" v-for="items in fbImg" :key="items.index">
             <img :src="items" alt="" class="img">
-            <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(items.index)">
           </div>
           <!-- <img src="@/assets/dianbo_shenqing_add@3x.png" alt="" class="selImg" @click="chooseImg" v-if="addPhoto"> -->
           <!-- <input type="file" multiple accept='image/*' class="selImg" v-on:change="uploadFile($event)" ref="upImg"> -->
         </div>
-        <div class="btn" v-if="failureEquDetails.dealStatus === 1 || failureEquDetails.dealStatusdealResult === 2" >
-          <span>取消</span>
+        <div class="btn" v-if="failureEquDetails.dealStatus === 1 || failureEquDetails.dealStatusdealResult === 2">
+          <span @click="$router.go(-1)">取消</span>
           <span @click="dealWith">处理</span>
         </div>
       </ul>
@@ -60,16 +59,15 @@
           <span class="bold">具体情况</span>
           <span class="wrap">{{failureEquDetails.dealRemark}}</span>
         </li>
-          <div class="upImg">
-            <div class="uploadImg" v-for="items in dealImg" :key="items.index">
-              <img :src="items" alt="" class="img">
-              <img src="@/assets/gfun_close1@3x.png" alt="" class="del" @click="del(items.index)">
-            </div>
+        <div class="upImg">
+          <div class="uploadImg" v-for="items in dealImg" :key="items.index">
+            <img :src="items" alt="" class="img">
           </div>
-          <img src="@/assets/dianbo_guzhang_yichuli@3x.png" alt="" class="status">
-        </ul>
-      </div>
+        </div>
+        <img src="@/assets/dianbo_guzhang_yichuli@3x.png" alt="" class="status">
+      </ul>
     </div>
+  </div>
 </template>
 <script>
   import {
@@ -107,6 +105,7 @@
       this.data_Init();
       // 查询故障设备详情
       this.queryFailureEquInfo(this.fbId)
+      console.log('yyyy')
     },
     filters: {
       moneyFormat: params => {
@@ -126,8 +125,12 @@
         });
         if (failureEquDetails) {
           this.failureEquDetails = JSON.parse(failureEquDetails);
-          this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
-          this.fbImg = this.failureEquDetails.fbImages.split(',') || []
+          if (this.failureEquDetails.dealImgs) {
+            this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
+          }
+          if (this.failureEquDetails.fbImages) {
+            this.fbImg = this.failureEquDetails.fbImages.split(',') || []
+          }
         }
         console.log(this.failureEquDetails);
       },
@@ -139,8 +142,6 @@
         console.log(1)
         this.$router.push(`/dealWithResult?fbId=${this.fbId}`)
       },
-      
-      
       // 查询故障设备详情
       async queryFailureEquInfo(id) {
         let res = await api.queryFailureEquInfo({
@@ -150,14 +151,17 @@
         });
         if (res.code === 0) {
           this.failureEquDetails = res.result
-          this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
-          this.fbImg = this.failureEquDetails.fbImages.split(',') || []
+          if (this.failureEquDetails.dealImgs) {
+            this.dealImg = this.failureEquDetails.dealImgs.split(',') || []
+          }
+          if (this.failureEquDetails.fbImages) {
+            this.fbImg = this.failureEquDetails.fbImages.split(',') || []
+          }
           STROAGE({
             type: "setItem",
             key: "FailureEquDetails",
             item: res.result
           });
-          this.$router.push('/dealWithFailure')
         }
       }
     }
@@ -267,8 +271,7 @@
         width: 100%;
         height: vw(150);
         flex-wrap: wrap;
-        display: flex;
-        // margin-bottom: vw(32);
+        display: flex; // margin-bottom: vw(32);
         img {
           width: vw(60);
           height: vw(48); // background: red;

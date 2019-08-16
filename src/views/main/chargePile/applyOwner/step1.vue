@@ -6,20 +6,21 @@
     <div class="content openScroll">
       <ul>
         <li class="tit">基本信息</li>
-        <!-- <li class="selAdres">
-                                      <span>地址</span>
-                                      <div class="rticon">
-                                        <span>请选择</span>
-                                        <img src="@/assets/dianbo_public_right@3x.png" alt="">
-                                      </div>
-                                    </li>-->
         <li class="selAdres">
           <span>地址</span>
-          <div class="rticon" :class="address === null ? 'fullInput': ''">
-            <input type="text" placeholder="请输入" v-model="address">
-            <!-- <input type="file" placeholder="请输入" v-model="address"> -->
+          <div class="rticon" @click="$router.push('/map')">
+            <span>{{$parent.selAdress}}</span>
+            <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li>
+        <!-- <li class="selAdres">
+          <span>地址</span>
+          <div class="rticon" :class="address === null ? 'fullInput': ''">
+            
+            <input type="text" placeholder="请输入" v-model="$parent.selAdress"  >
+            <input type="file" placeholder="请输入" v-model="address">
+          </div>
+        </li> -->
         <li class="selAdres">
           <span>姓名</span>
           <div class="rticon" :class="userName === null ? 'fullInput': ''">
@@ -37,18 +38,18 @@
           <div class="selTime">
             <div class="rieditor">
               <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                                    start: '00:00',
-                                    end: '23:59',
-                                    format: 'HH:mm'
-                                  }"></el-time-picker>
+                                      start: '00:00',
+                                      end: '23:59',
+                                      format: 'HH:mm'
+                                    }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="rieditor">
               <el-time-picker v-model="endTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
-                                    start: '00:00',
-                                    end: '23:59',
-                                    format: 'HH:mm'
-                                  }"></el-time-picker>
+                                      start: '00:00',
+                                      end: '23:59',
+                                      format: 'HH:mm'
+                                    }"></el-time-picker>
             </div>
           </div>
         </li>
@@ -77,8 +78,8 @@
           </el-select>
         </li>
         <span class="des mar48">
-                                      <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
-                                    </span>
+                                        <font style="fontWeight:bold;fontSize:16px">图片信息</font>(至少3张)
+                                      </span>
         <span class="des">请选择充电 环境照片</span>
         <div class="upImg">
           <div class="uploadImg" v-for="(item, index) in tempFilePaths" :key="item.index">
@@ -92,10 +93,10 @@
         </div>
       </ul>
       <!-- <div @click="next"  class="button-g button"  >
-            <el-tooltip content="请输入完整信息" placement="top" class="button-g button zzelem" :disabled="disabled" ref="tooltip" @click="next">
-          <el-button>下一步</el-button>
-        </el-tooltip>
-          </div> -->
+              <el-tooltip content="请输入完整信息" placement="top" class="button-g button zzelem" :disabled="disabled" ref="tooltip" @click="next">
+            <el-button>下一步</el-button>
+          </el-tooltip>
+            </div> -->
       <!-- <el-button type="primary" :loading="true" class="button button-g" v-if="loading">申请中...</el-button> -->
       <mu-LoadToast @submit="next" class="button" :content="content" :loading="loading" :tipContent.sync="tipContent"></mu-LoadToast>
     </div>
@@ -113,7 +114,8 @@
     Message
   } from 'element-ui';
   import {
-    setTimeout
+    setTimeout,
+    clearTimeout
   } from 'timers';
   export default {
     name: "step1",
@@ -167,6 +169,7 @@
     },
     created() {
       this.data_Init();
+      this.$parent.selAdress = '请选择'
     },
     filters: {
       moneyFormat: params => {
@@ -185,8 +188,7 @@
     //      }
     //   }
     // },
-    mounted() {
-    },
+    mounted() {},
     methods: {
       fileChange(e) {
         console.log(e)
@@ -248,9 +250,17 @@
         this.file.splice(index, 1);
         this.addPhoto = true;
       },
-      next() {
+      next(type) {
+        
         this.uploadCount = 0
         let falg = this.textDectorers();
+        if(type = 'hideToast') {
+          console.log('hjhjh')
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
         if (!falg) return false;
         this.loading = true
         this.content = '提交中'
@@ -353,12 +363,12 @@
           }
         } else if (res.code === 500) {
           this.$parent.requestCallback({
-              message: res.message,
-              type: 'error',
-              center: true,
-              offset: 450,
-              duration: 6000
-            })
+            message: res.message,
+            type: 'error',
+            center: true,
+            offset: 450,
+            duration: 6000
+          })
         }
       },
       async applicationOwner() {
@@ -385,7 +395,10 @@
             offset: 450,
             duration: 600
           })
-          this.$router.push("/reviewProgress?route=allpyOwner");
+          setTimeout(() => {
+            this.$router.push("/reviewProgress?route=allpyOwner");
+            clearTimeout()
+          }, 600);
         }
       },
       // 压缩图片
@@ -434,6 +447,11 @@
             canvasResizetoFile(imagetoCanvas(image), quality, fn);
           })
         })
+      }
+    },
+    watch: {
+      $router (to) {
+        console.log(to)
       }
     }
   };

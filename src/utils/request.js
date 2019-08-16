@@ -50,9 +50,20 @@ const apiRequest = async (params = {}, url) => {
       let res = await myuploads.post(url, data.file)
       return res.data
     } catch (err) {
-      console.log('上传图片错误信息', err)
+      console.dir(err)
+      if (err.response.status === 500) {
+        if (url.indexOf('/gzh/userInfo') !== -1) return false
+        vim.$children[0].requestCallback({
+          message: '登录失效请重新登录',
+          type: 'error',
+          center: true,
+          offset: 300
+        })
+        vim.$children[0].$router.push('/')
+      }
+      console.log('', err)
       vim.$children[0].requestCallback({
-        message: err,
+        message: '上传图片错误信息',
         type: 'error',
         center: true,
         offset: 200
@@ -97,17 +108,55 @@ const apiRequest = async (params = {}, url) => {
     try {
       res = await axios(httpDefaultOpts)
       console.log('res-------------' + url, res.data)
-
+      if (res.data.code === 500) {
+        vim.$children[0].requestCallback({
+          message: res.data.message,
+          type: 'error',
+          center: true,
+          offset: 300,
+          duration: 1000
+        })
+        if (res.status === 500) {
+          if (url.indexOf('/gzh/userInfo') !== -1) return false
+          vim.$children[0].requestCallback({
+            message: '登录失效请重新登录',
+            type: 'error',
+            center: true,
+            offset: 300
+          })
+          vim.$children[0].$router.push('/')
+        }
+      }
       return res.data
     } catch (err) {
-      console.log(err)
-      console.log(vim.$children[0].requestCallback)
-      vim.$children[0].requestCallback({
-        message: err,
-        type: 'error',
-        center: true,
-        offset: 300
-      })
+      console.log(typeof 
+        err.request.readyState)
+      console.dir(err)
+      if (err.request.status === 0) {
+        vim.$children[0].requestCallback({
+          message: '服务异常',
+          type: 'error',
+          center: true,
+          offset: 300
+        })
+      } else if (err.response.status === 500) {
+          if (url.indexOf('/gzh/userInfo') !== -1) return false
+           vim.$children[0].requestCallback({
+             message: '登录失效请重新登录',
+             type: 'error',
+             center: true,
+             offset: 300
+           })
+           vim.$children[0].$router.push('/')
+         } else {
+        vim.$children[0].requestCallback({
+          message: err,
+          type: 'error',
+          center: true,
+          offset: 300
+        })
+      }
+      
     }
   }
 }

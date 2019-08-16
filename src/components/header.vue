@@ -57,7 +57,7 @@
     },
     methods: {
       goBack() {
-        if (this.route === 'allpyOwner' || this.route === 'applyDevice') {
+        if (this.route === 'allpyOwner' || this.route === 'applyDevice' || this.route === 'useing') {
           this.$router.go(-2)
         } else {
           this.$router.go(-1)

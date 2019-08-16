@@ -104,7 +104,7 @@ export default new Router({
     },
     {
       path: '/dealWithResult',
-      name: 'dealWithFailure',
+      name: 'dealWithResult',
       component: () => import('@/views/main/equimentFailure/dealWithResult.vue')
     },
     {
@@ -124,13 +124,18 @@ export default new Router({
     },
     {
       path: '/withdrawSuccess',
-      name: 'withdrawRecord',
+      name: 'withdrawSuccess',
       component: () => import('@/views/main/wallet/withdrawSuccess.vue')
     },
     {
       path: '/feedBack',
       name: 'feedBack',
       component: () => import('@/views/main/feedBack/index.vue')
+    },
+    {
+      path: '/map',
+      name: 'map',
+      component: () => import('@/views/map/map.vue')
     }
   ]
 })

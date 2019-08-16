@@ -55,7 +55,7 @@ export default {
         }
       });
       if (res.code === 0) {
-        this.$router.push("/useNext");
+        this.$router.push("/useNext?route=useing");
         STROAGE({
           type: "setItem",
           key: "Sn",

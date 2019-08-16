@@ -3,9 +3,24 @@
 //   remUnit: 32.5 // 基准大小 baseSize，需要和rem.js中相同
 // })
 module.exports = {
+  // 将baseUrl: '/api',改为baseUrl: '/',
+  // baseUrl: '/',
   devServer: {
-    // proxy: 'http://192.168.1.132:8080/shared-power-bank-admin'
-    disableHostCheck: true
+    // proxy: 'http://47.112.22.47:8082/shared-admin',
+    // proxy: 'http://192.168.1.132:8088/shared-admin',
+    
+    proxy: {
+      '/shared-admin': {
+        target: 'http://47.112.22.47:8082/shared-admin',
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/shared-admin': ''
+        }
+      }
+    },
+    //反向代理
+    // disableHostCheck: true
   },
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   // css: {
@@ -26,6 +41,15 @@ module.exports = {
   //       bypassOnDebug: true
   //     })
   //     .end()
+  // }
+  // proxyTable: {
+  //   '/api': {
+  //     target: 'http://47.112.22.47:8082/shared-admin',
+  //     changeOrigin: true,
+  //     pathRewrite: {
+  //       '/api': ''
+  //     }
+  //   }
   // }
   // 图片路径打包问题----还没完美解决
 //   chainWebpack: config => {

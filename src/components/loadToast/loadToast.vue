@@ -56,9 +56,7 @@
     watch: {
       tipContent (newval) {
         if (newval !== '') {
-          setTimeout(() => {
-            this.show = false
-          }, 1500);
+          this.$emit('submit', 'hideToast')
         }
       }
     },

@@ -13,18 +13,17 @@
       <div class="tit">请补充详细问题和意见</div>
       <div class="text">
         <textarea class="tx" placeholder="请输入不少于10个字的描述" maxlength="140" v-model="text"></textarea>
-        <div class="des">/140</div>
+        <div class="des">{{text.length}}/140</div>
       </div>
       <div class="tit">请提供相关问题的截图或图片</div>
-       <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
+      <mu-uploadPicture :url.sync="url" ref="upload" @geturl="geturl"></mu-uploadPicture>
     </div>
     <!-- <div class="button-g button" @click="submitF">提交</div> -->
     <!-- <div @click="submitF" v-if="!loading">
-    <div class="button-g button">提交</div> -->
-
-      <!-- <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
-        <el-button>提交</el-button>
-      </el-tooltip> -->
+      <div class="button-g button">提交</div> -->
+    <!-- <el-tooltip :content="tipContent" placement="top" class="button-g button" :disabled="disabled">
+          <el-button>提交</el-button>
+        </el-tooltip> -->
     <!-- </div> -->
     <!-- <el-button type="primary" :loading="true" class="button button-g" v-else>提交中...</el-button> -->
     <mu-LoadToast @submit="submitF" class="button" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
@@ -38,7 +37,10 @@
     STROAGE
   } from '@/utils/muxin'
   import muheader from "../../../components/header";
-import { setTimeout } from 'timers';
+  import {
+    setTimeout,
+    clearTimeout
+  } from 'timers';
   export default {
     name: "dealWithResult",
     components: {
@@ -85,22 +87,37 @@ import { setTimeout } from 'timers';
         this.selACtive = item.index
         this.text = item.des
       },
-      
-      submitF() {
+      submitF(type) {
         if (this.selACtive === '') {
           console.log('ss')
           this.tipContent = '请选择反馈问题点'
+          if(type = 'hideToast') {
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
           return false
         }
         if (this.text.length < 10) {
           this.tipContent = '请输入意见描述(不少于10个字)'
+          if(type = 'hideToast') {
+          setTimeout(() => {
+            this.tipContent = ''
+            
+          }, 1000);
+        }
           return false
         }
+        
         this.tipContent = ''
         this.loading = true
         this.$refs.upload.uploadImgs()
       },
-      geturl (arrImg) {
+      geturl(arrImg, type) {
+        if (type) {
+          return
+        }
         console.log(arrImg, 'ooo')
         this.opinionFeedback(arrImg)
       },
@@ -122,7 +139,10 @@ import { setTimeout } from 'timers';
             duration: 600
           })
           this.loading = false
-          this.$router.go(-1)
+          setTimeout(() => {
+            this.$router.go(-1)
+            clearTimeout()
+          }, 600);
         } else {}
       }
     }
@@ -132,24 +152,20 @@ import { setTimeout } from 'timers';
   @import "../../../styles/theme.scss";
   .feedBack {
     width: 100%;
-    min-height: 100%;
-    // display: flex;
+    min-height: 100%; // display: flex;
     // flex-direction: column;
     font-size: vw(30);
     background: #f6f6f6;
-    color: $fontColor1;
-    // position: absolute;
+    color: $fontColor1; // position: absolute;
     // background: yellow;
     .content {
       height: auto;
       background: white;
       margin: vw(30); // overflow-y: scroll;
       // margin-bottom: 0;
-      padding: vw(25) vw(30);
-      // padding-bottom: 0;
+      padding: vw(25) vw(30); // padding-bottom: 0;
       -webkit-overflow-scrolling: touch;
-      overflow-y: scroll;
-      // background: red;
+      overflow-y: scroll; // background: red;
       // position: relative;
       // top: 8%;
       .tit {
@@ -243,8 +259,7 @@ import { setTimeout } from 'timers';
     .button {
       height: vw(90);
       line-height: vw(90);
-      color: white;
-      // position: relative;
+      color: white; // position: relative;
       // bottom: 0;
       margin-top: 0;
     }
