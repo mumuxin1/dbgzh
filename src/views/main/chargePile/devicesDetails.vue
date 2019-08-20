@@ -46,28 +46,28 @@
           <span class="">开放时间设置</span>
           <div class="selTime">
             <div class="editor">
-              <el-time-picker v-model="startTime" placeholder="00:00"  :editable="false" value-format="HH-mm" :picker-options="{
-                        start: '00:00',
-                        end: '23:59',
-                        format: 'HH:mm'
-                      }"></el-time-picker>
+              <el-time-picker v-model="startTime" placeholder="00:00" :editable="false" value-format="HH-mm" :picker-options="{
+                            start: '00:00',
+                            end: '23:59',
+                            format: 'HH:mm'
+                          }"></el-time-picker>
             </div>
             <span class="span">至</span>
             <div class="editor">
               <el-time-picker v-model="endTime" placeholder="23:59" :editable="false" value-format="HH:mm" :picker-options="{
-                        start: '00:00',
-                        end: '23:59',
-                        format: 'HH:mm'
-                      }"></el-time-picker>
+                            start: '00:00',
+                            end: '23:59',
+                            format: 'HH:mm'
+                          }"></el-time-picker>
             </div>
           </div>
         </li>
         <li class="txone" @click="$router.push(`/faultReport?sn=${deviceDetails.sn}`)">
-            <span class="">故障上报</span>
-            <div class="riIcon">
-              <img src="@/assets/dianbo_public_right@3x.png" alt="">
-            </div>
-          </li>
+          <span class="">故障上报</span>
+          <div class="riIcon">
+            <img src="@/assets/dianbo_public_right@3x.png" alt="">
+          </div>
+        </li>
         <li class="txone">
           <span class="">设备状态</span>
           <div class="rieditor">
@@ -76,13 +76,15 @@
             </el-select>
           </div>
         </li>
-        <div class="navsButton" @click="save">保存</div>
+        <!-- <div class="navsButton" @click="save">保存</div> -->
+        <mu-LoadToast @submit="save" class="button navsButton" :content="content" :loading="loading" :tipContent="tipContent"></mu-LoadToast>
       </ul>
     </div>
   </div>
 </template>
 <script>
   import muheader from "../../../components/header";
+  import muLoadToast from '../../../components/loadToast/loadToast'
   import api from "@/api/api";
   import {
     STROAGE,
@@ -91,7 +93,8 @@
   export default {
     name: "devicesDetails",
     components: {
-      "mu-header": muheader
+      "mu-header": muheader,
+      "mu-LoadToast": muLoadToast
     },
     data() {
       return {
@@ -121,13 +124,17 @@
         endTime: new Date(2019, 7, 10, 23, 59),
         startTime2: "", // 开始时间请求参数
         endTime2: "",
-        editable: false // 时间不可编辑
+        content: '保存',
+        tipContent: '',
+        loading: false,
+        editable: false, // 时间不可编辑
+        sn: null
       };
     },
     created() {
       // 查询充电桩设备列表
-      // this.queryDevicesList(bsId);
       this.data_Init();
+      this.queryDevicesDetails(this.sn);
     },
     filters: {
       moneyFormat: params => {}
@@ -147,21 +154,36 @@
     },
     methods: {
       data_Init() {
+        this.sn = location.href.split('=')[1]
         let deviceDetails = JSON.parse(
           STROAGE({
             type: "getItem",
             key: "DevicesDetails"
           })
         );
-        if (deviceDetails) {
+        if (deviceDetails && this.sn === deviceDetails.sn) {
           this.deviceDetails = deviceDetails;
+          let date = new Date()
+          let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+          this.startTime = new Date(d + ' ' + deviceDetails.openStartTime)
+          this.endTime = new Date(d + ' ' + deviceDetails.openEndTime)
         }
       },
-      save() {
+      save(type) {
         // this.userName = "";
         console.log(this.selApointTx);
-        this.startTime2 = timeFormat(this.startTime, "-", "00:00:00");
-        this.endTime2 = timeFormat(this.endTime, "-", "00:00:00");
+        if (typeof this.startTime === 'object') {
+          this.startTime2 = timeFormat(this.startTime, "-", "00:00:00")
+        } else {
+          this.startTime2 = this.startTime.replace('-', ':') + ':00'
+        }
+        if (typeof this.endTime === 'object') {
+          this.endTime2 = timeFormat(this.endTime, "-", "00:00:00");
+        } else {
+          this.endTime2 = this.endTime.replace('-', ':') + ':00'
+        }
+        // this.startTime2 = timeFormat(this.startTime, "-", "00:00:00");
+        // this.endTime2 = timeFormat(this.endTime, "-", "00:00:00");
         console.log(this.startTime);
         if (
           this.selApointTx === "" ||
@@ -169,8 +191,17 @@
           this.reName === "" ||
           this.startTime === "" ||
           this.endTime === ""
-        )
+        ) {
+          if (type = 'hideToast') {
+            this.tipContent = '请输入完整的设备参数'
+            setTimeout(() => {
+              this.tipContent = ''
+            }, 1000);
+          }
           return false;
+        }
+        this.loading = true
+        this.content = '保存中...'
         this.upDateDevicesDetails();
       },
       // 更新设备详情
@@ -187,7 +218,22 @@
           }
         });
         if (res.code === 200) {
-          this.$router.go(-2);
+          this.content = '保存',
+            this.loading = false
+          this.$parent.requestCallback({
+            message: '保存成功',
+            type: 'success',
+            center: true,
+            offset: 450,
+            duration: 600
+          })
+          setTimeout(() => {
+            this.$router.go(-2)
+            clearTimeout()
+          }, 600);
+        } else {
+          this.content = '保存',
+          this.loading = false
         }
       },
       // 查询充电桩设备列表
@@ -209,6 +255,26 @@
             key: "DevicesList",
             item: res.result.records
           });
+        }
+      },
+      // 查询设备详情
+      async queryDevicesDetails(sn) {
+        let res = await api.queryDevicesDetails({
+          query: {
+            sn: sn
+          }
+        })
+        if (res.code === 0) {
+          STROAGE({
+            type: 'setItem',
+            key: 'DevicesDetails',
+            item: res.result
+          })
+          this.deviceDetails = res.result
+          let date = new Date()
+          let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+          this.startTime = new Date(d + ' ' + this.deviceDetails.openStartTime)
+          this.endTime = new Date(d + ' ' + this.deviceDetails.openEndTime)
         }
       }
     }

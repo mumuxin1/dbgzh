@@ -79,7 +79,7 @@
         tipContent: '',
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
-        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
+        url: 'http://47.112.22.47:8082/shared-admin/v1.0/upload_profile_photo'
       };
     },
     methods: {
@@ -93,10 +93,10 @@
           this.tipContent = '请选择反馈问题点'
           if(type = 'hideToast') {
           setTimeout(() => {
-            this.tipContent = ''
-            
-          }, 1000);
-        }
+              this.tipContent = ''
+              
+            }, 1000);
+          }
           return false
         }
         if (this.text.length < 10) {
@@ -158,8 +158,11 @@
     background: #f6f6f6;
     color: $fontColor1; // position: absolute;
     // background: yellow;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+    height: 100%;
     .content {
-      height: auto;
+      height: 76%;
       background: white;
       margin: vw(30); // overflow-y: scroll;
       // margin-bottom: 0;

@@ -60,7 +60,7 @@ import { clearTimeout } from 'timers';
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
-        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
+        url: 'http://47.112.22.47:8082/shared-admin/v1.0/upload_profile_photo'
       };
     },
     created() {

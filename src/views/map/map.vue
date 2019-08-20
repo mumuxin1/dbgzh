@@ -7,17 +7,18 @@
         <img src="@/assets/dianbo_dianzhan_down@3x.png" alt="" class="icon">
         <div class="line"></div>
         <img src="@/assets/dianbo_dianzhan_search@3x.png" alt="" class="searIcon">
-        <!-- <input type="text" name="" id="" placeholder="小区 /写字楼/学校等 " @input="onSearchResult"> -->
-        <el-amap-search-box class="search-box input" :search-option="searchOption" :on-search-result="onSearchResult"></el-amap-search-box>
+        <input type="text" name="" id="" placeholder="小区 /写字楼/学校等 " @input="searchInput" v-model="keyWord">
+        <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="" class="searIcon del" @click="del">
       </div>
+      <el-amap-search-box class="search-box" :search-option="searchOption" :on-search-result="onSearchResult" ref='searchMap' style="opacity:1"></el-amap-search-box>
       <!-- " -->
       <el-amap vid="amap" :center="center" :zoom="zoom" class="amap-demo" :plugin="plugin" :amap-manager="amapManager">
         <el-amap-marker v-for="(marker,index) in markers" :key="index" :position="marker"></el-amap-marker>
-        <!-- <el-amap-info-window :position="currentWindow.position" :visible="currentWindow.visible" :content="currentWindow.content"></el-amap-info-window> -->
+        <el-amap-info-window :position="currentWindow.position" :visible="currentWindow.visible" :content="currentWindow.content" ref="infoWindow"></el-amap-info-window>
       </el-amap>
       <!-- <div class="toolbar">
-                    <button @click="getMap()">get map</button>
-                  </div> -->
+                        <button @click="getMap()">get map</button>
+                      </div> -->
     </div>
     <!-- <div class="citybtn" @click="cityPatFun">{{cityInputVal}}</div> -->
     <div class="select">
@@ -28,12 +29,12 @@
       </div>
     </div>
     <!-- <section id="adminBox">
-          <div class="cityChoice">
-            <h3>点击输入框选择内容</h3>
-            <input type="text" class="cityInput" v-model.trim='cityInputVal' @click='cityPatFun' />
-          </div>
-          <com-citychoice ref="city" v-on:tochildevent='cityjs'></com-citychoice>
-        </section> -->
+              <div class="cityChoice">
+                <h3>点击输入框选择内容</h3>
+                <input type="text" class="cityInput" v-model.trim='cityInputVal' @click='cityPatFun' />
+              </div>
+              <com-citychoice ref="city" v-on:tochildevent='cityjs'></com-citychoice>
+            </section> -->
     <com-citychoice ref="city" v-on:tochildevent='cityjs'></com-citychoice>
   </div>
 </template>
@@ -64,7 +65,7 @@
       return {
         cityInputVal: '',
         zoom: 16,
-        center: [121.59996, 31.197646],
+        center: [116.397428, 39.90923], // 默认首次加载北京地图 未定位成功前
         markers: [],
         currentWindow: {
           position: [0, 0],
@@ -77,7 +78,7 @@
         loaded: false,
         searchOption: {
           city: '',
-          citylimit: false
+          citylimit: true
         },
         addressList: [],
         province: {},
@@ -96,89 +97,110 @@
           panToLocation: true, //定位成功后将定位到的位置作为地图中心点，默认：true
           zoomToAccuracy: true, //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：f
           // extensions:'all',
+          resizeEnable: true,
           pName: 'Geolocation',
           events: {
             init(o) {
               // o 是高德地图定位插件实例
-              o.getCurrentPosition((status, result) => {
-                console.log(result)
-                if (result && result.position) {
-                  self.lng = result.position.lng;
-                  self.lat = result.position.lat;
-                  self.center = [self.lng, self.lat]
-                  console.log(self.center, 'kkk')
-                  if (result.addressComponent) {
-                    self.cityInputVal = result.addressComponent.city
-                    self.searchOption.city = result.addressComponent.city
-                    self.searchOption.citylimit = true
+              console.log(self.$parent.selAdress === '请选择' || self.$parent.selAdress === '', 'ggg')
+              if (self.$parent.selAdress === '请选择' || self.$parent.selAdress === '') {
+                o.getCurrentPosition((status, result) => {
+                  console.log(result)
+                  if (result && result.position) {
+                    self.lng = result.position.lng;
+                    self.lat = result.position.lat;
+                    self.center = [self.lng, self.lat]
+                    if (result.addressComponent) {
+                      self.cityInputVal = result.addressComponent.city
+                      self.searchOption.city = result.addressComponent.city
+                      self.searchOption.citylimit = true
+                    }
+                    // STROAGE({
+                    //   type: 'setItem',
+                    //   key: 'Location',
+                    //   item: {
+                    //     city: result.addressComponent.city || '',
+                    //     lng: result.position.lng,
+                    //     lat: result.position.lat
+                    //   }
+                    // })
+                    // self.province = result.addressComponent.province
+                    // self.city = result.addressComponent.city
+                    // self.area = result.addressComponent.area
+                    // self.$nextTick()
                   }
-                  // self.province = result.addressComponent.province
-                  // self.city = result.addressComponent.city
-                  // self.area = result.addressComponent.area
-                  // self.$nextTick()
-                }
-              })
+                })
+              }
             }
           }
         }],
-        map: null
+        map: null,
+        keyWord: null
       }
     },
     created() {
-      this.amapManager = new VueAMap.AMapManager();
-      console.log(this.amapManager)
-      this.amapManager._map.getCurrentPosition(function(status, result) {
-        if (status == 'complete') {
-          onComplete(result)
-        } else {
-          onError(result)
-        }
-      });
-      // lazyAMapApiLoaderInstance.load().then(() => {
-      //   console.log('jdjdjjd')
-      //   this.map = new AMap.Map('amap-page-container', {center: new AMap.LngLat(121.59996, 31.197646)});
-      // })
+     
     },
     mounted() {
-      this.$nextTick(() => {
-        let o = this.amapManager.getMap();
-         o.getCurrentPosition((status, result) => {
-                console.log(result)
-                if (result && result.position) {
-                  self.lng = result.position.lng;
-                  self.lat = result.position.lat;
-                  self.center = [self.lng, self.lat]
-                  if (result.addressComponent) {
-                    self.cityInputVal = result.addressComponent.city
-                    self.searchOption.city = result.addressComponent.city
-                    self.searchOption.citylimit = true
-                  }
-                  // self.province = result.addressComponent.province
-                  // self.city = result.addressComponent.city
-                  // self.area = result.addressComponent.area
-                  // self.$nextTick()
-                }
-              })
-      })
+      this.plug_Init()
     },
     methods: {
+      // 搜索框 城市 infoWindow 初始化
+      plug_Init() {
+        // })
+        if (this.$parent.selAdress !== '请选择' || this.$parent.selAdress !== '') {
+          let location = STROAGE({
+            type: 'getItem',
+            key: 'Location'
+          })
+          if (location) {
+            location = JSON.parse(location)
+            this.center = [location.lng, location.lat]
+            this.cityInputVal = location.city
+          }
+          this.$refs.searchMap.keyword = this.$parent.selAdress
+          this.keyWord = this.$parent.selAdress
+          this.$refs.searchMap.loaded = true
+          this.$refs.searchMap.autoComplete()
+          this.getMap(this.$parent.selAdress)
+        }
+      },
+      // 输入提示poi搜索
+      searchInput() {
+        this.$refs.searchMap.keyword = this.keyWord
+        this.$refs.searchMap.loaded = true
+        this.$refs.searchMap.autoComplete()
+        if (this.keyWord === '') {
+          this.$refs.searchMap.tips = []
+        }
+      },
+      del() {
+        this.keyWord = ''
+        this.$refs.searchMap.loaded = false
+        this.$refs.searchMap.keyword = null
+        this.$refs.searchMap.tips = []
+      },
       cityPatFun() {
         this.$refs.city.cityFun()
       },
       cityjs(data) {
+        this.keyWord = ''
         this.cityInputVal = data
         this.searchOption.city = data
         this.searchOption.citylimit = true
+        this.$refs.infoWindow.$amapComponent.close()
+        this.$refs.searchMap.tips = []
+        this.getMap(data)
       },
       getaddress(lng, lat) {
         window.AMap.plugin('AMap.Geocoder', () => {
           new window.AMap.Geocoder().getAddress([lng, lat], (status, result) => {
             if (status === 'complete' && result.info === 'OK') {
-              console.log(this)
+              console.log(result)
               this.$parent.selAdress = result.regeocode.formattedAddress
-              // self.address = result.regeocode.formattedAddress
+              self.address = result.regeocode.formattedAddress
               // this.currentWindow = {
-              //   position: [lng,lat],
+              //   position: [lng, lat],
               //   content: `<div class="prompt">${result.regeocode.formattedAddress}</div>`,
               //   visible: true
               // }
@@ -187,17 +209,20 @@
           })
         })
       },
-      getMap() {
+      getMap(address) {
         window.AMap.plugin('AMap.Geocoder', () => {
-          new window.AMap.Geocoder().getLocation(gmapAdd, (status, result) => {
+          new window.AMap.Geocoder().getLocation(address, (status, result) => {
             if (status === 'complete' && result.info === 'OK') {
               console.log(result)
+              this.cityInputVal = result.geocodes[0].addressComponent.city
               this.lng = result.geocodes[0].location.lng
               this.lat = result.geocodes[0].location.lat
               this.center = [this.lng, this.lat]
-              this.markers = [
-                [this.lng, this.lat]
-              ]
+              this.currentWindow = {
+                position: [this.lng, this.lat],
+                content: `<div class="prompt">${this.$parent.selAdress}</div>`,
+                visible: true
+              }
             }
           })
         })
@@ -230,7 +255,6 @@
         ]
         this.getaddress(item.lng, item.lat)
         this.addressList = []
-        console.log('kkkk')
       }
     }
   };
@@ -241,13 +265,15 @@
     height: 94VH;
   }
   .search-box {
-    flex: 1; // width: 74vw;
-    // position: absolute;
-    // top: 8vh;
-    // left: 22vw;
-    box-shadow: none;
-    /deep/ .search-btn {
-      // opacity: 0 !important;
+    // flex: 1;
+    width: 50vw;
+    position: absolute;
+    top: 8%;
+    left: 30%;
+    box-shadow: none; // z-index: -1;
+    /deep/ .search-btn,
+    .search-box-wrapper {
+      opacity: 0 !important;
     }
   }
   .citybtn {
@@ -305,6 +331,7 @@
       display: flex;
       padding: vw(24);
       align-items: center;
+      padding-right: vw(10);
       z-index: 9999;
       top: 8%;
       box-shadow: 0 2px 2px rgba(0, 0, 0, .15);
@@ -329,11 +356,15 @@
       .searIcon {
         width: vw(28);
         height: vw(28);
-        margin-right: vw(28);
+        margin-right: vw(18);
+      }
+      .del {
+        margin-left: vw(20);
+        margin-right: 0;
       }
       .input {
         border: 0;
-        background: transparent;
+        background: white;
         width: 40% !important;
       }
     }

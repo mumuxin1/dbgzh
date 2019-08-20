@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition name="fade-effect" mode="in-out">
-      <keep-alive :include="['devicesDetails', 'applicationEquiment', 'step1']">
+      <keep-alive :include="histroyReoute">
         <router-view/>
       </keep-alive>
     </transition>
@@ -22,13 +22,21 @@
   import {
     Tree
   } from 'element-ui';
+  import { mapActions, mapGetters } from 'vuex'
+  import store from './store'
   export default {
     name: 'app',
     components: {},
     async created() {},
     mounted() {
       // this.socket_init()
-      this.map_Init()
+      // store.dispatch('histroyReoute', {
+      //   type: 'add',
+      //   params: 'houseHoldDetails'
+      // })
+    },
+    computed: {
+      ...mapGetters(['histroyReoute'])
     },
     data() {
       return {
@@ -52,15 +60,53 @@
       }
     },
     methods: {
-      map_Init () {
-        
-      },
+      ...mapActions(['histroyReoute']),
       socket_init() {
         this.webSocket = websocket()
         this.webSocket.onmessage = (message) => {
           console.log(message.data)
           this.webSocketData = message.data
           this.webSocketCallback(message.data)
+        }
+      }
+    },
+    watch: {
+      $route (to, from) {
+        if (to.path === '/pileHousehold' && from.path === '/houseHoldDetails') {
+          store.dispatch('histroyReoute', {
+            type: 'del',
+            params: 'houseHoldDetails'
+          })
+        } else if (to.path === '/houseHoldDetails' && from.path === '/pileHousehold') {
+          store.dispatch('histroyReoute', {
+            type: 'add',
+            params: 'houseHoldDetails'
+          })
+        } else if (to.path === '/applicationEquiment' && from.path === '/myChargePile') {
+          store.dispatch('histroyReoute', {
+            type: 'add',
+            params: 'applicationEquiment'
+          })
+        } else if (to.path === '/myChargePile' && from.path === '/applicationEquiment') {
+          store.dispatch('histroyReoute', {
+            type: 'del',
+            params: 'applicationEquiment'
+          })
+        } else if (to.path === '/step1') {
+          store.dispatch('histroyReoute', {
+            type: 'add',
+            params: 'step1'
+          })
+        } else if (to.path === '/chargeDevices' && from.path === '/devicesDetails') {
+          store.dispatch('histroyReoute', {
+            type: 'del',
+            params: 'devicesDetails'
+          })
+        } else if (to.path === '/devicesDetails' && from.path === '/chargeDevices') {
+          store.dispatch('histroyReoute', {
+            type: 'add',
+            params: 'devicesDetails'
+          })
         }
       }
     }

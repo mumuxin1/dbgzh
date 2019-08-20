@@ -85,9 +85,11 @@ export default {
   display: flex;
   flex-direction: column;
   font-size: vw(28);
+  background: url(../../assets/logo.png) no-repeat;
+  background-size: 100% 100%;
   .content {
     flex: 1;
-    background: #f6f6f6;
+    // background: #f6f6f6;
     padding: vw(30);
     padding-top: vh(373);
     .from {

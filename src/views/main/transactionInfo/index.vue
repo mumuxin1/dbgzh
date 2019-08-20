@@ -91,11 +91,11 @@
           </li>
           <li v-if="orderType === 1">
             <span class="">使用时长</span>
-            <span>{{item.useDuration}}</span>
+            <span>{{item.useDuration || '00:00:00'}}</span>
           </li>
           <li v-if="orderType !== 3">
             <span class="">充电时长</span>
-            <span>{{item.chargingDuration}}</span>
+            <span>{{item.chargingDuration || '00:00:00'}}</span>
           </li>
           <li v-if="orderType === 1">
             <span class="">消费金额</span>
@@ -103,11 +103,11 @@
           </li>
           <li v-if="orderType !== 1">
             <span class="">预约时长</span>
-            <span>{{item.bookDuration}}</span>
+            <span>{{item.bookDuration || '00:00:00'}}</span>
           </li>
           <li v-if="orderType === 2">
             <span class="">使用时长</span>
-            <span>{{item.useDuration}}</span>
+            <span>{{item.useDuration || '00:00:00'}}</span>
           </li>
           <li v-if="orderType === 2">
             <span class="">已缴金额</span>

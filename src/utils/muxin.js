@@ -64,7 +64,7 @@ export const NAVIGATOR = () => {
  * @method timeFormat
  */
 export const timeFormat = (t, sign, type) => {
-
+  console.log(t)
   let date = t? new Date(t) : new Date()
   let y = date.getFullYear()
   let m = date.getMonth() + 1
@@ -72,7 +72,7 @@ export const timeFormat = (t, sign, type) => {
   let h = date.getHours();
   let minutes = date.getMinutes()
   let f = date.getSeconds()
-
+  console.log(h, m)
   m = m > 10 ? m : '0' + m
   h = h > 10 ? h : '0' + h
   f = f > 10 ? f : '0' + f

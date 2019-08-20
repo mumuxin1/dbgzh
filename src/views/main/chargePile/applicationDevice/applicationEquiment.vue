@@ -80,7 +80,7 @@ import { watch } from 'fs';
         content: '提交申请',
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
-        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo',
+        url:'http://47.112.22.47:8082/shared-admin/v1.0/upload_profile_photo',
         selectNum: 0 // 选则的图片数量
       };
     },
@@ -343,7 +343,7 @@ import { watch } from 'fs';
         .txone {
           .inputs {
             width: vw(390);
-            height: vw(90);
+            height: vw(64);
             line-height: vw(90);
             border: vw(1) solid #e5e5e5;
             border-radius: vw(5);

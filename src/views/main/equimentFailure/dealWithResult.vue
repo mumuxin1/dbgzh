@@ -5,13 +5,13 @@
       <div class="tit">基本信息</div>
       <div class="radio">
         <div class="sel" @click="selACtive = 1">
-          <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-if="selACtive === 0 || selACtive === ''">
+          <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-if="selACtive === 2 || selACtive === ''">
           <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === 1">
           <span>已解决</span>
         </div>
-        <div class="sel" @click="selACtive = 0">
+        <div class="sel" @click="selACtive = 2">
           <img src="@/assets/dianbo_guzhang_select_normal@3x.png" alt="" v-if="selACtive === 1 || selACtive === ''">
-          <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === 0">
+          <img src="@/assets/dianbo_guzhang_select_press@2x.png" alt="" v-if="selACtive === 2">
           <span>未解决</span>
         </div>
       </div>
@@ -75,7 +75,7 @@ import { type } from 'os';
         loading: false,
         tempFilePaths: [],
         httpFilePaths: [], // 图片上传服务器返回地址
-        url: process.env.VUE_APP_BASE_API + '/v1.0/upload_profile_photo'
+        url: 'http://47.112.22.47:8082/shared-admin/v1.0/upload_profile_photo'
       };
     },
     created() {

@@ -83,7 +83,7 @@ const signature = (params) => apiRequest.apiRequest(params, apiUrl + '/gzh/signa
 /**
  * 上传图片
  */
-const uploadProfile = (params) => apiRequest.apiRequest(params, apiUrl + '/v1.0/upload_profile_photo')
+const uploadProfile = (params) => apiRequest.apiRequest(params, 'http://47.112.22.47:8082/shared-admin/v1.0/upload_profile_photo')
 /**
  * 钱包
  */

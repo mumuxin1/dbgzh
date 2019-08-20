@@ -286,7 +286,7 @@
         this.startTime2 = timeFormat(this.startTime, "-", "00:00");
         this.endTime2 = timeFormat(this.endTime, "-", "00:00");
         this.openTime = this.startTime2 + "-" + this.endTime2;
-        if (!this.address) {
+        if (!this.$parent.selAdress || this.$parent.selAdress === '请选择') {
           this.address = null;
           this.tipContent = '请输入完整内容！'
           return false;

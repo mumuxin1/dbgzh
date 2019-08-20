@@ -132,10 +132,11 @@ const apiRequest = async (params = {}, url) => {
       console.log(typeof 
         err.request.readyState)
       console.dir(err)
+      if (err.message = 'timeout of 10000ms exceeded')
       if (err.request.status === 0) {
         vim.$children[0].requestCallback({
-          message: '服务异常',
-          type: 'error',
+          message: '请求超时',
+          type: 'warning',
           center: true,
           offset: 300
         })

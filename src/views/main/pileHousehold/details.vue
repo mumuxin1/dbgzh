@@ -22,13 +22,6 @@
             <img src="@/assets/dianbo_public_right@3x.png" alt="">
           </div>
         </li>
-        <!-- <li @click="openLocation">
-          <span>地址</span>
-          <div class="rticon">
-            <span>请选择</span>
-            <img src="@/assets/dianbo_public_right@3x.png" alt="">
-          </div>
-        </li> -->
          <!-- <li class="txone">
           <span class="">地址</span>
           <input class="liInput" type="text" v-model="houseHoldDetails.address">
@@ -80,7 +73,7 @@
     NAVIGATOR
   } from "@/utils/muxin";
   import {
-    constants
+    constants, open
   } from "fs";
   export default {
     name: "houseHoldDetails",
@@ -123,25 +116,6 @@
       }
     },
     methods: {
-      openLocation() {
-        wx.getLocation({
-          type: "gcj02", // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
-          success: function(res) {
-            var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
-            var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
-            var speed = res.speed; // 速度，以米/每秒计
-            var accuracy = res.accuracy; // 位置精度
-            wx.openLocation({
-              latitude: latitude, // 纬度，浮点数，范围为90 ~ -90
-              longitude: longitude, // 经度，浮点数，范围为180 ~ -180。
-              name: "", // 位置名
-              address: "", // 地址详情说明
-              scale: 15, // 地图缩放级别,整形值,范围从1~28。默认为最大
-              infoUrl: "" // 在查看位置界面底部显示的超链接,可点击跳转
-            });
-          }
-        });
-      },
       data_Init() {
         // this.$parent.selAdress = '请选择'
         this.bsId = location.href.split('=')[1]
@@ -151,22 +125,39 @@
             key: "HouseHoldDetails"
           })
         );
-        if (houseHoldDetails) {
+        if (houseHoldDetails && houseHoldDetails.bsId) {
           this.houseHoldDetails = houseHoldDetails;
-        this.$parent.selAdress = houseHoldDetails.address
-
+          this.$parent.selAdress = houseHoldDetails.address
+          let date = new Date()
+          let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+          let openDuration = houseHoldDetails.dbBaseStationCharging.businessHours.split('-')
+          this.startTime = new Date(d + ' ' + openDuration[0])
+          this.endTime = new Date(d + ' ' +  openDuration[1])
+          console.log(this.startTime, this.endTime, 'ddeeee')
           if (this.houseHoldDetails.dbBaseStationCharging) {
             this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
           } else {
-            this.fixedTelephone = 'this.houseHoldDetails.dbBaseStationCharging.fixedTelephone'
+            this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
           }
         }
         console.log(this.fixedTelephone);
       },
       save() {
+        console.log(typeof this.startTime)
         // this.userName = "";
-        this.startTime2 = timeFormat(this.startTime, ":", "00:00");
+        console.log(this.startTime)
+        if (typeof this.startTime === 'object'){
+          this.startTime2 =  timeFormat(this.startTime, ":", "00:00")
+        } else {
+          this.startTime2 = this.startTime.replace('-', ':')
+        }
+        if (typeof this.endTime === 'object') {
         this.endTime2 = timeFormat(this.endTime, ":", "00:00");
+          
+        } else {
+          this.endTime2 = this.endTime.replace('-', ':')
+        }
+        console.log(this.startTime2)
         this.openTime = this.startTime2 + "-" + this.endTime2;
         console.log(this.openTime);
         this.updateBsInfo();
@@ -179,10 +170,9 @@
             bsId: this.houseHoldDetails.bsId,
             bsName: this.houseHoldDetails.bsName,
             phone: this.houseHoldDetails.phone,
-            address: "广东省天河区中山大道广海大厦222",
+            address:this.$parent.selAdress,
             businessHours: this.openTime,
-            fixedTelephone: this.houseHoldDetails.dbBaseStationCharging
-              .fixedTelephone
+            fixedTelephone: this.fixedTelephone
           }
         });
         if (res.code === 200) {
@@ -215,9 +205,30 @@
           });
           this.houseHoldDetails = res.result
           this.$parent.selAdress =  this.houseHoldDetails.address
+          let date = new Date()
+          let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
+          let openDuration = this.houseHoldDetails.dbBaseStationCharging.businessHours.split('-')
+          console.log(d + ' ' + openDuration[0])
+          this.startTime = new Date(d + ' ' + openDuration[0])
+          this.endTime = new Date(d + ' ' + openDuration[1])
+          if (this.houseHoldDetails.dbBaseStationCharging) {
+            this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
+          } else {
+            this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
+          }
         }
       }
     }
+    // watch: {
+    //   $route (n, o) {
+    //     console.log(n.name, o.name)
+    //     if (o.name === 'pileHousehold' && n.name === 'houseHoldDetails') {
+    //        this.data_Init();
+    //       // 查询桩户详情
+    //       this.queryBsInfo(this.bsId)
+    //     }
+    //   }
+    // },
   };
 </script>
 <style lang="scss" scoped>
