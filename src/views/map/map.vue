@@ -8,11 +8,11 @@
         <div class="line"></div>
         <img src="@/assets/dianbo_dianzhan_search@3x.png" alt="" class="searIcon">
         <input type="text" name="" id="" placeholder="小区 /写字楼/学校等 " @input="searchInput" v-model="keyWord">
-        <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="" class="searIcon del" @click="del">
+        <img src="@/assets/dianbo_qianbao_delete@3x.png" alt="" class="searIcon del" @click="del" v-if="keyWord">
       </div>
       <el-amap-search-box class="search-box" :search-option="searchOption" :on-search-result="onSearchResult" ref='searchMap' style="opacity:1"></el-amap-search-box>
       <!-- " -->
-      <el-amap vid="amap" :center="center" :zoom="zoom" class="amap-demo" :plugin="plugin" :amap-manager="amapManager">
+      <el-amap vid="amap" :center="center" :zoom="zoom" class="amap-demo" :plugin="plugin" :amap-manager="amapManager" :events="events" ref="map">
         <el-amap-marker v-for="(marker,index) in markers" :key="index" :position="marker"></el-amap-marker>
         <el-amap-info-window :position="currentWindow.position" :visible="currentWindow.visible" :content="currentWindow.content" ref="infoWindow"></el-amap-info-window>
       </el-amap>
@@ -85,6 +85,25 @@
         city: {},
         area: {},
         amapManager: null, // 高德原生实例
+        events: {
+          init: (o) => {
+              console.log(o.getCenter())
+              console.log(this.$refs.map.$$getInstance())
+              o.getCity(result => {
+                console.log(result)
+              })
+          },
+          'click': (e) => {
+            console.log(e)
+            this.$refs.infoWindow.$amapComponent.close()
+            this.getaddress(e.lnglat.lng, e.lnglat.lat, 'click')
+            
+            // this.onSearchResult({
+            //   lng: e.lnglat.lng,
+            //   lat: e.lnglat.lat
+            // })
+          }
+        },
         plugin: [{
           enableHighAccuracy: true, //是否使用高精度定位，默认:true
           // timeout: 100000,          //超过10秒后停止定位，默认：无穷大
@@ -148,7 +167,7 @@
       // 搜索框 城市 infoWindow 初始化
       plug_Init() {
         // })
-        if (this.$parent.selAdress !== '请选择' || this.$parent.selAdress !== '') {
+        if (this.$parent.selAdress !== '请选择' && this.$parent.selAdress !== '') {
           let location = STROAGE({
             type: 'getItem',
             key: 'Location'
@@ -179,6 +198,8 @@
         this.$refs.searchMap.loaded = false
         this.$refs.searchMap.keyword = null
         this.$refs.searchMap.tips = []
+        this.addressList = []
+
       },
       cityPatFun() {
         this.$refs.city.cityFun()
@@ -192,11 +213,24 @@
         this.$refs.searchMap.tips = []
         this.getMap(data)
       },
-      getaddress(lng, lat) {
+      getaddress(lng, lat, type) {
         window.AMap.plugin('AMap.Geocoder', () => {
           new window.AMap.Geocoder().getAddress([lng, lat], (status, result) => {
             if (status === 'complete' && result.info === 'OK') {
               console.log(result)
+              if (type === 'click') {
+                this.$refs.searchMap.keyword = result.regeocode.formattedAddress.split('区')[1]
+                this.keyWord = result.regeocode.formattedAddress.split('区')[1]
+                this.$refs.searchMap.loaded = true
+                this.$refs.searchMap.autoComplete()
+                this.addressList = [{
+                  lng: lng,
+                  lat: lat,
+                  name: result.regeocode.formattedAddress.split('区')[1],
+                  address: result.regeocode.addressComponent.township + result.regeocode.addressComponent.street + result.regeocode.addressComponent.streetNumber
+                }]
+                return
+              }
               this.$parent.selAdress = result.regeocode.formattedAddress
               self.address = result.regeocode.formattedAddress
               // this.currentWindow = {
@@ -228,7 +262,7 @@
         })
       },
       onSearchResult(pois) {
-        console.log(pois)
+        console.log(pois, 'kkk')
         let latSum = 0
         let lngSum = 0
         let add = this.province + this.city + this.area
@@ -249,6 +283,7 @@
         }
       },
       addClick(item) {
+        console.log(item)
         this.center = [item.lng, item.lat]
         this.markers = [
           [item.lng, item.lat]
@@ -274,6 +309,15 @@
     /deep/ .search-btn,
     .search-box-wrapper {
       opacity: 0 !important;
+    }
+    /deep/ .search-tips{
+      max-height:vh(400);
+      li{
+        display: flex;
+    align-items: center;
+    text-align: left;
+    line-height: inherit;
+      }
     }
   }
   .citybtn {

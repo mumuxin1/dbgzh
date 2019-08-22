@@ -125,7 +125,7 @@
             key: "HouseHoldDetails"
           })
         );
-        if (houseHoldDetails && houseHoldDetails.bsId) {
+        if (houseHoldDetails && houseHoldDetails.bsId === this.bsId) {
           this.houseHoldDetails = houseHoldDetails;
           this.$parent.selAdress = houseHoldDetails.address
           let date = new Date()
@@ -139,6 +139,8 @@
           } else {
             this.fixedTelephone = this.houseHoldDetails.dbBaseStationCharging.fixedTelephone
           }
+        } else {
+          this.$parent.selAdress = '请选择'
         }
         console.log(this.fixedTelephone);
       },
