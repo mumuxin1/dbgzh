@@ -54,7 +54,10 @@ export default new Router({
     {
       path: '/reviewProgress',
       name: 'reviewProgress',
-      component: () => import('@/views/main/chargePile/applicationDevice/reviewProgress.vue')
+      component: () => import('@/views/main/chargePile/applicationDevice/reviewProgress.vue'),
+      meta: {
+        title: '申请审核'
+      }
     },
     {
       path: '/step1',

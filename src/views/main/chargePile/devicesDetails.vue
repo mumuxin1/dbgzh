@@ -99,7 +99,7 @@
     data() {
       return {
         deviceDetails: {},
-        selApointTx: "", // 下拉选择是否可以预约
+        selApointTx: "是", // 下拉选择是否可以预约
         selApoints: [{
             value: 1,
             label: "是"
@@ -271,6 +271,17 @@
             item: res.result
           })
           this.deviceDetails = res.result
+          this.reName = res.result.cpName
+          if (res.result.bookStatus === 1) {
+            this.selApointTx = '是'
+          } else if (res.result.bookStatus === 2) {
+            this.selApointTx = '否'
+          }
+          if (res.result.deviceStatus === 1) {
+            this.statusApointTx = '上架'
+          } else if (res.result.deviceStatus === 2) {
+            this.statusApointTx = '下架'
+          }
           let date = new Date()
           let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
           this.startTime = new Date(d + ' ' + this.deviceDetails.openStartTime)

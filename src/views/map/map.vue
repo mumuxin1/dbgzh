@@ -4,7 +4,7 @@
     <div class="amap-page-container">
       <div class="search">
         <div class="cityName" @click="cityPatFun">{{cityInputVal}}</div>
-        <img src="@/assets/dianbo_dianzhan_down@3x.png" alt="" class="icon">
+        <img src="@/assets/dianbo_dianzhan_down@3x.png" alt="" class="icon" @click="cityPatFun">
         <div class="line"></div>
         <img src="@/assets/dianbo_dianzhan_search@3x.png" alt="" class="searIcon">
         <input type="text" name="" id="" placeholder="小区 /写字楼/学校等 " @input="searchInput" v-model="keyWord">
