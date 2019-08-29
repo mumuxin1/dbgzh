@@ -43,6 +43,12 @@
           </div>
         </li>
         <li class="txone">
+          <span class="">安装位置</span>
+          <div class="rieditor">
+            <el-input placeholder="请输入设备位置" v-model="installationLocation" class="input_element"></el-input>
+          </div>
+        </li>
+        <li class="txone">
           <span class="">开放时间设置</span>
           <div class="selTime">
             <div class="editor">
@@ -120,6 +126,7 @@
           }
         ],
         reName: "", // 修改名称
+        installationLocation: '', // 安装位置
         startTime: new Date(2019, 7, 10, 0, 0),
         endTime: new Date(2019, 7, 10, 23, 59),
         startTime2: "", // 开始时间请求参数
@@ -190,7 +197,8 @@
           this.statusApointTx === "" ||
           this.reName === "" ||
           this.startTime === "" ||
-          this.endTime === ""
+          this.endTime === "" ||
+          this.installationLocation === ''
         ) {
           if (type = 'hideToast') {
             this.tipContent = '请输入完整的设备参数'
@@ -214,7 +222,8 @@
             cpName: this.reName,
             openStartTime: this.startTime2,
             openEndTime: this.endTime2,
-            shelf_status: this.statusApointTx
+            shelf_status: this.statusApointTx,
+            installationLocation: this.installationLocation
           }
         });
         if (res.code === 200) {
@@ -272,16 +281,19 @@
           })
           this.deviceDetails = res.result
           this.reName = res.result.cpName
-          if (res.result.bookStatus === 1) {
-            this.selApointTx = '是'
-          } else if (res.result.bookStatus === 2) {
-            this.selApointTx = '否'
-          }
-          if (res.result.deviceStatus === 1) {
-            this.statusApointTx = '上架'
-          } else if (res.result.deviceStatus === 2) {
-            this.statusApointTx = '下架'
-          }
+          this.installationLocation = res.result.installationLocation
+          this.selApointTx = res.result.bookStatus
+          // if (res.result.bookStatus === 1) {
+          //   this.selApointTx = 1
+          // } else if (res.result.bookStatus === 2) {
+          //   this.selApointTx = 2
+          // }
+          // if (res.result.shelfStatus === 1) {
+          //   this.statusApointTx = '上架'
+          // } else if (res.result.shelfStatus === 2) {
+          //   this.statusApointTx = '下架'
+          // }
+          this.statusApointTx = res.result.shelfStatus
           let date = new Date()
           let d = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate()
           this.startTime = new Date(d + ' ' + this.deviceDetails.openStartTime)

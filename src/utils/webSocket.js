@@ -52,7 +52,9 @@ const webSocket = () => {
         }, 3000);
       }
     };
-    socket.onerror = function (errorMsg) {}
+    socket.onerror = function (errorMsg) {
+      console.log(errorMsg)
+    }
 
     return socket
   } catch (err) {

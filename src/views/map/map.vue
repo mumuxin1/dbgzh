@@ -87,11 +87,14 @@
         amapManager: null, // 高德原生实例
         events: {
           init: (o) => {
-              console.log(o.getCenter())
-              console.log(this.$refs.map.$$getInstance())
-              o.getCity(result => {
-                console.log(result)
-              })
+              // console.log(o.getCenter())
+              // this.center = [o.getCenter().lng, o.getCenter().lat]
+              // console.log(this.$refs.map.$$getInstance())
+              // o.getCity(result => {
+              //   this.cityInputVal = result.province
+              //   this.searchOption.city = result.province
+              //   console.log(result)
+              // })
           },
           'click': (e) => {
             console.log(e)
@@ -121,15 +124,22 @@
           events: {
             init(o) {
               // o 是高德地图定位插件实例
-              console.log(self.$parent.selAdress === '请选择' || self.$parent.selAdress === '', 'ggg')
+              console.log(o, 'ggg')
               if (self.$parent.selAdress === '请选择' || self.$parent.selAdress === '') {
+                // console.dir( o.getCurrentPosition())
+                 o.getCityInfo((status, result) => {
+                    self.center = result.center
+                    self.cityInputVal = result.city
+                    self.searchOption.city = result.city
+                  })
                 o.getCurrentPosition((status, result) => {
                   console.log(result)
                   if (result && result.position) {
-                    self.lng = result.position.lng;
-                    self.lat = result.position.lat;
-                    self.center = [self.lng, self.lat]
+                    // self.lng = result.position.lng;
+                    // self.lat = result.position.lat;
+                    
                     if (result.addressComponent) {
+                      self.center = [result.position.lng, result.position.lat]
                       self.cityInputVal = result.addressComponent.city
                       self.searchOption.city = result.addressComponent.city
                       self.searchOption.citylimit = true
@@ -147,6 +157,8 @@
                     // self.city = result.addressComponent.city
                     // self.area = result.addressComponent.area
                     // self.$nextTick()
+                  } else {
+                   
                   }
                 })
               }

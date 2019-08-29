@@ -49,7 +49,7 @@
     created() {
       this.data_Init()
       // 查询设备开关状态
-      this.queryDeviceStatus()
+      this.queryDeviceStatus(this.sn)
       // 处理websocket消息
       this.webSocketCallback()
     },
@@ -92,7 +92,7 @@
             (actions) => {
               if (actions === 'confirm') {
                 // 关闭充电桩
-                this.turnOff()
+                this.turnOff(this.sn)
               }
             }
           ).catch(
@@ -101,7 +101,7 @@
             })
         } else {
           // 打开充电桩
-          this.turnOn()
+          this.turnOn(this.sn)
         }
       },
       // 校验sn
@@ -124,29 +124,29 @@
         }
       },
       // 打开充电桩
-      async turnOn() {
+      async turnOn(sn) {
         let res = await api.turnOn({
           query: {
-            sn: '93D342A061E40BA0'
+            sn: sn
           }
         });
         if (res.code === 0) {
           // console.log('有效sn')
         } else {
           // console.log('无效sn')
-          this.$parent.requestCallback({
-            message: res.message,
-            type: 'error',
-            center: true,
-            offset: 200
-          })
+          // this.$parent.requestCallback({
+          //   message: res.message,
+          //   type: 'error',
+          //   center: true,
+          //   offset: 200
+          // })
         }
       },
       // 关闭充电桩
-      async turnOff() {
+      async turnOff(sn) {
         let res = await api.turnOff({
           query: {
-            sn: '93D342A061E40BA0'
+            sn: sn
           }
         });
         if (res.code === 0) {
@@ -156,10 +156,10 @@
         }
       },
       // 查询设备开关状态
-      async queryDeviceStatus() {
+      async queryDeviceStatus(sn) {
         let res = await api.queryDeviceStatus({
           query: {
-            sn: '93D342A061E40BA0'
+            sn: sn
           }
         });
         if (res.code === 0) {
